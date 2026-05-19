@@ -1,0 +1,70 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+
+# ── Packaging / Distribution ──────────────────────────────────────────────────
+build/
+dist/
+*.egg-info/
+*.egg
+MANIFEST
+.eggs/
+
+# ── Virtual Environments ──────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+.env
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+.tox/
+nosetests.xml
+coverage.xml
+
+# ── Type Checkers ─────────────────────────────────────────────────────────────
+.mypy_cache/
+.pyre/
+.pytype/
+
+# ── Editors / IDEs ────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ── AIHub specific ────────────────────────────────────────────────────────────
+# User config (contains potential API keys — never commit this!)
+~/.aihub/
+
+# Generated output files
+*.png
+*.jpg
+*.mp4
+*.gif
+aihub_output.*
+aihub_video.*
+
+# Ollama model cache (large binary files)
+*.gguf
+*.ggml
+*.bin
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+desktop.ini
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
