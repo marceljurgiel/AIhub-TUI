@@ -99,32 +99,42 @@ def clear_memory(model_name: str) -> bool:
     return False
 
 
+_BASE_PROMPT = (
+    "You are AIHub's assistant, running in a terminal chat interface for local AI models. "
+    "Be concise and direct; answer in plain text suitable for a terminal.\n"
+    "If tools are available to you (running shell commands, reading/writing/searching files, "
+    "web search), use a tool ONLY when the user's request clearly requires it — e.g. they ask "
+    "you to run something, inspect or modify files, or look up live information. For general "
+    "conversation, explanations, or anything you can answer from your own knowledge, respond "
+    "directly WITHOUT calling any tool."
+)
+
+
 def build_system_prompt(model_name: str) -> str:
     """
-    Return a system message string that injects memory into the chat context.
-    Returns an empty string if there is no memory for this model.
+    Return the system message: a base operating instruction (always present),
+    followed by any memory for this model. Never empty.
     """
     from .config import config
-    prompt_parts = []
-    
+    prompt_parts = [_BASE_PROMPT]
+
     if config.global_memory_enabled:
         g_mem = load_memory("global")
         if g_mem:
             prompt_parts.append(f"--- Global Memory ---\n{g_mem}")
-            
+
     m_mem = load_memory(model_name)
     if m_mem:
         prompt_parts.append(f"--- Model Memory ({model_name}) ---\n{m_mem}")
-        
-    if not prompt_parts:
-        return ""
-        
-    combined = "\n\n".join(prompt_parts)
-    return (
-        "You have the following memory about this user and previous sessions. "
-        "Use this information to personalize your responses:\n\n"
-        + combined
-    )
+
+    if len(prompt_parts) > 1:
+        prompt_parts.insert(
+            1,
+            "You have the following memory about this user and previous sessions. "
+            "Use this information to personalize your responses:",
+        )
+
+    return "\n\n".join(prompt_parts)
 
 
 def extract_and_update_memory(model_name: str, messages: list, target: str = "chat") -> str:

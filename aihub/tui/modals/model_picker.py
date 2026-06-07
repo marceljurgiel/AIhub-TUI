@@ -1,0 +1,580 @@
+"""ModelPickerModal — three-tab model browser.
+
+Installed   — Ollama local models + llama.cpp loaded model (existing behaviour)
+Live: Ollama — live fetch from Ollama library (ollama pull)
+Live: HF GGUF — live fetch from HuggingFace GGUF models (download + llama.cpp)
+
+Returns (model_name, ctx_length, backend) or None on cancel.
+backend is "ollama" or "llamacpp".
+"""
+from __future__ import annotations
+
+from typing import Any, Dict, List, Optional, Tuple
+
+from textual import work
+from textual.app import ComposeResult
+from textual.binding import Binding
+from textual.containers import Container, Horizontal
+from textual.screen import ModalScreen
+from textual.widgets import Button, Input, OptionList, Static, TabbedContent, TabPane
+from textual.widgets.option_list import Option
+
+from ...hardware import get_available_ram_gb
+from ...models import get_capability_badges, get_speed_label
+from ...ollama_client import get_local_model_sizes, is_ollama_running
+from .context_config import ContextConfigModal
+from .download import DownloadModal
+
+
+def _delete_model(model_name: str) -> tuple:
+    try:
+        import requests
+        from ...config import config
+        resp = requests.delete(
+            f"{config.ollama_api_url}/api/delete",
+            json={"name": model_name},
+            timeout=30,
+        )
+        if resp.ok:
+            return True, ""
+        try:
+            reason = resp.json().get("error", resp.text)
+        except Exception:
+            reason = resp.text
+        return False, reason
+    except Exception as exc:
+        return False, str(exc)
+
+
+class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
+    """Returns (model_name, ctx_length, backend) or None."""
+
+    BINDINGS = [
+        Binding("escape", "cancel", "Close", show=False),
+        Binding("d", "download_selected", "Download", show=False),
+        Binding("x", "uninstall_selected", "Uninstall", show=False),
+        Binding("r", "refresh_tab", "Refresh", show=False),
+    ]
+
+    def __init__(self, registry: List[Dict[str, Any]]) -> None:
+        super().__init__()
+        self.registry = [m for m in registry if m.get("type") == "chat"]
+        self.local_names: set = set()
+        self.hw_ram = 0.0
+        self._installed_options: list = []
+        self._ollama_models: List[Dict] = []
+        self._hf_models: List[Dict] = []
+        self._ollama_options: list = []
+        self._hf_options: list = []
+
+    def compose(self) -> ComposeResult:
+        with Container():
+            yield Static(
+                "[b][#a855f7]Pick a model[/#a855f7][/b]   "
+                "[#6b6b73]Enter use · D download · X uninstall · R refresh · Esc close[/#6b6b73]",
+                id="mp-title",
+            )
+            yield Static("", id="mp-status")
+            with TabbedContent(id="mp-tabs"):
+                with TabPane("Installed", id="tab-installed"):
+                    yield Input(placeholder="Search installed…", id="mp-search-installed")
+                    yield OptionList(id="mp-list-installed")
+                with TabPane("Ollama Library", id="tab-ollama"):
+                    yield Input(placeholder="Search Ollama library…", id="mp-search-ollama")
+                    yield Static("[#6b6b73]Loading…[/#6b6b73]", id="mp-ollama-status")
+                    yield OptionList(id="mp-list-ollama")
+                with TabPane("HuggingFace GGUF", id="tab-hf"):
+                    yield Input(placeholder="Search HF GGUF…", id="mp-search-hf")
+                    yield Static("[#6b6b73]Loading…[/#6b6b73]", id="mp-hf-status")
+                    yield OptionList(id="mp-list-hf")
+                with TabPane("Cloud API", id="tab-api"):
+                    yield Static("", id="mp-api-status")
+                    yield OptionList(id="mp-list-api")
+            with Horizontal(id="mp-buttons"):
+                yield Button("Use", id="mp-use", variant="success")
+                yield Button("D Download", id="mp-download")
+                yield Button("X Uninstall", id="mp-uninstall", variant="error")
+                yield Button("Cancel", id="mp-cancel")
+
+    def on_mount(self) -> None:
+        self._refresh_installed()
+        self._load_ollama_worker()
+        self._load_hf_worker()
+        self._populate_api()
+        try:
+            self.query_one("#mp-search-installed", Input).focus()
+        except Exception:
+            pass
+
+    # ── Cloud API tab ─────────────────────────────────────────────────────
+
+    def _populate_api(self) -> None:
+        from ...api_models import get_api_models, provider_key_status
+        models = get_api_models()
+        self._api_models = models
+        status_map = provider_key_status()
+        ready = [p for p, ok in status_map.items() if ok]
+        if ready:
+            status = f"[#22c55e]Keys configured: {', '.join(ready)}[/#22c55e]  [#6b6b73]· others need a key in Settings (Ctrl+,)[/#6b6b73]"
+        else:
+            status = "[#ffb454]No API keys set.[/#ffb454]  [#6b6b73]Add one in Settings (Ctrl+,) to use cloud models.[/#6b6b73]"
+        try:
+            self.query_one("#mp-api-status", Static).update(status)
+        except Exception:
+            pass
+
+        opts = []
+        for m in models:
+            name = m["name"]
+            ctx = m.get("context_window", 0)
+            ctx_str = f"{ctx // 1000}k" if ctx else "?"
+            ready = m.get("key_ready")
+            marker = "[#22c55e]✓ ready[/#22c55e]" if ready else "[#6b6b73]needs key[/#6b6b73]"
+            colour = "#a855f7" if ready else "#6b6b73"
+            desc = m.get("description", "")[:40]
+            row = (
+                f"[{colour}]{name:<34}[/{colour}]  {marker}  "
+                f"[#a8a8b0]ctx {ctx_str}[/#a8a8b0]  [#6b6b73]{desc}[/#6b6b73]"
+            )
+            opts.append(Option(row, id=m["url"]))   # url is api://provider/model
+        if not opts:
+            opts.append(Option("(no API models)", id="__none__", disabled=True))
+        olist = self.query_one("#mp-list-api", OptionList)
+        olist.clear_options()
+        olist.add_options(opts)
+
+    # ── Installed tab ────────────────────────────────────────────────────
+
+    def _refresh_installed(self) -> None:
+        from ...config import config
+        online = is_ollama_running()
+        if online:
+            try:
+                self.local_names = set(get_local_model_sizes().keys())
+            except Exception:
+                self.local_names = set()
+        try:
+            self.hw_ram = get_available_ram_gb()
+        except Exception:
+            self.hw_ram = 0.0
+
+        # Add llama.cpp loaded model if enabled
+        llamacpp_model = ""
+        if config.llamacpp_enabled:
+            try:
+                from ...llamacpp_client import is_llamacpp_running, get_loaded_model
+                if is_llamacpp_running():
+                    llamacpp_model = get_loaded_model()
+            except Exception:
+                pass
+
+        status = (
+            f"[#a8a8b0]{len(self.local_names)} installed · "
+            f"hw {self.hw_ram:.1f} GB · "
+            f"{'[#a855f7]● ollama[/#a855f7]' if online else '[#ff6e6e]○ ollama offline[/#ff6e6e]'}"
+        )
+        if llamacpp_model:
+            status += f" · [#22c55e]● llama.cpp: {llamacpp_model}[/#22c55e]"
+        status += "[/#a8a8b0]" if "[/#a8a8b0]" not in status else ""
+        try:
+            self.query_one("#mp-status", Static).update(status)
+        except Exception:
+            pass
+
+        def _vram(m):
+            try:
+                return float(m.get("vram_required") or 0)
+            except (TypeError, ValueError):
+                return 0.0
+
+        # Installed tab shows ONLY installed models (Ollama local + llama.cpp).
+        installed = [m for m in self.registry if m["name"] in self.local_names]
+        installed.sort(key=_vram, reverse=True)
+
+        opts: list = []
+
+        # llama.cpp model at the top if present
+        if llamacpp_model:
+            opts.append(Option(
+                f"[#22c55e]● {llamacpp_model:<28}[/#22c55e]  [#6b6b73]llama.cpp  loaded[/#6b6b73]",
+                id=f"llamacpp:{llamacpp_model}",
+            ))
+
+        for m in installed:
+            name = m["name"]
+            vram = _vram(m)
+            fits = vram <= self.hw_ram if self.hw_ram else True
+            speed = get_speed_label(m) or ""
+            badges = " ".join(get_capability_badges(m, max_badges=3) or [])
+            vram_str = f"{vram:>5.1f}GB" if vram else "    -"
+            colour = "#a855f7" if fits else "#a8a8b0"
+            row = (
+                f"[{colour}]● {name:<28}[/{colour}]  {vram_str}  "
+                f"[#6b6b73]{speed:<12}  {badges}[/#6b6b73]"
+            )
+            opts.append(Option(row, id=name))
+
+        # Also surface installed Ollama models not present in the registry.
+        registry_names = {m["name"] for m in self.registry}
+        for name in sorted(self.local_names - registry_names):
+            opts.append(Option(
+                f"[#a855f7]● {name:<28}[/#a855f7]  [#6b6b73]local[/#6b6b73]",
+                id=name,
+            ))
+
+        if not opts:
+            opts.append(Option(
+                "(no models installed — see Ollama Library / HF GGUF tabs)",
+                id="__none__", disabled=True,
+            ))
+
+        self._installed_options = opts
+        olist = self.query_one("#mp-list-installed", OptionList)
+        olist.clear_options()
+        olist.add_options(opts)
+
+    # ── Ollama library tab ────────────────────────────────────────────────
+
+    @work(thread=True, exclusive=True, group="live-ollama")
+    def _load_ollama_worker(self) -> None:
+        from ...live_registry import fetch_ollama_library, get_live_error
+        from ...config import config
+        models = fetch_ollama_library(limit=config.ollama_library_limit)
+        self.app.call_from_thread(self._populate_ollama, models)
+
+    def _populate_ollama(self, models: List[Dict]) -> None:
+        from ...live_registry import get_live_error
+        err = get_live_error(models)
+        try:
+            status = self.query_one("#mp-ollama-status", Static)
+            olist = self.query_one("#mp-list-ollama", OptionList)
+        except Exception:
+            return
+        if err:
+            status.update(f"[#ff6e6e]{err}[/#ff6e6e]")
+            return
+        status.update(
+            f"[#22c55e]{len(models)} most-popular models[/#22c55e]  "
+            "[#6b6b73]Enter to pick a size that fits your device · type to filter[/#6b6b73]"
+        )
+        self._ollama_models = models
+        opts = self._build_ollama_opts(models)
+        self._ollama_options = opts
+        olist.clear_options()
+        olist.add_options(opts)
+
+    def _build_ollama_opts(self, models: List[Dict]) -> list:
+        import re as _re
+        opts = []
+        for m in models:
+            name = m.get("name", "")
+            installed = name in self.local_names
+            marker = "[#22c55e]✓ installed[/#22c55e]" if installed else "[#6b6b73]pick size →[/#6b6b73]"
+            # Show the distinct parameter sizes available (1b, 4b, 12b…)
+            tags = m.get("tags") or []
+            sizes = []
+            for t in tags:
+                sm = _re.match(r"^(\d+(?:\.\d+)?b)$", t, _re.IGNORECASE)
+                if sm:
+                    sizes.append(sm.group(1))
+            sizes_str = ", ".join(sizes[:6]) if sizes else "default"
+            row = (
+                f"[#a855f7]{name:<26}[/#a855f7]  {marker}  "
+                f"[#a8a8b0]sizes:[/#a8a8b0] [#6b6b73]{sizes_str}[/#6b6b73]"
+            )
+            opts.append(Option(row, id=f"ollama:{name}"))
+        if not opts:
+            opts.append(Option("(no results)", id="__none__", disabled=True))
+        return opts
+
+    # ── HF GGUF tab ───────────────────────────────────────────────────────
+
+    @work(thread=True, exclusive=True, group="live-hf")
+    def _load_hf_worker(self, query: str = "") -> None:
+        from ...live_registry import fetch_hf_gguf_models, get_live_error
+        from ...config import config
+        models = fetch_hf_gguf_models(
+            query=query, limit=config.hf_gguf_limit, token=config.hf_api_token,
+        )
+        self.app.call_from_thread(self._populate_hf, models)
+
+    def _populate_hf(self, models: List[Dict]) -> None:
+        from ...live_registry import get_live_error
+        err = get_live_error(models)
+        try:
+            status = self.query_one("#mp-hf-status", Static)
+            olist = self.query_one("#mp-list-hf", OptionList)
+        except Exception:
+            return
+        if err:
+            status.update(f"[#ff6e6e]{err}[/#ff6e6e]")
+            return
+        status.update(
+            f"[#22c55e]{len(models)} models[/#22c55e]  "
+            "[#6b6b73]Enter to pick quant & download · type to filter[/#6b6b73]"
+        )
+        self._hf_models = models
+        opts = self._build_hf_opts(models)
+        self._hf_options = opts
+        olist.clear_options()
+        olist.add_options(opts)
+
+    def _build_hf_opts(self, models: List[Dict]) -> list:
+        opts = []
+        for m in models:
+            name = m.get("name", "")
+            size = m.get("size_gb", 0)
+            nfiles = len(m.get("gguf_files") or [])
+            desc = m.get("description", "")[:40]
+            size_str = f"{size:.1f}GB" if size else "?GB"
+            row = (
+                f"[#a855f7]{name:<45}[/#a855f7]  "
+                f"[#a8a8b0]{size_str}  {nfiles} files[/#a8a8b0]  "
+                f"[#6b6b73]{desc}[/#6b6b73]"
+            )
+            opts.append(Option(row, id=f"hf:{name}"))
+        if not opts:
+            opts.append(Option("(no results)", id="__none__", disabled=True))
+        return opts
+
+    # ── Search / filter ───────────────────────────────────────────────────
+
+    def on_input_changed(self, event: Input.Changed) -> None:
+        needle = event.value.strip().lower()
+        if event.input.id == "mp-search-installed":
+            olist = self.query_one("#mp-list-installed", OptionList)
+            olist.clear_options()
+            if not needle:
+                olist.add_options(self._installed_options)
+            else:
+                filtered = [o for o in self._installed_options
+                            if o.id and needle in o.id.lower()]
+                olist.add_options(filtered or [Option("(no match)", id="__none__", disabled=True)])
+
+        elif event.input.id == "mp-search-ollama":
+            olist = self.query_one("#mp-list-ollama", OptionList)
+            olist.clear_options()
+            if not needle:
+                olist.add_options(self._ollama_options)
+            else:
+                filtered = [o for o in self._ollama_options
+                            if o.id and needle in o.id.lower()]
+                olist.add_options(filtered or [Option("(no match)", id="__none__", disabled=True)])
+
+        elif event.input.id == "mp-search-hf":
+            # For HF, trigger a real API search after a short delay
+            olist = self.query_one("#mp-list-hf", OptionList)
+            olist.clear_options()
+            olist.add_options([Option("[#6b6b73]Searching…[/#6b6b73]", id="__none__", disabled=True)])
+            self._load_hf_worker(query=needle)
+
+    # ── Selection ─────────────────────────────────────────────────────────
+
+    def on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:
+        self._dispatch_use(event.option_id)
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "mp-cancel":
+            self.dismiss(None)
+        elif event.button.id == "mp-use":
+            self._dispatch_use(self._highlighted_id())
+        elif event.button.id == "mp-download":
+            self.action_download_selected()
+        elif event.button.id == "mp-uninstall":
+            self.action_uninstall_selected()
+
+    def _highlighted_id(self) -> Optional[str]:
+        try:
+            tab = self._active_tab()
+            olist_id = f"mp-list-{tab}"
+            olist = self.query_one(f"#{olist_id}", OptionList)
+            idx = olist.highlighted
+            opt = olist.get_option_at_index(idx) if idx is not None else None
+            return opt.id if opt else None
+        except Exception:
+            return None
+
+    def _active_tab(self) -> str:
+        try:
+            active = self.query_one("#mp-tabs", TabbedContent).active
+            return active.replace("tab-", "")
+        except Exception:
+            return "installed"
+
+    def _dispatch_use(self, opt_id: Optional[str]) -> None:
+        if not opt_id or opt_id == "__none__":
+            return
+        if opt_id.startswith("api://"):
+            self._use_api_model(opt_id)
+        elif opt_id.startswith("llamacpp:"):
+            model = opt_id[len("llamacpp:"):]
+            self._open_ctx(model, backend="llamacpp")
+        elif opt_id.startswith("ollama:"):
+            name = opt_id[len("ollama:"):]
+            self._use_ollama_library(name)
+        elif opt_id.startswith("hf:"):
+            model_id = opt_id[len("hf:"):]
+            self._open_gguf_picker(model_id)
+        else:
+            # Installed tab (plain name)
+            if opt_id not in self.local_names:
+                self._install_ollama(opt_id)
+            else:
+                self._open_ctx(opt_id, backend="ollama")
+
+    def _open_ctx(self, model_name: str, backend: str = "ollama") -> None:
+        def _after_ctx(ctx: Optional[int]) -> None:
+            if ctx is None:
+                return
+            self.dismiss((model_name, ctx, backend))
+        self.app.push_screen(ContextConfigModal(model_name), _after_ctx)
+
+    def _use_api_model(self, api_url: str) -> None:
+        entry = next((m for m in getattr(self, "_api_models", []) if m["url"] == api_url), None)
+        if entry and not entry.get("key_ready"):
+            provider = entry.get("provider", "this provider")
+            self.notify(
+                f"No API key for {provider}. Add it in Settings (Ctrl+,) first.",
+                severity="warning",
+            )
+            return
+        from ...config import config
+        # API models don't need a KV-cache estimate; use the default context.
+        self.dismiss((api_url, config.default_context_length, "api"))
+
+    def _use_ollama_library(self, name: str) -> None:
+        """Selected a model from the Ollama library tab.
+
+        If it has multiple size variants, open the variant picker so the user
+        chooses which (e.g. gemma3:4b). Otherwise pull the bare name.
+        """
+        entry = next((m for m in self._ollama_models if m.get("name") == name), None)
+        tags = (entry.get("tags") if entry else None) or []
+        # Tags that name a concrete pullable variant (have a parameter size)
+        import re as _re
+        sized = [t for t in tags if _re.search(r"\d+(\.\d+)?\s*b\b", t, _re.IGNORECASE)]
+
+        if sized:
+            from .ollama_variant import OllamaVariantModal
+
+            def _after_variant(full_tag) -> None:
+                if not full_tag:
+                    return
+                # full_tag like "gemma3:4b" — install then use
+                self._install_and_use(full_tag)
+            self.app.push_screen(OllamaVariantModal(entry), _after_variant)
+        else:
+            # No size variants — pull the bare name
+            if name in self.local_names:
+                self._open_ctx(name, backend="ollama")
+            else:
+                self._install_and_use(name)
+
+    def _install_and_use(self, model_name: str) -> None:
+        """Install (if needed) then proceed to context config + use."""
+        if model_name in self.local_names:
+            self._open_ctx(model_name, backend="ollama")
+            return
+
+        def _after(success: bool) -> None:
+            if success:
+                self.notify(f"{model_name} installed!", severity="information")
+                self.local_names.add(model_name)
+                self._open_ctx(model_name, backend="ollama")
+            else:
+                self.notify("Install failed or cancelled.", severity="warning")
+        self.app.push_screen(DownloadModal(model_name), _after)
+
+    def _install_ollama(self, model_name: str) -> None:
+        def _after(success: bool) -> None:
+            if success:
+                self.notify(f"{model_name} installed!", severity="information")
+                self._refresh_installed()
+            else:
+                self.notify("Install failed or cancelled.", severity="warning")
+        self.app.push_screen(DownloadModal(model_name), _after)
+
+    def _open_gguf_picker(self, model_id: str) -> None:
+        model_entry = next((m for m in self._hf_models if m["name"] == model_id), None)
+        if not model_entry:
+            return
+        try:
+            from .gguf_picker import GGUFPickerModal
+        except ImportError:
+            self.notify("GGUF download (Phase D) not yet implemented.", severity="warning")
+            return
+
+        def _after(result) -> None:
+            if result:
+                model_stem, dest_path = result
+                self._open_ctx(model_stem, backend="llamacpp")
+        self.app.push_screen(GGUFPickerModal(model_entry), _after)
+
+    # ── Actions ───────────────────────────────────────────────────────────
+
+    def action_download_selected(self) -> None:
+        opt_id = self._highlighted_id()
+        if not opt_id or opt_id == "__none__":
+            return
+        if opt_id.startswith("hf:"):
+            self._open_gguf_picker(opt_id[3:])
+        elif opt_id.startswith("ollama:"):
+            # Route through the variant picker so the user chooses the size.
+            self._use_ollama_library(opt_id[len("ollama:"):])
+        else:
+            name = opt_id.replace("llamacpp:", "")
+            if name in self.local_names:
+                self.notify(f"{name} is already installed.", severity="information")
+                return
+            self._install_ollama(name)
+
+    def action_uninstall_selected(self) -> None:
+        opt_id = self._highlighted_id()
+        if not opt_id or opt_id == "__none__" or opt_id.startswith(("ollama:", "hf:", "llamacpp:")):
+            self.notify("Select an installed model from the Installed tab.", severity="warning")
+            return
+        if opt_id not in self.local_names:
+            self.notify(f"{opt_id} is not installed.", severity="warning")
+            return
+        self._confirm_uninstall(opt_id)
+
+    def _confirm_uninstall(self, model_name: str) -> None:
+        from textual.app import ComposeResult as CR
+        from textual.containers import Container as Ct, Horizontal as H
+        from textual.screen import ModalScreen as MS
+        from textual.widgets import Button as B, Static as S
+
+        class Confirm(MS):
+            def __init__(self, n):
+                super().__init__(); self._n = n
+            def compose(self) -> CR:
+                with Ct():
+                    yield S(f"[b]Uninstall[/b] [#a855f7]{self._n}[/#a855f7]?\n\n[#6b6b73]This will delete the model files.[/#6b6b73]")
+                    with H():
+                        yield B("Yes, uninstall", id="yes", variant="error")
+                        yield B("Cancel", id="no")
+            def on_button_pressed(self, e: B.Pressed): self.dismiss(e.button.id == "yes")
+
+        def _after(confirmed: bool) -> None:
+            if not confirmed:
+                return
+            ok, err = _delete_model(model_name)
+            if ok:
+                self.notify(f"Uninstalled {model_name}.", severity="information")
+                self._refresh_installed()
+            else:
+                self.notify(f"Failed: {err}", severity="error")
+
+        self.app.push_screen(Confirm(model_name), _after)
+
+    def action_refresh_tab(self) -> None:
+        tab = self._active_tab()
+        if tab == "installed":
+            self._refresh_installed()
+        elif tab == "ollama":
+            self._load_ollama_worker()
+        elif tab == "hf":
+            self._load_hf_worker()
+
+    def action_cancel(self) -> None:
+        self.dismiss(None)

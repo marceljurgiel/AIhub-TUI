@@ -161,6 +161,43 @@ TOOLS_SCHEMA = [
 ]
 
 
+# ── Tool-intent gate ──────────────────────────────────────────────────────────
+# Signals in the latest user message that suggest a tool may genuinely be needed.
+# Tune this list to widen/narrow when tools are offered to the model.
+_TOOL_INTENT_KEYWORDS = (
+    # file / path
+    "file", "folder", "directory", "path", "./", "~/", "/", ".py", ".txt",
+    ".json", ".md", ".csv", ".log", ".sh", ".yml", ".yaml", ".toml",
+    # actions
+    "run", "execute", "command", "terminal", "shell", "script", "read",
+    "write", "create", "edit", "save", "delete", "list", "grep", "find",
+    "search", "look up", "fetch", "download", "open",
+    # live info / web
+    "http://", "https://", "web", "google", "latest", "current", "news",
+    "today", "weather", "price", "stock", "release",
+)
+
+
+def wants_tools(messages: list) -> bool:
+    """
+    Heuristic: does the latest user message show intent that may require a tool?
+
+    Returns True if any tool-intent signal is present in the most recent
+    user-role message, else False. Used to withhold the tools schema during
+    plain conversation so models don't fire tools spuriously.
+    """
+    last_user = ""
+    for m in reversed(messages or []):
+        if m.get("role") == "user":
+            content = m.get("content", "")
+            last_user = content if isinstance(content, str) else str(content)
+            break
+    if not last_user:
+        return False
+    text = last_user.lower()
+    return any(kw in text for kw in _TOOL_INTENT_KEYWORDS)
+
+
 def run_tool(name: str, **kwargs) -> str:
     """
     Dispatch a tool call by name and return the result as a string.

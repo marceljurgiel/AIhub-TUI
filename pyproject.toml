@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aihub-tui"
-version = "0.1.4"
-description = "AIHub TUI Edition — Obsidian Neon full-screen terminal interface for local AI model management"
+version = "0.2.0"
+description = "AIHub TUI Edition — chat-first Textual terminal interface for local AI model management"
 readme = "README.md"
 authors = [{ name = "AIHub Contributors" }]
 requires-python = ">=3.9"
@@ -18,7 +18,8 @@ dependencies = [
     "psutil>=5.0.0",
     "questionary>=2.0.0",
     "prompt_toolkit>=3.0.0",
-    "textual>=0.50.0",
+    "textual>=0.85.0",
+    "anthropic>=0.40.0",
     "gputil>=1.4.0",
     "py-cpuinfo>=9.0.0",
     "wmi>=1.5.1; sys_platform == 'win32'"
@@ -26,7 +27,11 @@ dependencies = [
 
 [project.scripts]
 aihub = "aihub.cli:app"
-aihub-tui = "aihub.tui:run"
 
 [tool.setuptools]
-packages = ["aihub"]
+packages = ["aihub", "aihub.tui", "aihub.tui.widgets", "aihub.tui.modals", "aihub.tools"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+aihub = ["models_registry.json"]
+"aihub.tui" = ["*.tcss"]

@@ -27,6 +27,7 @@ class AppConfig(BaseModel):
     ollama_api_url:       str = Field(default="http://localhost:11434")
     openai_api_key:       str = Field(default="")
     anthropic_api_key:    str = Field(default="")
+    google_api_key:       str = Field(default="", description="Google Gemini API key")
 
     # v0.1.0 — Hugging Face integration
     hf_api_token:         str = Field(default="", description="Hugging Face API token for fetching models")
@@ -44,6 +45,16 @@ class AppConfig(BaseModel):
     hardware_scan_completed: bool = Field(default=False, description="Whether the initial hardware scan was completed")
     # v0.1.2 — Context Length
     default_context_length: int = Field(default=2048, description="Default context window size (num_ctx) for models")
+
+    # v0.2.0 — llama.cpp backend
+    llamacpp_url:          str  = Field(default="http://localhost:8080",     description="Base URL of a running llama-server (OpenAI-compatible)")
+    llamacpp_enabled:      bool = Field(default=False,                        description="Show llama.cpp as an available backend in the TUI")
+
+    # v0.2.0 — Live model discovery
+    ollama_library_limit:  int  = Field(default=50,                           description="Max models fetched from Ollama library live search")
+    hf_gguf_limit:         int  = Field(default=20,                           description="Max GGUF model entries fetched from HuggingFace")
+    models_download_dir:   str  = Field(default=os.path.join(os.path.expanduser("~"), ".aihub", "models"),
+                                        description="Directory where downloaded GGUF files are saved")
 
 
 def load_config() -> AppConfig:

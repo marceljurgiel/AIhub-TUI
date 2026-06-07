@@ -92,7 +92,15 @@ def chat_stream(model_name: str, messages: List[Dict[str, Any]], temperature: fl
 
     try:
         response = requests.post(url, json=payload, stream=True, timeout=120)
-        response.raise_for_status()
+        if not response.ok:
+            # Surface the Ollama error body so callers get a useful message.
+            try:
+                body = response.json()
+                reason = body.get("error") or body.get("message") or response.text
+            except Exception:
+                reason = response.text or response.reason
+            yield {"error": f"{response.status_code}: {reason}"}
+            return
         for line in response.iter_lines():
             if line:
                 yield json.loads(line)

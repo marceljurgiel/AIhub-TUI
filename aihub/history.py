@@ -30,6 +30,8 @@ def save_session(
     messages: list,
     temperature: float = 0.7,
     start_time: Optional[datetime] = None,
+    backend: str = "ollama",
+    stream_model: str = "",
 ) -> str:
     """
     Save a chat session to disk as a timestamped JSON file.
@@ -39,6 +41,8 @@ def save_session(
         messages:    The full messages list (role/content dicts).
         temperature: Temperature setting used in the session.
         start_time:  Session start datetime (defaults to now).
+        backend:     Runtime backend ("ollama" | "llamacpp" | "api").
+        stream_model: Actual id passed to the backend stream (e.g. api:// url).
 
     Returns:
         Absolute path to the saved session file, or "" on failure.
@@ -61,6 +65,8 @@ def save_session(
 
     session_data = {
         "model":       model_name,
+        "backend":     backend,
+        "stream_model": stream_model,
         "temperature": temperature,
         "start_time":  _start.isoformat(),
         "end_time":    end_time.isoformat(),
@@ -136,6 +142,24 @@ def load_session(model_name: str, filename: str) -> list:
         return data.get("messages", []) if isinstance(data, dict) else []
     except (json.JSONDecodeError, IOError, TypeError, ValueError) as e:
         return []
+
+
+def load_session_full(model_name: str, filename: str) -> dict:
+    """
+    Load a saved session as its full metadata dict (messages + backend +
+    stream_model + model + temperature). Returns {} on any error. Legacy files
+    that predate backend persistence simply omit those keys.
+    """
+    model_dir = get_history_dir(model_name)
+    fpath = os.path.join(model_dir, filename) if model_dir else ""
+    if not fpath or not os.path.exists(fpath):
+        return {}
+    try:
+        with open(fpath, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else {}
+    except (json.JSONDecodeError, IOError, TypeError, ValueError):
+        return {}
 
 
 def delete_session(model_name: str, filename: str) -> bool:

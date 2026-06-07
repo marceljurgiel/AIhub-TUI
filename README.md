@@ -175,26 +175,29 @@ View and edit AIHub settings.
 
 ## Installation
 
-### Linux Quick Install
+### One-liner (Linux / macOS)
 
 ```bash
-git clone https://github.com/marceljurgiel/AIhub.git
-cd AIhub
-./install.sh
+git clone https://github.com/marceljurgiel/AIhub-TUI.git && cd AIhub-TUI && ./install.sh
 ```
 
-The installer will:
-1. Detect your Linux distribution
-2. Install Ollama (if not present)
-3. Install Python dependencies
-4. Install AIHub system-wide
+`install.sh` creates a local virtualenv (`.venv`) and installs the app plus the
+`aihub` command into it. Then run:
+
+```bash
+source .venv/bin/activate && aihub
+```
+
+Options: `INSTALL_OLLAMA=1 ./install.sh` also installs the Ollama runtime;
+`PYTHON=python3.12 ./install.sh` picks a specific interpreter. Cloud API models
+(OpenAI / Anthropic / Google) work without Ollama; local models require it.
 
 ### Linux Manual Install
 
 ```bash
 # Clone the repository
-git clone https://github.com/marceljurgiel/AIhub.git
-cd AIhub
+git clone https://github.com/marceljurgiel/AIhub-TUI.git
+cd AIhub-TUI
 
 # Create virtual environment (optional but recommended)
 python -m venv venv
@@ -217,8 +220,8 @@ pip install -e .
 
 ```powershell
 # Clone the repository
-git clone https://github.com/marceljurgiel/AIhub.git
-cd AIhub
+git clone https://github.com/marceljurgiel/AIhub-TUI.git
+cd AIhub-TUI
 
 # Create virtual environment
 python -m venv venv

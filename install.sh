@@ -1,89 +1,57 @@
 #!/usr/bin/env bash
+#
+# AIHub-TUI installer.
+#
+# Run from a clone of the repo:
+#     git clone https://github.com/marceljurgiel/AIhub-TUI.git && cd AIhub-TUI && ./install.sh
+#
+# Creates a local virtualenv (.venv) and installs the app + the `aihub`
+# console command into it. Re-running is safe (idempotent).
+#
+# Options (env vars):
+#   PYTHON=python3.12   Pick a specific interpreter (default: python3)
+#   INSTALL_OLLAMA=1    Also install the Ollama runtime if it's missing
+#
+set -euo pipefail
 
-set -e
+cd "$(dirname "$0")"
+REPO_DIR="$(pwd)"
+PYBIN="${PYTHON:-python3}"
 
-echo "====================================================="
-echo "        Instalacja AIHub - Pierwsze kroki            "
-echo "====================================================="
-
-if [ -f /etc/os-release ]; then
-    . /etc/os-release
-    OS=$ID
-else
-    echo "Nie można wykryć systemu operacyjnego. Instalka może zawieść."
-    OS="unknown"
-fi
-
-echo "[1/4] Instalacja zależności systemowych git, curl, python3, pip..."
-if [[ "$OS" == "ubuntu" || "$OS" == "debian" ]]; then
-    sudo apt-get update
-    sudo apt-get install -y git curl python3 python3-pip python3-venv
-elif [[ "$OS" == "fedora" || "$OS" == "rhel" ]]; then
-    sudo dnf install -y git curl python3 python3-pip
-elif [[ "$OS" == "arch" || "$OS" == "manjaro" ]]; then
-    sudo pacman -Sy --noconfirm git curl python python-pip pciutils
-else
-    echo "Nieznany system: $OS. Upewnij się, że zależne programy są zainstalowane."
-fi
-
-echo "[2/4] Instalowanie Ollama..."
-if ! command -v ollama &> /dev/null; then
-    curl -fsSL https://ollama.com/install.sh | sh
-    echo "Uruchamiam usługę Ollama w tle (lub za pomocą systemd)..."
-    sudo systemctl enable ollama || true
-    sudo systemctl start ollama || true
-    sleep 3
-else
-    echo "Ollama jest już zainstalowana."
-fi
-
-echo "[3/4] Pobieranie domyślnego modelu Ollamy (qwen:0.5b jako szybki start)..."
-if systemctl is-active --quiet ollama; then
-    ollama pull qwen:0.5b || echo "Nie udało się pobrać modelu startowego, pomijam."
-else
-    echo "Ollama daemon nie działa w tym momencie. Pomijam pobieranie."
-fi
-
-echo "[4/4] Instalowanie aplikacji AIHub..."
-APP_DIR="$HOME/.aihub/repo"
-
-if [ ! -d "$APP_DIR" ]; then
-    echo "Tworzenie środowiska aplikacji w $APP_DIR..."
-    mkdir -p "$APP_DIR"
-    
-    if [ -d "$PWD/aihub" ] && [ -f "$PWD/requirements.txt" ]; then
-        cp -r "$PWD"/* "$APP_DIR"
-    elif [ -d "/home/marcel-desktop/.gemini/antigravity/scratch/aihub" ]; then
-        cp -r /home/marcel-desktop/.gemini/antigravity/scratch/aihub/* "$APP_DIR"
-    else
-        echo "Brak odpowiednich plików instalacyjnych. Klonowanie..."
-        # git clone https://github.com/example/aihub.git "$APP_DIR"
-    fi
-fi
-
-cd "$APP_DIR"
-
-if [ -f "pyproject.toml" ]; then
-    echo "Instalacja za pomocą pip..."
-    python3 -m pip install -e . --break-system-packages 2>/dev/null || python3 -m pip install -e . || echo "Spróbuj zainstalować w venv lub za pomocą --user."
-else
-    echo "Brak pliku pyproject.toml, instalacja przerwana."
+if ! command -v "$PYBIN" >/dev/null 2>&1; then
+    echo "✗ '$PYBIN' not found. Install Python 3.9+ first (or set PYTHON=...)." >&2
     exit 1
 fi
 
-mkdir -p "$HOME/.aihub"
+echo "→ AIHub-TUI install  ($REPO_DIR)"
+echo "→ Using $("$PYBIN" --version)"
 
-# Skopiuj domyślny konfigurator, jesli go nie ma
-if [ ! -f "$HOME/.aihub/config.yaml" ]; then
-    cat <<EOF > "$HOME/.aihub/config.yaml"
-# AIHub Konfiguracja
-models_registry_path: "$APP_DIR/models_registry.json"
-default_chat_model: "qwen:0.5b"
-ollama_api_url: "http://localhost:11434"
-EOF
+# 1. Virtualenv
+if [ ! -d .venv ]; then
+    echo "→ Creating virtualenv (.venv)…"
+    "$PYBIN" -m venv .venv
+fi
+# shellcheck disable=SC1091
+source .venv/bin/activate
+
+# 2. Install the app
+echo "→ Upgrading pip…"
+python -m pip install --upgrade pip >/dev/null
+echo "→ Installing AIHub-TUI (editable)…"
+python -m pip install -e .
+
+# 3. Optional: Ollama runtime (for local models)
+if [ "${INSTALL_OLLAMA:-0}" = "1" ] && ! command -v ollama >/dev/null 2>&1; then
+    echo "→ Installing Ollama…"
+    curl -fsSL https://ollama.com/install.sh | sh || \
+        echo "  (Ollama install failed — install it manually from https://ollama.com)"
 fi
 
-echo "====================================================="
-echo "  Instalacja zakończona sukcesem! Wpisz 'aihub'      "
-echo "  w terminalu, aby rozpocząć pracę.                  "
-echo "====================================================="
+echo
+echo "✓ Installed. Run it with:"
+echo "    source $REPO_DIR/.venv/bin/activate && aihub"
+echo
+if ! command -v ollama >/dev/null 2>&1; then
+    echo "Note: local models need the Ollama runtime — https://ollama.com/download"
+    echo "      (or re-run with INSTALL_OLLAMA=1). Cloud API models work without it."
+fi

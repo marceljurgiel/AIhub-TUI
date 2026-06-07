@@ -1,0 +1,472 @@
+/*
+ * AIHub TUI — dark minimal with purple accent.
+ */
+
+$bg-0:   #0e0e10;
+$bg-1:   #16161a;
+$bg-2:   #1d1d22;
+$border: #2a2a30;
+$fg-0:   #e6e6e6;
+$fg-1:   #a8a8b0;
+$fg-2:   #6b6b73;
+$accent: #a855f7;
+$warn:   #ffb454;
+$error:  #ff6e6e;
+
+/* ─── Root ────────────────────────────────────────────────────────────── */
+
+Screen {
+    background: $bg-0;
+    color: $fg-0;
+    layout: vertical;
+}
+
+/* ─── Main layout: sidebar + chat area ───────────────────────────────── */
+
+#main-layout {
+    height: 1fr;
+    layout: horizontal;
+}
+
+#chat-area {
+    width: 1fr;
+    height: 100%;
+    layout: vertical;
+}
+
+/* ─── Sidebar ─────────────────────────────────────────────────────────── */
+
+Sidebar {
+    width: 42;
+    height: 100%;
+    background: $bg-1;
+    border-right: solid $border;
+}
+
+#sidebar-inner {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+}
+
+#sidebar-logo {
+    height: 7;
+    padding: 1 1;
+    color: $accent;
+    background: $bg-1;
+    border-bottom: solid $border;
+}
+
+#sidebar-model {
+    height: 4;
+    padding: 1 0;
+    color: $accent;
+    border-bottom: solid $border;
+}
+
+#sidebar-sep {
+    height: 1;
+    color: $border;
+}
+
+#sidebar-spacer {
+    height: 1fr;
+}
+
+.nav-item {
+    height: 3;
+    padding: 1 0;
+    color: $fg-1;
+}
+
+.nav-item:hover {
+    background: $bg-2;
+    color: $accent;
+}
+
+/* ─── Info bar (StatusBar) ─────────────────────────────────────────────── */
+
+/* ─── Chat log ─────────────────────────────────────────────────────────── */
+
+ChatLog {
+    height: 1fr;
+    background: $bg-0;
+    padding: 0 2;
+    scrollbar-size: 1 1;
+    scrollbar-background: $bg-0;
+    scrollbar-color: $border;
+    scrollbar-color-hover: $fg-2;
+    scrollbar-color-active: $fg-1;
+}
+
+/* ─── Message bubbles ──────────────────────────────────────────────────── */
+
+BubbleBase {
+    height: auto;
+    width: 100%;
+    padding: 0 0;
+}
+
+UserBubble {
+    color: #a8a8b0;
+    margin-top: 1;
+}
+
+AssistantBubble {
+    color: $fg-0;
+}
+
+SystemBubble {
+    color: $fg-2;
+    text-style: italic;
+}
+
+UserBubble .role-glyph {
+    color: $accent;
+}
+
+AssistantBubble .role-glyph {
+    color: $fg-1;
+}
+
+/* ─── Tool call panel ──────────────────────────────────────────────────── */
+
+ToolCallPanel {
+    background: $bg-1;
+    border: round $border;
+    margin: 1 0;
+    padding: 0 1;
+    height: auto;
+}
+
+ToolCallPanel.running {
+    border: round $warn;
+}
+
+ToolCallPanel.errored {
+    border: round $error;
+}
+
+ToolCallPanel CollapsibleTitle {
+    color: $fg-1;
+    background: $bg-1;
+}
+
+/* ─── Slash autocomplete popup ─────────────────────────────────────────── */
+
+#slash-suggest {
+    display: none;
+    height: auto;
+    background: $bg-1;
+    border: round $accent;
+    padding: 0 1;
+    margin: 0 1;
+}
+
+#ss-placeholder {
+    height: auto;
+    color: $fg-0;
+}
+
+/* ─── Chat input ───────────────────────────────────────────────────────── */
+
+ChatInput {
+    height: auto;
+    min-height: 3;
+    max-height: 10;
+    background: $bg-1;
+    color: $fg-0;
+    border: tall $border;
+    padding: 0 1;
+    margin: 0 1 1 1;
+}
+
+ChatInput:focus {
+    border: tall $accent;
+}
+
+ChatInput.disabled {
+    color: $fg-2;
+}
+
+StatusBar {
+    dock: top;
+    height: 1;
+    background: $bg-1;
+    color: $fg-1;
+    padding: 0 1;
+    border-bottom: solid $border;
+}
+
+/* ─── Modals (shared) ──────────────────────────────────────────────────── */
+
+ModalScreen {
+    align: center middle;
+    background: rgba(0, 0, 0, 0.85);
+}
+
+ModalScreen > Container {
+    width: 80%;
+    max-width: 100;
+    height: 80%;
+    max-height: 40;
+    border: round $accent;
+    background: $bg-1;
+    padding: 1 2;
+}
+
+#hw-container {
+    width: 60%;
+    max-width: 70;
+    height: auto;
+    max-height: 35;
+    border: round $accent;
+    background: $bg-1;
+    padding: 1 1;
+}
+
+ModalScreen Static {
+    color: $fg-0;
+}
+
+ModalScreen Input {
+    background: $bg-2;
+    color: $fg-0;
+    border: tall $border;
+    height: 3;
+    margin: 1 0;
+}
+
+ModalScreen Input:focus {
+    border: tall $accent;
+}
+
+ModalScreen OptionList {
+    background: $bg-1;
+    color: $fg-0;
+    height: 1fr;
+    border: tall $border;
+}
+
+ModalScreen OptionList:focus {
+    border: tall $accent;
+}
+
+ModalScreen OptionList > .option-list--option-highlighted {
+    background: $bg-2;
+    color: $accent;
+}
+
+ModalScreen Button {
+    margin: 0 1;
+}
+
+ModalScreen TextArea {
+    height: 1fr;
+    background: $bg-2;
+    color: $fg-0;
+    border: tall $border;
+    margin: 1 0;
+}
+
+ModalScreen TextArea:focus {
+    border: tall $accent;
+}
+
+ModalScreen TabbedContent {
+    height: 1fr;
+}
+
+ModalScreen Horizontal {
+    height: auto;
+    align: right middle;
+}
+
+/* ─── Settings modal ───────────────────────────────────────────────────── */
+
+#set-container {
+    width: 64%;
+    max-width: 76;
+    height: 90%;
+    max-height: 46;
+    border: round $accent;
+    background: $bg-1;
+    padding: 1 2;
+    layout: vertical;
+}
+
+#set-title {
+    height: 1;
+    color: $fg-0;
+    margin: 0 0 1 0;
+}
+
+#set-scroll {
+    height: 1fr;
+    scrollbar-size: 1 1;
+    scrollbar-background: $bg-1;
+    scrollbar-color: $border;
+    scrollbar-color-hover: $fg-2;
+}
+
+.set-section {
+    height: auto;
+    color: $accent;
+    margin: 1 0 0 0;
+    border-bottom: solid $border;
+}
+
+.set-label {
+    height: auto;
+    color: $fg-1;
+    margin: 1 0 0 0;
+}
+
+#set-buttons {
+    height: 3;
+    margin: 1 0 0 0;
+    align: right middle;
+}
+
+#set-container Input {
+    background: $bg-2;
+    color: $fg-0;
+    border: tall $border;
+    height: 3;
+    margin: 0;
+}
+
+#set-container Input:focus {
+    border: tall $accent;
+}
+
+#set-container Checkbox {
+    margin: 1 0 0 0;
+    height: auto;
+    background: $bg-1;
+    color: $fg-0;
+}
+
+#set-container Checkbox:focus {
+    color: $accent;
+}
+
+/* ─── Ollama variant picker modal ──────────────────────────────────────── */
+
+#ov-container {
+    width: 70%;
+    max-width: 82;
+    height: 80%;
+    max-height: 34;
+    border: round $accent;
+    background: $bg-1;
+    padding: 1 2;
+    layout: vertical;
+}
+
+#ov-title { height: 1; color: $fg-0; }
+#ov-desc  { height: 1; color: $fg-2; }
+#ov-hw    { height: 2; color: $fg-1; padding: 1 0 0 0; }
+
+#ov-scroll {
+    height: 1fr;
+    border: tall $border;
+    margin: 1 0;
+}
+
+#ov-list { height: auto; background: $bg-1; }
+
+#ov-buttons { height: 3; align: right middle; }
+
+/* ─── GGUF picker modal ────────────────────────────────────────────────── */
+
+#gguf-container {
+    width: 70%;
+    max-width: 86;
+    height: 80%;
+    max-height: 36;
+    border: round $accent;
+    background: $bg-1;
+    padding: 1 2;
+    layout: vertical;
+}
+
+#gguf-title {
+    height: 1;
+    color: $fg-0;
+}
+
+#gguf-hint {
+    height: 1;
+    color: $fg-2;
+}
+
+#gguf-scroll {
+    height: 1fr;
+    border: tall $border;
+    margin: 1 0;
+}
+
+#gguf-list {
+    height: auto;
+    background: $bg-1;
+}
+
+#gguf-bar {
+    height: 1;
+    margin: 1 0 0 0;
+}
+
+#gguf-status {
+    height: auto;
+    color: $fg-1;
+    padding: 1 0;
+}
+
+#gguf-buttons {
+    height: 3;
+    align: right middle;
+}
+
+/* ─── Download modal ───────────────────────────────────────────────────── */
+
+#dl-container {
+    width: 60%;
+    max-width: 70;
+    height: auto;
+    border: round $accent;
+    background: $bg-1;
+    padding: 2 3;
+    align: center middle;
+}
+
+#dl-title {
+    height: 2;
+    color: $fg-0;
+    text-align: center;
+}
+
+#dl-bar {
+    height: 1;
+    margin: 1 0;
+}
+
+#dl-status {
+    height: 2;
+    color: $fg-1;
+    text-align: center;
+}
+
+#dl-hint {
+    height: 1;
+    color: $fg-2;
+    text-align: center;
+}
+
+ProgressBar > .bar--bar {
+    color: $accent;
+}
+
+ProgressBar > .bar--complete {
+    color: $accent;
+}
