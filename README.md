@@ -181,8 +181,9 @@ View and edit AIHub settings.
 git clone https://github.com/marceljurgiel/AIhub-TUI.git && cd AIhub-TUI && ./install.sh
 ```
 
-`install.sh` creates a local virtualenv (`.venv`) and installs the app plus the
-`aihub` command into it. Then run:
+`install.sh` installs any missing system packages (git, python3, venv, pip — via
+apt/dnf/pacman/zypper, using `sudo` when not root), creates a local virtualenv
+(`.venv`), and installs the app plus the `aihub` command. Then run:
 
 ```bash
 source .venv/bin/activate && aihub
