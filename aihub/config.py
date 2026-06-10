@@ -61,6 +61,7 @@ class AppConfig(BaseModel):
     agent_default_context: int  = Field(default=32768, description="Context window agent sessions request (capped to the model max)")
     llamacpp_agent_allow:  bool = Field(default=False, description="Allow llama.cpp models in agent mode (tool support is model-dependent)")
     project_dir:           str  = Field(default="",    description="Working directory for agent file/shell tools (empty = current dir)")
+    recent_models:         list = Field(default_factory=list, description="Recently used model names, most-recent first")
 
 
 def load_config() -> AppConfig:

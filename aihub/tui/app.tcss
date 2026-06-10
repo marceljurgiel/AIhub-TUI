@@ -64,6 +64,10 @@ Sidebar {
     border-bottom: solid $border;
 }
 
+#sidebar-model:hover {
+    background: $bg-2;
+}
+
 #sidebar-sep {
     height: 1;
     color: $border;

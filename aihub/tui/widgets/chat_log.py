@@ -50,6 +50,15 @@ class ChatLog(VerticalScroll):
             if not isinstance(child, SystemBubble):
                 child.remove()
 
+    def clear_all(self) -> None:
+        """Remove every bubble — a full reset of the visible log (used by New
+        chat / Clear / model switch so old notices don't pile up)."""
+        self._active_assistant = None
+        self._active_tool_panels.clear()
+        self._buffer = ""
+        for child in list(self.children):
+            child.remove()
+
     # ── Streaming assistant path ─────────────────────────────────────────
 
     def begin_assistant(self) -> None:

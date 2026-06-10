@@ -273,9 +273,14 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
             except (TypeError, ValueError):
                 return 0.0
 
+        recents = list(config.recent_models or [])
+        def _recent_rank(name: str) -> int:
+            return recents.index(name) if name in recents else 10_000
+
         # Installed tab shows ONLY installed models (Ollama local + llama.cpp).
+        # Recently-used models float to the top, then sort by VRAM (descending).
         installed = [m for m in self.registry if m["name"] in self.local_names]
-        installed.sort(key=_vram, reverse=True)
+        installed.sort(key=lambda m: (_recent_rank(m["name"]), -_vram(m)))
 
         opts: list = []
 
@@ -294,17 +299,22 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
             badges = " ".join(get_capability_badges(m, max_badges=3) or [])
             vram_str = f"{vram:>5.1f}GB" if vram else "    -"
             colour = "#a855f7" if fits else "#a8a8b0"
+            recent_tag = "  [#a855f7]· recent[/#a855f7]" if name in recents else ""
             row = (
                 f"[{colour}]● {name:<28}[/{colour}]  {vram_str}  "
-                f"[#6b6b73]{speed:<12}  {badges}[/#6b6b73]"
+                f"[#6b6b73]{speed:<12}  {badges}[/#6b6b73]{recent_tag}"
             )
             opts.append(Option(row, id=name))
 
-        # Also surface installed Ollama models not present in the registry.
+        # Also surface installed Ollama models not present in the registry
+        # (recently-used first).
         registry_names = {m["name"] for m in self.registry}
-        for name in sorted(self.local_names - registry_names):
+        extra = sorted(self.local_names - registry_names,
+                       key=lambda n: (_recent_rank(n), n))
+        for name in extra:
+            recent_tag = "  [#a855f7]· recent[/#a855f7]" if name in recents else ""
             opts.append(Option(
-                f"[#a855f7]● {name:<28}[/#a855f7]  [#6b6b73]local[/#6b6b73]",
+                f"[#a855f7]● {name:<28}[/#a855f7]  [#6b6b73]local[/#6b6b73]{recent_tag}",
                 id=name,
             ))
 

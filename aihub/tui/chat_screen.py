@@ -443,7 +443,7 @@ class ChatScreen(Screen):
         self.state.memory_enabled = has_memory
         self.current_model = new_model
         self.memory_enabled = has_memory
-        log.clear_keeping_system()
+        log.clear_all()
         _mc = '#22c55e' if has_memory else '#6b6b73'
         log.add_system(
             f"Model: [#a855f7]{new_model}[/#a855f7]  ·  "
@@ -498,6 +498,19 @@ class ChatScreen(Screen):
             return
         self.query_one(ChatLog).add_system("Extracting facts → memory…")
         self._extract_memory_worker()
+
+    def _record_recent(self, model_name: str) -> None:
+        """Track recently-used models (most-recent first, capped) for the picker."""
+        if not model_name or model_name in ("(no model)", ""):
+            return
+        try:
+            from ..config import save_config
+            rec = [m for m in (config.recent_models or []) if m != model_name]
+            rec.insert(0, model_name)
+            config.recent_models = rec[:8]
+            save_config(config)
+        except Exception:
+            pass
 
     def action_model_picker(self) -> None:
         # Load registry on demand from cli.py's helper. Cheap; ~104 entries.
@@ -556,7 +569,8 @@ class ChatScreen(Screen):
         self.state.memory_enabled = has_memory
         self.current_model = model_name
         self.memory_enabled = has_memory
-        log.clear_keeping_system()
+        self._record_recent(model_name)
+        log.clear_all()
         _mc = '#22c55e' if has_memory else '#6b6b73'
         _bk = f"  ·  [#a855f7]{backend}[/#a855f7]" if backend in ("llamacpp", "api") else ""
         log.add_system(
@@ -583,7 +597,7 @@ class ChatScreen(Screen):
         ]
         # Re-render chat log from messages.
         log = self.query_one(ChatLog)
-        log.clear_keeping_system()
+        log.clear_all()
         for m in self.state.messages:
             role = m.get("role")
             content = m.get("content", "")
@@ -630,7 +644,7 @@ class ChatScreen(Screen):
         # Keep system messages (memory injection) so the next turn still has context.
         self.state.messages = [m for m in self.state.messages if m.get("role") == "system"]
         log = self.query_one(ChatLog)
-        log.clear_keeping_system()
+        log.clear_all()
         log.add_system("Chat cleared.")
 
     def action_new_chat(self) -> None:
@@ -651,7 +665,7 @@ class ChatScreen(Screen):
         self.state.start_time = __import__("datetime").datetime.now()
         has_memory = bool(config.memory_enabled)
         self.memory_enabled = has_memory
-        log.clear_keeping_system()
+        log.clear_all()
         log.add_system(
             "[b][#a855f7]New chat started.[/#a855f7][/b]  "
             f"Model: [#a855f7]{self.current_model or '(none)'}[/#a855f7]"

@@ -41,6 +41,13 @@ NAV_ITEMS = [
 ]
 
 
+class ClickableModel(Static):
+    """The current-model line — click to open the model picker."""
+
+    def on_click(self) -> None:
+        self.post_message(NavItem.Pressed("model_picker"))
+
+
 class NavItem(Static):
     """A clickable sidebar nav entry that dispatches a named action."""
 
@@ -63,7 +70,7 @@ class Sidebar(Widget):
     def compose(self) -> ComposeResult:
         with Vertical(id="sidebar-inner"):
             yield Static(LOGO, id="sidebar-logo")
-            yield Static("  [#6b6b73]no model[/#6b6b73]", id="sidebar-model")
+            yield ClickableModel("  [#6b6b73]no model — click to choose[/#6b6b73]", id="sidebar-model")
             yield Static("  [#2a2a30]──────────────────[/#2a2a30]", id="sidebar-sep")
             # Scrollable so every menu item stays reachable on short terminals.
             with VerticalScroll(id="sidebar-nav"):
