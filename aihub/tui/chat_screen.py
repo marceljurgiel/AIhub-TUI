@@ -26,7 +26,7 @@ from ..chat import (
 )
 from ..config import config
 from ..memory import (
-    clear_memory, load_memory, memory_present, update_memory_entry,
+    build_system_prompt, clear_memory, load_memory, update_memory_entry,
 )
 from ..ollama_client import unload_model
 from ..slash import (
@@ -392,11 +392,11 @@ class ChatScreen(Screen):
             k = result.payload["key"]
             v = result.payload["value"]
             update_memory_entry(k, v)
-            self.memory_enabled = memory_present()
+            self._refresh_memory()
             log.add_system(f"Memory saved: {k} → {v}")
         elif kind == KIND_MEMORY_CLEAR:
             cleared = clear_memory()
-            self.memory_enabled = memory_present()
+            self._refresh_memory()
             log.add_system(
                 "Memory cleared." if cleared else "No memory file found."
             )
@@ -439,7 +439,7 @@ class ChatScreen(Screen):
         self.state.reset_for(new_model, self.context_length)
         new_messages = start_session(new_model)
         self.state.messages = new_messages
-        has_memory = memory_present()
+        has_memory = bool(config.memory_enabled)
         self.state.memory_enabled = has_memory
         self.current_model = new_model
         self.memory_enabled = has_memory
@@ -461,7 +461,7 @@ class ChatScreen(Screen):
             log.add_system(f"[#ff6e6e]{message.summary}[/#ff6e6e]")
         else:
             log.add_system(f"Memory updated:\n{message.summary or ''}")
-        self.memory_enabled = memory_present()
+        self._refresh_memory()
 
     # ── Modal actions ────────────────────────────────────────────────────
 
@@ -552,7 +552,7 @@ class ChatScreen(Screen):
         self.state.stream_model = stream_model
         new_messages = start_session(model_name)
         self.state.messages = new_messages
-        has_memory = memory_present()
+        has_memory = bool(config.memory_enabled)
         self.state.memory_enabled = has_memory
         self.current_model = model_name
         self.memory_enabled = has_memory
@@ -600,13 +600,26 @@ class ChatScreen(Screen):
         log.add_system(f"Resumed {len(self.state.messages)} messages.")
 
     def action_memory(self) -> None:
-        self.app.push_screen(MemoryModal())
+        self.app.push_screen(MemoryModal(), self._refresh_memory)
 
     def action_hardware(self) -> None:
         self.app.push_screen(HardwareModal())
 
     def action_settings(self) -> None:
-        self.app.push_screen(SettingsModal())
+        self.app.push_screen(SettingsModal(), self._refresh_memory)
+
+    def _refresh_memory(self, _result=None) -> None:
+        # Reflect the current memory setting/content immediately: update the
+        # indicator and rebuild the live session's system prompt so toggling
+        # memory in Settings, or editing it, takes effect without a restart.
+        self.memory_enabled = bool(config.memory_enabled)
+        if self.state.mode != "agent":   # agent mode owns its own system prompt
+            sp = build_system_prompt()
+            msgs = self.state.messages
+            if msgs and msgs[0].get("role") == "system":
+                msgs[0]["content"] = sp
+            elif sp:
+                msgs.insert(0, {"role": "system", "content": sp})
 
     def action_help(self) -> None:
         self.app.push_screen(HelpModal())
@@ -636,7 +649,7 @@ class ChatScreen(Screen):
         # Rebuild messages with fresh memory injection
         self.state.messages = start_session(self.state.model_name or "")
         self.state.start_time = __import__("datetime").datetime.now()
-        has_memory = memory_present()
+        has_memory = bool(config.memory_enabled)
         self.memory_enabled = has_memory
         log.clear_keeping_system()
         log.add_system(
