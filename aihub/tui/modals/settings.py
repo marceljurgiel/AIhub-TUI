@@ -41,11 +41,24 @@ class SettingsModal(ModalScreen):
                 # ── AI / Chat ────────────────────────────────────────────
                 yield _section("AI & Chat")
                 yield _label("Default model", "pick from your downloaded models")
-                yield Select(
-                    [], id="set-model",
-                    prompt="Select a downloaded model…",
-                    allow_blank=True,
-                )
+                _model_opts = self._model_options()
+                if _model_opts:
+                    _vals = [v for _, v in _model_opts]
+                    _cur = config.default_chat_model
+                    yield Select(
+                        _model_opts,
+                        value=(_cur if _cur in _vals else Select.BLANK),
+                        id="set-model",
+                        allow_blank=True,
+                        prompt="Select a model…",
+                    )
+                else:
+                    # No Ollama models detected — keep it editable so it still works.
+                    yield Input(
+                        value=config.default_chat_model,
+                        id="set-model",
+                        placeholder="e.g. qwen2.5:3b  (no Ollama models detected)",
+                    )
                 yield _label("Default context length (tokens)", "num_ctx sent to Ollama")
                 yield Input(
                     value=str(config.default_context_length),
@@ -142,33 +155,24 @@ class SettingsModal(ModalScreen):
 
     def on_mount(self) -> None:
         self._probe_llamacpp()
-        self._populate_models()
 
-    @work(thread=True, exclusive=True, group="model-list")
-    def _populate_models(self) -> None:
-        # Fill the Default-model dropdown from downloaded (installed) models.
-        from ...ollama_client import get_local_model_sizes, is_ollama_running
+    def _model_options(self) -> list:
+        """(label, value) pairs of downloaded models for the Default-model
+        dropdown. Empty list → the field falls back to a text input."""
         names = []
         try:
+            from ...ollama_client import get_local_model_sizes, is_ollama_running
             if is_ollama_running():
                 names = sorted(get_local_model_sizes().keys())
         except Exception:
             names = []
-        current = config.default_chat_model
-        # Preserve a previously-set default even if it isn't installed here.
-        if current and current not in names:
-            names = [current] + names
-        self.app.call_from_thread(self._apply_models, names, current)
-
-    def _apply_models(self, names: list, current: str) -> None:
-        try:
-            sel = self.query_one("#set-model", Select)
-        except Exception:
-            return
-        if names:
-            sel.set_options([(n, n) for n in names])
-            if current in names:
-                sel.value = current
+        cur = config.default_chat_model
+        # Only show a dropdown when real installed models exist; otherwise the
+        # caller falls back to an editable Input. If a default isn't in the list,
+        # surface it too so the current value stays selectable.
+        if names and cur and cur not in names:
+            names = [cur] + names
+        return [(n, n) for n in names]
 
     @work(thread=True, exclusive=True, group="llamacpp-probe")
     def _probe_llamacpp(self) -> None:
@@ -211,7 +215,9 @@ class SettingsModal(ModalScreen):
         if ollama:
             config.ollama_api_url = ollama
 
-        model = self.query_one("#set-model", Select).value
+        # Works whether #set-model is a Select (value=str|BLANK) or the Input
+        # fallback (value=str). Only a real non-empty string updates the default.
+        model = getattr(self.query_one("#set-model"), "value", "")
         if isinstance(model, str) and model.strip():
             config.default_chat_model = model.strip()
 
