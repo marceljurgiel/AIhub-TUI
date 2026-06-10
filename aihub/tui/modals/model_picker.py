@@ -156,10 +156,11 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
     @work(thread=True, exclusive=True, group="fit-recommend")
     def _load_recommend_worker(self) -> None:
         from ... import fit
-        results = fit.recommend(limit=40)
-        self.app.call_from_thread(self._populate_recommend, results)
+        hw = fit.detect_hw()
+        results = fit.recommend(limit=40, hw=hw)
+        self.app.call_from_thread(self._populate_recommend, results, hw)
 
-    def _populate_recommend(self, results: list) -> None:
+    def _populate_recommend(self, results: list, hw=None) -> None:
         try:
             status = self.query_one("#mp-recommend-status", Static)
             olist = self.query_one("#mp-list-recommend", OptionList)
@@ -167,9 +168,16 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
             return
         self._fit_by_name = {e["name"]: e for e, _ in results}
         fitting = sum(1 for _, f in results if f.fits)
+        # Show what hardware the fit was computed against — so you can confirm
+        # the GPU/VRAM was detected correctly (recommendations key off this).
+        if hw is not None:
+            hw_str = (f"GPU {hw.vram_gb:.0f}GB VRAM" if hw.has_gpu
+                      else f"CPU · {hw.ram_gb:.0f}GB RAM")
+        else:
+            hw_str = "?"
         status.update(
-            f"[#22c55e]{fitting} models fit your hardware[/#22c55e]  "
-            "[#6b6b73]· best quant picked for you · Enter to download (llama.cpp)[/#6b6b73]"
+            f"[#a8a8b0]Fit for: {hw_str}[/#a8a8b0]  [#22c55e]· {fitting} fit[/#22c55e]  "
+            "[#6b6b73]· best quant picked · Enter to download (llama.cpp)[/#6b6b73]"
         )
         opts = []
         for entry, f in results:

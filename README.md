@@ -193,6 +193,20 @@ Options: `INSTALL_OLLAMA=1 ./install.sh` also installs the Ollama runtime;
 `PYTHON=python3.12 ./install.sh` picks a specific interpreter. Cloud API models
 (OpenAI / Anthropic / Google) work without Ollama; local models require it.
 
+### Updating
+
+To pull the latest version any time (force-syncs to the pushed version, even if
+`git pull` gets blocked by local edits):
+
+```bash
+cd AIhub-TUI && ./update.sh && source .venv/bin/activate && aihub
+```
+
+Tip — add a shortcut: `echo "alias aihub-update='cd ~/AIhub-TUI && ./update.sh'" >> ~/.bashrc`,
+then just run `aihub-update`. (`update.sh` hard-resets to `origin/main`, so it
+discards local edits — intended for a deploy/test box. Requires git auth set up
+once via `gh auth login` or a stored token for the private repo.)
+
 ### Linux Manual Install
 
 ```bash
