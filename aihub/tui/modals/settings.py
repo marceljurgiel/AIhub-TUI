@@ -41,11 +41,13 @@ class SettingsModal(ModalScreen):
                 # ── AI / Chat ────────────────────────────────────────────
                 yield _section("AI & Chat")
                 yield _label("Default model", "used when launching a new session")
-                yield Input(
-                    value=config.default_chat_model,
-                    id="set-model",
-                    placeholder="e.g. qwen2.5:3b",
-                )
+                with Horizontal(classes="set-row"):
+                    yield Input(
+                        value=config.default_chat_model,
+                        id="set-model",
+                        placeholder="e.g. qwen2.5:3b",
+                    )
+                    yield Button("Choose…", id="set-model-pick")
                 yield _label("Default context length (tokens)", "num_ctx sent to Ollama")
                 yield Input(
                     value=str(config.default_context_length),
@@ -165,6 +167,13 @@ class SettingsModal(ModalScreen):
             self.action_save()
         elif event.button.id == "set-cancel":
             self.dismiss(None)
+        elif event.button.id == "set-model-pick":
+            from .model_chooser import ModelChooserModal
+
+            def _picked(name) -> None:
+                if name:
+                    self.query_one("#set-model", Input).value = name
+            self.app.push_screen(ModelChooserModal(), _picked)
 
     def action_save(self) -> None:
         def _int(widget_id: str, fallback: int) -> int:
