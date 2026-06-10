@@ -63,6 +63,46 @@ def write_file(path: str, content: str) -> str:
         return f"[File Error] Could not write file: {e}"
 
 
+def edit_file(path: str, old: str, new: str) -> str:
+    """
+    Replace an exact string in a file (precise edit, like OpenCode's `edit`).
+
+    Args:
+        path: File to edit.
+        old:  Exact text to find. Must appear exactly once.
+        new:  Replacement text.
+
+    Returns:
+        Success or an error message ('not found' / 'not unique').
+    """
+    path = os.path.expanduser(path)
+    if not os.path.exists(path):
+        return f"[Edit Error] File not found: {path}"
+    if os.path.isdir(path):
+        return f"[Edit Error] Path is a directory: {path}"
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            content = f.read()
+    except Exception as e:
+        return f"[Edit Error] Could not read file: {e}"
+
+    count = content.count(old)
+    if count == 0:
+        return ("[Edit Error] `old` text not found in the file. It must match "
+                "exactly, including whitespace and indentation.")
+    if count > 1:
+        return (f"[Edit Error] `old` text appears {count} times — it must be "
+                "unique. Include more surrounding context to disambiguate.")
+
+    updated = content.replace(old, new, 1)
+    try:
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(updated)
+    except Exception as e:
+        return f"[Edit Error] Could not write file: {e}"
+    return f"[Edit OK] Replaced 1 occurrence in {path}."
+
+
 def list_files(directory: str, pattern: str = "*") -> str:
     """
     List files in a directory matching an optional glob pattern.

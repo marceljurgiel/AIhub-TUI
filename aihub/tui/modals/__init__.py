@@ -9,6 +9,7 @@ from .history import HistoryModal
 from .memory import MemoryModal
 from .model_picker import ModelPickerModal
 from .ollama_variant import OllamaVariantModal
+from .permission import PermissionModal
 from .settings import SettingsModal
 
 __all__ = [
@@ -22,5 +23,6 @@ __all__ = [
     "MemoryModal",
     "ModelPickerModal",
     "OllamaVariantModal",
+    "PermissionModal",
     "SettingsModal",
 ]

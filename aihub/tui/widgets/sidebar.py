@@ -6,7 +6,7 @@ so clicking always works regardless of terminal key mappings.
 from __future__ import annotations
 
 from textual.app import ComposeResult
-from textual.containers import Vertical
+from textual.containers import Vertical, VerticalScroll
 from textual.message import Message
 from textual.widget import Widget
 from textual.widgets import Static
@@ -30,6 +30,7 @@ LOGO = "\n".join(
 # (label, action_name, key_hint)
 NAV_ITEMS = [
     ("new_chat",        "  ◈  New Chat",  "C-n"),
+    ("agent",           "  ◈  Agent",     "C-g"),
     ("model_picker",    "  ◈  Models",    "C-o"),
     ("history",         "  ◈  History",   "C-r"),
     ("memory",          "  ◈  Memory",    "C-e"),
@@ -64,9 +65,10 @@ class Sidebar(Widget):
             yield Static(LOGO, id="sidebar-logo")
             yield Static("  [#6b6b73]no model[/#6b6b73]", id="sidebar-model")
             yield Static("  [#2a2a30]──────────────────[/#2a2a30]", id="sidebar-sep")
-            for action_name, label, _hint in NAV_ITEMS:
-                yield NavItem(action_name, label)
-            yield Static("", id="sidebar-spacer")
+            # Scrollable so every menu item stays reachable on short terminals.
+            with VerticalScroll(id="sidebar-nav"):
+                for action_name, label, _hint in NAV_ITEMS:
+                    yield NavItem(action_name, label)
 
     def update_model(self, model_name: str, context_length: int) -> None:
         ctx = f"{context_length // 1024}k" if context_length >= 1024 else str(context_length)

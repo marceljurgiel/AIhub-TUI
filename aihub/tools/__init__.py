@@ -7,7 +7,7 @@ Tools are registered in TOOLS_REGISTRY and described in TOOLS_SCHEMA
 the requested tool and returns the result as a string.
 """
 from .terminal    import run_terminal
-from .file_ops    import read_file, write_file, list_files
+from .file_ops    import read_file, write_file, edit_file, list_files
 from .web_search  import search_web
 from .file_search import search_files
 
@@ -16,6 +16,7 @@ TOOLS_REGISTRY = {
     "run_terminal":  run_terminal,
     "read_file":     read_file,
     "write_file":    write_file,
+    "edit_file":     edit_file,
     "list_files":    list_files,
     "search_web":    search_web,
     "search_files":  search_files,
@@ -27,7 +28,7 @@ TOOLS_SCHEMA = [
         "type": "function",
         "function": {
             "name":        "run_terminal",
-            "description": "Execute a shell command and return the output. Use for system tasks, running scripts, checking files, etc.",
+            "description": "Execute a shell command and return the output. Use for real terminal operations (git, build, tests, package managers). Do NOT use it for file operations — use read_file/write_file/edit_file/search_files/list_files instead. Keep commands non-interactive.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -71,7 +72,7 @@ TOOLS_SCHEMA = [
         "type": "function",
         "function": {
             "name":        "write_file",
-            "description": "Write content to a local file (creates it if it doesn't exist).",
+            "description": "Write a file to the local filesystem, overwriting any existing file at the path. ALWAYS prefer edit_file for changing existing files; use write_file only for new files or full rewrites. Never proactively create documentation/README files unless asked.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -85,6 +86,31 @@ TOOLS_SCHEMA = [
                     }
                 },
                 "required": ["path", "content"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name":        "edit_file",
+            "description": "Make a precise edit to a file by replacing an exact string. The 'old' text must appear exactly once (include surrounding context to make it unique). Prefer this over write_file for modifying existing files.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type":        "string",
+                        "description": "Path to the file to edit."
+                    },
+                    "old": {
+                        "type":        "string",
+                        "description": "Exact text to find (must be unique in the file)."
+                    },
+                    "new": {
+                        "type":        "string",
+                        "description": "Replacement text."
+                    }
+                },
+                "required": ["path", "old", "new"]
             }
         }
     },
@@ -196,6 +222,11 @@ def wants_tools(messages: list) -> bool:
         return False
     text = last_user.lower()
     return any(kw in text for kw in _TOOL_INTENT_KEYWORDS)
+
+
+# Agent mode uses the full tool set (including edit_file). Kept as a distinct
+# name so chat and agent tool surfaces can diverge later.
+AGENT_TOOLS_SCHEMA = TOOLS_SCHEMA
 
 
 def run_tool(name: str, **kwargs) -> str:

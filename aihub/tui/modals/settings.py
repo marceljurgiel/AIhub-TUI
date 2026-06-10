@@ -67,8 +67,8 @@ class SettingsModal(ModalScreen):
                     placeholder="60",
                 )
                 yield Checkbox(
-                    "Global memory  (shared across all models)",
-                    value=config.global_memory_enabled,
+                    "Memory  (inject saved facts into chats)",
+                    value=config.memory_enabled,
                     id="set-globalmem",
                 )
 
@@ -174,7 +174,7 @@ class SettingsModal(ModalScreen):
                 return fallback
 
         config.tools_enabled          = self.query_one("#set-tools",    Checkbox).value
-        config.global_memory_enabled  = self.query_one("#set-globalmem",Checkbox).value
+        config.memory_enabled         = self.query_one("#set-globalmem",Checkbox).value
         config.default_context_length = max(256, _int("#set-ctx", config.default_context_length))
         config.tool_timeout_seconds   = _int("#set-timeout", config.tool_timeout_seconds)
         config.max_history_sessions   = _int("#set-history",  config.max_history_sessions)

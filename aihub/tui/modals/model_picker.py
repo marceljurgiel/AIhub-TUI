@@ -66,6 +66,7 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
         self._hf_models: List[Dict] = []
         self._ollama_options: list = []
         self._hf_options: list = []
+        self._fit_by_name: Dict[str, Dict[str, Any]] = {}
 
     def compose(self) -> ComposeResult:
         with Container():
@@ -79,8 +80,14 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
                 with TabPane("Installed", id="tab-installed"):
                     yield Input(placeholder="Search installed…", id="mp-search-installed")
                     yield OptionList(id="mp-list-installed")
+                with TabPane("Recommended", id="tab-recommend"):
+                    yield Static("[#6b6b73]Scoring models for your hardware…[/#6b6b73]", id="mp-recommend-status")
+                    yield OptionList(id="mp-list-recommend")
                 with TabPane("Ollama Library", id="tab-ollama"):
-                    yield Input(placeholder="Search Ollama library…", id="mp-search-ollama")
+                    yield Input(
+                        placeholder="Search, or type a name + Enter to pull (e.g. gemma3:4b)",
+                        id="mp-search-ollama",
+                    )
                     yield Static("[#6b6b73]Loading…[/#6b6b73]", id="mp-ollama-status")
                     yield OptionList(id="mp-list-ollama")
                 with TabPane("HuggingFace GGUF", id="tab-hf"):
@@ -98,6 +105,7 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
 
     def on_mount(self) -> None:
         self._refresh_installed()
+        self._load_recommend_worker()
         self._load_ollama_worker()
         self._load_hf_worker()
         self._populate_api()
@@ -142,6 +150,84 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
         olist = self.query_one("#mp-list-api", OptionList)
         olist.clear_options()
         olist.add_options(opts)
+
+    # ── Recommended (hardware-fit) tab ─────────────────────────────────────
+
+    @work(thread=True, exclusive=True, group="fit-recommend")
+    def _load_recommend_worker(self) -> None:
+        from ... import fit
+        results = fit.recommend(limit=40)
+        self.app.call_from_thread(self._populate_recommend, results)
+
+    def _populate_recommend(self, results: list) -> None:
+        try:
+            status = self.query_one("#mp-recommend-status", Static)
+            olist = self.query_one("#mp-list-recommend", OptionList)
+        except Exception:
+            return
+        self._fit_by_name = {e["name"]: e for e, _ in results}
+        fitting = sum(1 for _, f in results if f.fits)
+        status.update(
+            f"[#22c55e]{fitting} models fit your hardware[/#22c55e]  "
+            "[#6b6b73]· best quant picked for you · Enter to download (llama.cpp)[/#6b6b73]"
+        )
+        opts = []
+        for entry, f in results:
+            name = entry["name"]
+            colour = "#a855f7" if f.fits else "#6b6b73"
+            tps = f"{f.est_tps:.0f} t/s" if f.fits else "—"
+            params = entry.get("parameter_count", "?")
+            row = (
+                f"[{colour}]{name:<40.40}[/{colour}]  "
+                f"[#a8a8b0]{params:>5}  {f.best_quant:<7} {f.size_gb:>4.1f}GB[/#a8a8b0]  "
+                f"[#6b6b73]{f.run_mode:<7} {tps:>8}  score {f.score}[/#6b6b73]"
+            )
+            opts.append(Option(row, id=f"fit:{name}"))
+        if not opts:
+            opts.append(Option("(catalog unavailable)", id="__none__", disabled=True))
+        olist.clear_options()
+        olist.add_options(opts)
+
+    def _use_fit_model(self, name: str) -> None:
+        entry = self._fit_by_name.get(name)
+        if not entry:
+            return
+        sources = entry.get("gguf_sources") or []
+        if not sources:
+            self.notify(
+                f"No GGUF source for {name}. Try the Ollama Library tab "
+                "(type the name + Enter to pull).",
+                severity="warning",
+            )
+            return
+        repo = sources[0].get("repo")
+        self.notify(f"Fetching GGUF files for {repo}…", severity="information")
+        self._fetch_gguf_for_fit(repo)
+
+    @work(thread=True, exclusive=True, group="fit-gguf")
+    def _fetch_gguf_for_fit(self, repo: str) -> None:
+        from ...live_registry import fetch_hf_gguf_files
+        from ...config import config
+        files = fetch_hf_gguf_files(repo, token=config.hf_api_token)
+        self.app.call_from_thread(self._open_fit_gguf, repo, files)
+
+    def _open_fit_gguf(self, repo: str, files: list) -> None:
+        if not files:
+            self.notify(f"No GGUF files found in {repo}.", severity="warning")
+            return
+        try:
+            from .gguf_picker import GGUFPickerModal
+        except ImportError:
+            self.notify("GGUF download not available.", severity="warning")
+            return
+        entry = {"name": repo, "gguf_files": files,
+                 "url": f"https://huggingface.co/{repo}"}
+
+        def _after(result) -> None:
+            if result:
+                model_stem, _dest = result
+                self._open_ctx(model_stem, backend="llamacpp")
+        self.app.push_screen(GGUFPickerModal(entry), _after)
 
     # ── Installed tab ────────────────────────────────────────────────────
 
@@ -368,6 +454,14 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
             olist.add_options([Option("[#6b6b73]Searching…[/#6b6b73]", id="__none__", disabled=True)])
             self._load_hf_worker(query=needle)
 
+    def on_input_submitted(self, event: Input.Submitted) -> None:
+        # Enter in the Ollama search box pulls that exact model name — works for
+        # any model, even ones the (stale) library mirror doesn't list.
+        if event.input.id == "mp-search-ollama":
+            name = event.value.strip()
+            if name:
+                self._install_and_use(name)
+
     # ── Selection ─────────────────────────────────────────────────────────
 
     def on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:
@@ -406,6 +500,8 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
             return
         if opt_id.startswith("api://"):
             self._use_api_model(opt_id)
+        elif opt_id.startswith("fit:"):
+            self._use_fit_model(opt_id[len("fit:"):])
         elif opt_id.startswith("llamacpp:"):
             model = opt_id[len("llamacpp:"):]
             self._open_ctx(model, backend="llamacpp")
@@ -571,6 +667,8 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
         tab = self._active_tab()
         if tab == "installed":
             self._refresh_installed()
+        elif tab == "recommend":
+            self._load_recommend_worker()
         elif tab == "ollama":
             self._load_ollama_worker()
         elif tab == "hf":

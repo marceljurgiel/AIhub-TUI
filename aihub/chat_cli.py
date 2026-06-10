@@ -193,7 +193,7 @@ def run_chat_session(
 
     has_memory = any(m.get("role") == "system" for m in messages)
     if has_memory:
-        console.print(f"[dim]📝 Memory loaded from {get_memory_path(model_name)}[/dim]")
+        console.print(f"[dim]📝 Memory loaded from {get_memory_path()}[/dim]")
 
     tools_available = config.tools_enabled and not is_api
     _render_session_header(model_name, temperature, context_length, has_memory, tools_available)
@@ -245,6 +245,14 @@ def run_chat_session(
     saved = finalize_session(model_name, messages, temperature, start_time)
     if saved:
         console.print(f"[dim]💾 Session saved.[/dim]")
+
+    # Free VRAM/RAM: unload the model on exit (local Ollama models only).
+    if not is_api:
+        from .ollama_client import unload_model
+        try:
+            unload_model(model_name)
+        except Exception:
+            pass
 
 
 # ── Stream renderer ──────────────────────────────────────────────────────────
@@ -330,47 +338,46 @@ def _handle_slash(raw: str, model_name: str, messages: List[Dict[str, Any]]) -> 
         messages.extend(system)
         console.print("[dim]Chat context cleared.[/dim]")
     elif kind == KIND_MEMORY_SHOW:
-        mem = load_memory(model_name)
+        mem = load_memory()
         if mem:
             console.print(Panel(
                 mem,
-                title=f"[bold #7c3aed]📝 Memory: {model_name}[/bold #7c3aed]",
+                title="[bold #7c3aed]📝 Memory[/bold #7c3aed]",
                 border_style="#7c3aed",
             ))
         else:
-            console.print(f"[dim]No memory stored for {model_name}.[/dim]")
+            console.print("[dim]No memory stored.[/dim]")
             console.print("[dim]Use /memory save <key> <value> to add entries.[/dim]")
     elif kind == KIND_MEMORY_SAVE:
         key = result.payload["key"]
         value = result.payload["value"]
-        update_memory_entry(model_name, key, value)
+        update_memory_entry(key, value)
         console.print(f"[green]✔ Memory saved:[/green] [cyan]{key}[/cyan] → {value}")
     elif kind == KIND_MEMORY_CLEAR:
         try:
             confirmed = questionary.confirm(
-                f"Delete all memory for {model_name}?",
+                "Delete all memory?",
                 default=False, style=CHAT_STYLE,
             ).ask()
         except (KeyboardInterrupt, EOFError):
             confirmed = False
         if confirmed:
-            cleared = clear_memory(model_name)
+            cleared = clear_memory()
             console.print(
                 "[green]✔ Memory cleared.[/green]" if cleared
                 else "[dim]No memory file found.[/dim]"
             )
     elif kind == KIND_MEMORY_EXTRACT:
-        target = result.payload["target"]
         with console.status(
-            f"[bold cyan]Extracting key information for {target} memory...[/bold cyan]"
+            "[bold cyan]Extracting key information for memory...[/bold cyan]"
         ):
-            outcome = extract_and_update_memory(model_name, messages, target=target)
+            outcome = extract_and_update_memory(model_name, messages)
         if outcome.startswith("Error:"):
             console.print(f"[bold red]⚠ {outcome}[/bold red]")
         else:
             console.print(Panel(
                 outcome,
-                title=f"[bold green]✔ Facts added to {target.capitalize()} Memory[/bold green]",
+                title="[bold green]✔ Facts added to Memory[/bold green]",
                 border_style="green",
             ))
     elif kind == KIND_HISTORY_BROWSE:

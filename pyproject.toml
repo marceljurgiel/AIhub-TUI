@@ -33,5 +33,5 @@ packages = ["aihub", "aihub.tui", "aihub.tui.widgets", "aihub.tui.modals", "aihu
 include-package-data = true
 
 [tool.setuptools.package-data]
-aihub = ["models_registry.json"]
+aihub = ["models_registry.json", "data/*.json", "data/LICENSE-*"]
 "aihub.tui" = ["*.tcss"]

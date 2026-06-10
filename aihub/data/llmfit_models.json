@@ -1,0 +1,5239 @@
+[
+ {
+  "name": "LiquidAI/LFM2-350M",
+  "provider": "Liquid AI",
+  "parameter_count": "354M",
+  "parameters_raw": 354483968,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.5,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "lfm2",
+  "hf_downloads": 19828,
+  "hf_likes": 249,
+  "release_date": "2025-07-10",
+  "num_hidden_layers": 16,
+  "num_attention_heads": 16,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 1024,
+  "vocab_size": 65536,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/LFM2-350M-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "mradermacher/LFM2-350M-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "LiquidAI/LFM2-350M-Extract",
+  "provider": "Liquid AI",
+  "parameter_count": "354M",
+  "parameters_raw": 354483968,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.5,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "lfm2",
+  "hf_downloads": 881,
+  "hf_likes": 78,
+  "release_date": "2025-09-03",
+  "num_hidden_layers": 16,
+  "num_attention_heads": 16,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 1024,
+  "vocab_size": 65536,
+  "moe_intermediate_size": 6656,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/LFM2-350M-Extract-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "LiquidAI/LFM2-350M-Math",
+  "provider": "Liquid AI",
+  "parameter_count": "354M",
+  "parameters_raw": 354483968,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.5,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "lfm2",
+  "hf_downloads": 262,
+  "hf_likes": 59,
+  "release_date": "2025-08-25",
+  "num_hidden_layers": 16,
+  "num_attention_heads": 16,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 1024,
+  "vocab_size": 65536,
+  "moe_intermediate_size": 6656,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/LFM2-350M-Math-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "LiquidAI/LFM2-350M-PII-Extract-JP",
+  "provider": "Liquid AI",
+  "parameter_count": "354M",
+  "parameters_raw": 354483968,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.5,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "lfm2",
+  "hf_downloads": 627,
+  "hf_likes": 55,
+  "release_date": "2025-09-30",
+  "num_hidden_layers": 16,
+  "num_attention_heads": 16,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 1024,
+  "vocab_size": 65536,
+  "moe_intermediate_size": 6656,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/LFM2-350M-PII-Extract-JP-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "LiquidAI/LFM2-VL-450M",
+  "provider": "Liquid AI",
+  "parameter_count": "451M",
+  "parameters_raw": 450822656,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.5,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "lfm2_vl",
+  "hf_downloads": 111945,
+  "hf_likes": 147,
+  "release_date": "2025-08-12",
+  "num_hidden_layers": 16,
+  "num_attention_heads": 16,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 1024,
+  "vocab_size": 65536,
+  "moe_intermediate_size": 6656,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "ggml-org/LFM2-VL-450M-GGUF",
+    "provider": "ggml-org"
+   },
+   {
+    "repo": "mradermacher/LFM2-VL-450M-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "LiquidAI/LFM2-700M",
+  "provider": "Liquid AI",
+  "parameter_count": "742M",
+  "parameters_raw": 742489344,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.5,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "lfm2",
+  "hf_downloads": 7970,
+  "hf_likes": 112,
+  "release_date": "2025-07-10",
+  "num_hidden_layers": 16,
+  "num_attention_heads": 24,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 1536,
+  "vocab_size": 65536,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/LFM2-700M-GGUF",
+    "provider": "unsloth"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3-0.6B",
+  "provider": "Alibaba",
+  "parameter_count": "752M",
+  "parameters_raw": 751632384,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.5,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 40960,
+  "use_case": "General purpose text generation",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "qwen3",
+  "hf_downloads": 18331817,
+  "hf_likes": 1263,
+  "release_date": "2025-04-27",
+  "num_hidden_layers": 28,
+  "num_attention_heads": 16,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 1024,
+  "vocab_size": 151936,
+  "moe_intermediate_size": 3072,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen3-0.6B-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "ggml-org/Qwen3-0.6B-GGUF",
+    "provider": "ggml-org"
+   },
+   {
+    "repo": "mradermacher/Qwen3-0.6B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3.5-0.8B",
+  "provider": "Alibaba",
+  "parameter_count": "873M",
+  "parameters_raw": 873438784,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.5,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "qwen3_5",
+  "hf_downloads": 2792407,
+  "hf_likes": 544,
+  "release_date": "2026-02-28",
+  "num_hidden_layers": 24,
+  "num_attention_heads": 8,
+  "num_key_value_heads": 2,
+  "head_dim": 256,
+  "hidden_size": 1024,
+  "vocab_size": 248320,
+  "moe_intermediate_size": 3584,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen3.5-0.8B-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "ggml-org/Qwen3.5-0.8B-GGUF",
+    "provider": "ggml-org"
+   },
+   {
+    "repo": "mradermacher/Qwen3.5-0.8B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3.5-0.8B-Base",
+  "provider": "Alibaba",
+  "parameter_count": "873M",
+  "parameters_raw": 873438784,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.5,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "qwen3_5",
+  "hf_downloads": 166734,
+  "hf_likes": 76,
+  "release_date": "2026-02-28",
+  "num_hidden_layers": 24,
+  "num_attention_heads": 8,
+  "num_key_value_heads": 2,
+  "head_dim": 256,
+  "hidden_size": 1024,
+  "vocab_size": 248320,
+  "moe_intermediate_size": 3584,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "ggml-org/Qwen3.5-0.8B-Base-GGUF",
+    "provider": "ggml-org"
+   },
+   {
+    "repo": "mradermacher/Qwen3.5-0.8B-Base-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "google/gemma-3-1b-it",
+  "provider": "Google",
+  "parameter_count": "1000M",
+  "parameters_raw": 999885952,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.5,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "General purpose text generation",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "gemma3_text",
+  "hf_downloads": 1086251,
+  "hf_likes": 957,
+  "release_date": "2025-03-10",
+  "num_hidden_layers": null,
+  "num_attention_heads": null,
+  "num_key_value_heads": null,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": null,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/gemma-3-1b-it-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "ggml-org/gemma-3-1b-it-GGUF",
+    "provider": "ggml-org"
+   },
+   {
+    "repo": "mradermacher/gemma-3-1b-it-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+  "provider": "Community",
+  "parameter_count": "1.1B",
+  "parameters_raw": 1100048384,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 2048,
+  "use_case": "Instruction following, chat",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "llama",
+  "hf_downloads": 2511855,
+  "hf_likes": 1590,
+  "release_date": "2023-12-30",
+  "num_hidden_layers": 22,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 4,
+  "head_dim": 64,
+  "hidden_size": 2048,
+  "vocab_size": 32000,
+  "moe_intermediate_size": 5632,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF",
+    "provider": "TheBloke"
+   },
+   {
+    "repo": "mradermacher/TinyLlama-1.1B-Chat-v1.0-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "LiquidAI/LFM2-1.2B",
+  "provider": "Liquid AI",
+  "parameter_count": "1.2B",
+  "parameters_raw": 1170340608,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "lfm2",
+  "hf_downloads": 108980,
+  "hf_likes": 353,
+  "release_date": "2025-07-10",
+  "num_hidden_layers": 16,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 2048,
+  "vocab_size": 65536,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/LFM2-1.2B-GGUF",
+    "provider": "unsloth"
+   }
+  ]
+ },
+ {
+  "name": "LiquidAI/LFM2.5-1.2B-Base",
+  "provider": "Liquid AI",
+  "parameter_count": "1.2B",
+  "parameters_raw": 1170340608,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "lfm2",
+  "hf_downloads": 19715,
+  "hf_likes": 127,
+  "release_date": "2026-01-05",
+  "num_hidden_layers": 16,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 2048,
+  "vocab_size": 65536,
+  "moe_intermediate_size": 12288,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/LFM2.5-1.2B-Base-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "LiquidAI/LFM2.5-1.2B-Instruct",
+  "provider": "Liquid AI",
+  "parameter_count": "1.2B",
+  "parameters_raw": 1170340608,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "Instruction following, chat",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "lfm2",
+  "hf_downloads": 437767,
+  "hf_likes": 588,
+  "release_date": "2026-01-06",
+  "num_hidden_layers": 16,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 2048,
+  "vocab_size": 65536,
+  "moe_intermediate_size": 12288,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/LFM2.5-1.2B-Instruct-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "mradermacher/LFM2.5-1.2B-Instruct-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "LiquidAI/LFM2.5-1.2B-Thinking",
+  "provider": "Liquid AI",
+  "parameter_count": "1.2B",
+  "parameters_raw": 1170340608,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "lfm2",
+  "hf_downloads": 29743,
+  "hf_likes": 349,
+  "release_date": "2026-01-20",
+  "num_hidden_layers": 16,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 2048,
+  "vocab_size": 65536,
+  "moe_intermediate_size": 12288,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/LFM2.5-1.2B-Thinking-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "mradermacher/LFM2.5-1.2B-Thinking-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "LiquidAI/LFM2.5-1.2B-JP",
+  "provider": "Liquid AI",
+  "parameter_count": "1.2B",
+  "parameters_raw": 1170340608,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "lfm2",
+  "hf_downloads": 2777,
+  "hf_likes": 146,
+  "release_date": "2026-01-04",
+  "num_hidden_layers": 16,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 2048,
+  "vocab_size": 65536,
+  "moe_intermediate_size": 12288,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/LFM2.5-1.2B-JP-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "LiquidAI/LFM2-1.2B-Tool",
+  "provider": "Liquid AI",
+  "parameter_count": "1.2B",
+  "parameters_raw": 1170340608,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "lfm2",
+  "hf_downloads": 625,
+  "hf_likes": 103,
+  "release_date": "2025-09-03",
+  "num_hidden_layers": 16,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 2048,
+  "vocab_size": 65536,
+  "moe_intermediate_size": 12288,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/LFM2-1.2B-Tool-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "LiquidAI/LFM2-1.2B-RAG",
+  "provider": "Liquid AI",
+  "parameter_count": "1.2B",
+  "parameters_raw": 1170340608,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "lfm2",
+  "hf_downloads": 698,
+  "hf_likes": 118,
+  "release_date": "2025-09-03",
+  "num_hidden_layers": 16,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 2048,
+  "vocab_size": 65536,
+  "moe_intermediate_size": 12288,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/LFM2-1.2B-RAG-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "LiquidAI/LFM2-1.2B-Extract",
+  "provider": "Liquid AI",
+  "parameter_count": "1.2B",
+  "parameters_raw": 1170340608,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "lfm2",
+  "hf_downloads": 2199,
+  "hf_likes": 108,
+  "release_date": "2025-08-22",
+  "num_hidden_layers": 16,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 2048,
+  "vocab_size": 65536,
+  "moe_intermediate_size": 12288,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/LFM2-1.2B-Extract-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "meta-llama/Llama-3.2-1B",
+  "provider": "Meta",
+  "parameter_count": "1.2B",
+  "parameters_raw": 1235814400,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "llama",
+  "hf_downloads": 1962065,
+  "hf_likes": 2396,
+  "release_date": "2024-09-18",
+  "num_hidden_layers": null,
+  "num_attention_heads": null,
+  "num_key_value_heads": null,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": null,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/Llama-3.2-1B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "LGAI-EXAONE/EXAONE-4.0-1.2B",
+  "provider": "lgai-exaone",
+  "parameter_count": "1.3B",
+  "parameters_raw": 1279391488,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.7,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 1048576,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "exaone4",
+  "hf_downloads": 20573,
+  "hf_likes": 183,
+  "release_date": "2025-07-11",
+  "num_hidden_layers": 30,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 2048,
+  "vocab_size": 102400,
+  "moe_intermediate_size": 4096,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/EXAONE-4.0-1.2B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "shoumenchougou/RWKV7-G1f-1.5B-GGUF",
+  "provider": "RWKV",
+  "parameter_count": "1.5B",
+  "parameters_raw": 1500000000,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.8,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 8192,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "rwkv",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": null
+ },
+ {
+  "name": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+  "provider": "Alibaba",
+  "parameter_count": "1.5B",
+  "parameters_raw": 1543714304,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.8,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 32768,
+  "use_case": "Code generation and completion",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "qwen2",
+  "hf_downloads": 576061,
+  "hf_likes": 121,
+  "release_date": "2024-09-18",
+  "num_hidden_layers": 28,
+  "num_attention_heads": 12,
+  "num_key_value_heads": 2,
+  "head_dim": 128,
+  "hidden_size": 1536,
+  "vocab_size": 151936,
+  "moe_intermediate_size": 8960,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen2.5-Coder-1.5B-Instruct-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "bartowski/Qwen2.5-Coder-1.5B-Instruct-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/Qwen2.5-Coder-1.5B-Instruct-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "LiquidAI/LFM2-VL-1.6B",
+  "provider": "Liquid AI",
+  "parameter_count": "1.6B",
+  "parameters_raw": 1584804000,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.8,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "lfm2_vl",
+  "hf_downloads": 3764,
+  "hf_likes": 226,
+  "release_date": "2025-08-12",
+  "num_hidden_layers": 16,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 2048,
+  "vocab_size": 65536,
+  "moe_intermediate_size": 12288,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/LFM2-VL-1.6B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "LiquidAI/LFM2.5-VL-1.6B",
+  "provider": "Liquid AI",
+  "parameter_count": "1.6B",
+  "parameters_raw": 1596625904,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.8,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "lfm2_vl",
+  "hf_downloads": 68967,
+  "hf_likes": 287,
+  "release_date": "2026-01-05",
+  "num_hidden_layers": 16,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 2048,
+  "vocab_size": 65536,
+  "moe_intermediate_size": 12288,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/LFM2.5-VL-1.6B-GGUF",
+    "provider": "unsloth"
+   }
+  ]
+ },
+ {
+  "name": "stabilityai/stablelm-2-1_6b-chat",
+  "provider": "Stability AI",
+  "parameter_count": "1.6B",
+  "parameters_raw": 1644515328,
+  "min_ram_gb": 1.0,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 0.8,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "Instruction following, chat",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "stablelm",
+  "hf_downloads": 1441,
+  "hf_likes": 35,
+  "release_date": "2024-04-08",
+  "num_hidden_layers": 24,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 32,
+  "head_dim": 64,
+  "hidden_size": 2048,
+  "vocab_size": 100352,
+  "moe_intermediate_size": 5632,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/stablelm-2-1_6b-chat-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3-1.7B",
+  "provider": "Alibaba",
+  "parameter_count": "2.0B",
+  "parameters_raw": 2031739904,
+  "min_ram_gb": 1.1,
+  "recommended_ram_gb": 2.0,
+  "min_vram_gb": 1.0,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 40960,
+  "use_case": "General purpose text generation",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "qwen3",
+  "hf_downloads": 3685554,
+  "hf_likes": 474,
+  "release_date": "2025-04-27",
+  "num_hidden_layers": 28,
+  "num_attention_heads": 16,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 2048,
+  "vocab_size": 151936,
+  "moe_intermediate_size": 6144,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen3-1.7B-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "ggml-org/Qwen3-1.7B-GGUF",
+    "provider": "ggml-org"
+   },
+   {
+    "repo": "mradermacher/Qwen3-1.7B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3.5-2B",
+  "provider": "Alibaba",
+  "parameter_count": "2.3B",
+  "parameters_raw": 2274069824,
+  "min_ram_gb": 1.3,
+  "recommended_ram_gb": 2.1,
+  "min_vram_gb": 1.2,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "qwen3_5",
+  "hf_downloads": 1945756,
+  "hf_likes": 284,
+  "release_date": "2026-02-28",
+  "num_hidden_layers": 24,
+  "num_attention_heads": 8,
+  "num_key_value_heads": 2,
+  "head_dim": 256,
+  "hidden_size": 2048,
+  "vocab_size": 248320,
+  "moe_intermediate_size": 6144,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen3.5-2B-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "mradermacher/Qwen3.5-2B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3.5-2B-Base",
+  "provider": "Alibaba",
+  "parameter_count": "2.3B",
+  "parameters_raw": 2274069824,
+  "min_ram_gb": 1.3,
+  "recommended_ram_gb": 2.1,
+  "min_vram_gb": 1.2,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "qwen3_5",
+  "hf_downloads": 153113,
+  "hf_likes": 69,
+  "release_date": "2026-02-28",
+  "num_hidden_layers": 24,
+  "num_attention_heads": 8,
+  "num_key_value_heads": 2,
+  "head_dim": 256,
+  "hidden_size": 2048,
+  "vocab_size": 248320,
+  "moe_intermediate_size": 6144,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/Qwen3.5-2B-Base-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "LGAI-EXAONE/EXAONE-Deep-2.4B",
+  "provider": "lgai-exaone",
+  "parameter_count": "2.4B",
+  "parameters_raw": 2405327360,
+  "min_ram_gb": 1.3,
+  "recommended_ram_gb": 2.2,
+  "min_vram_gb": 1.2,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "exaone",
+  "hf_downloads": 952,
+  "hf_likes": 100,
+  "release_date": "2025-03-12",
+  "num_hidden_layers": null,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 80,
+  "hidden_size": 2560,
+  "vocab_size": 102400,
+  "moe_intermediate_size": 7168,
+  "shared_expert_intermediate_size": null
+ },
+ {
+  "name": "LiquidAI/LFM2-2.6B",
+  "provider": "Liquid AI",
+  "parameter_count": "2.6B",
+  "parameters_raw": 2569272320,
+  "min_ram_gb": 1.4,
+  "recommended_ram_gb": 2.4,
+  "min_vram_gb": 1.3,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "lfm2",
+  "hf_downloads": 6106,
+  "hf_likes": 187,
+  "release_date": "2025-09-22",
+  "num_hidden_layers": 30,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 2048,
+  "vocab_size": 65536,
+  "moe_intermediate_size": 10752,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/LFM2-2.6B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "LiquidAI/LFM2-2.6B-Exp",
+  "provider": "Liquid AI",
+  "parameter_count": "2.6B",
+  "parameters_raw": 2569272320,
+  "min_ram_gb": 1.4,
+  "recommended_ram_gb": 2.4,
+  "min_vram_gb": 1.3,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "lfm2",
+  "hf_downloads": 6913,
+  "hf_likes": 340,
+  "release_date": "2025-12-25",
+  "num_hidden_layers": 30,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 2048,
+  "vocab_size": 65536,
+  "moe_intermediate_size": 10752,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/LFM2-2.6B-Exp-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "mradermacher/LFM2-2.6B-Exp-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "LiquidAI/LFM2-2.6B-Transcript",
+  "provider": "Liquid AI",
+  "parameter_count": "2.6B",
+  "parameters_raw": 2569272320,
+  "min_ram_gb": 1.4,
+  "recommended_ram_gb": 2.4,
+  "min_vram_gb": 1.3,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "lfm2",
+  "hf_downloads": 516,
+  "hf_likes": 164,
+  "release_date": "2026-01-05",
+  "num_hidden_layers": 30,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 2048,
+  "vocab_size": 65536,
+  "moe_intermediate_size": 10752,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/LFM2-2.6B-Transcript-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "google/gemma-2-2b-it",
+  "provider": "Google",
+  "parameter_count": "2.6B",
+  "parameters_raw": 2614341888,
+  "min_ram_gb": 1.5,
+  "recommended_ram_gb": 2.4,
+  "min_vram_gb": 1.3,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "gemma2",
+  "hf_downloads": 387465,
+  "hf_likes": 1359,
+  "release_date": "2024-07-16",
+  "num_hidden_layers": null,
+  "num_attention_heads": null,
+  "num_key_value_heads": null,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": null,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "bartowski/gemma-2-2b-it-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/gemma-2-2b-it-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "shoumenchougou/RWKV7-G1f-2.9B-GGUF",
+  "provider": "RWKV",
+  "parameter_count": "2.9B",
+  "parameters_raw": 2900000000,
+  "min_ram_gb": 1.6,
+  "recommended_ram_gb": 2.7,
+  "min_vram_gb": 1.5,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 8192,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "rwkv",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": null
+ },
+ {
+  "name": "LiquidAI/LFM2-VL-3B",
+  "provider": "Liquid AI",
+  "parameter_count": "3.0B",
+  "parameters_raw": 2998975216,
+  "min_ram_gb": 1.7,
+  "recommended_ram_gb": 2.8,
+  "min_vram_gb": 1.5,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "lfm2_vl",
+  "hf_downloads": 12722,
+  "hf_likes": 134,
+  "release_date": "2025-10-22",
+  "num_hidden_layers": 30,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 2048,
+  "vocab_size": 65536,
+  "moe_intermediate_size": 10752,
+  "shared_expert_intermediate_size": null
+ },
+ {
+  "name": "HuggingFaceTB/SmolLM3-3B",
+  "provider": "huggingfacetb",
+  "parameter_count": "3.1B",
+  "parameters_raw": 3075098624,
+  "min_ram_gb": 1.7,
+  "recommended_ram_gb": 2.9,
+  "min_vram_gb": 1.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 65536,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "smollm3",
+  "hf_downloads": 305165,
+  "hf_likes": 960,
+  "release_date": "2025-07-08",
+  "num_hidden_layers": 36,
+  "num_attention_heads": 16,
+  "num_key_value_heads": 4,
+  "head_dim": 128,
+  "hidden_size": 2048,
+  "vocab_size": 128256,
+  "moe_intermediate_size": 11008,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/SmolLM3-3B-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "ggml-org/SmolLM3-3B-GGUF",
+    "provider": "ggml-org"
+   },
+   {
+    "repo": "mradermacher/SmolLM3-3B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "ibm-granite/granite-4.0-h-micro",
+  "provider": "ibm-granite",
+  "parameter_count": "3.2B",
+  "parameters_raw": 3191396096,
+  "min_ram_gb": 1.8,
+  "recommended_ram_gb": 3.0,
+  "min_vram_gb": 1.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 131072,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "granitemoehybrid",
+  "hf_downloads": 11262,
+  "hf_likes": 145,
+  "release_date": "2025-09-16",
+  "num_hidden_layers": 40,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 2048,
+  "vocab_size": 100352,
+  "moe_intermediate_size": 8192,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/granite-4.0-h-micro-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "mradermacher/granite-4.0-h-micro-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "meta-llama/Llama-3.2-3B",
+  "provider": "Meta",
+  "parameter_count": "3.2B",
+  "parameters_raw": 3212749824,
+  "min_ram_gb": 1.8,
+  "recommended_ram_gb": 3.0,
+  "min_vram_gb": 1.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "llama",
+  "hf_downloads": 1183471,
+  "hf_likes": 785,
+  "release_date": "2024-09-18",
+  "num_hidden_layers": null,
+  "num_attention_heads": null,
+  "num_key_value_heads": null,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": null,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/Llama-3.2-3B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "tiiuae/Falcon3-3B-Instruct",
+  "provider": "TII",
+  "parameter_count": "3.2B",
+  "parameters_raw": 3227655168,
+  "min_ram_gb": 1.8,
+  "recommended_ram_gb": 3.0,
+  "min_vram_gb": 1.7,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 32768,
+  "use_case": "Instruction following, chat",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "llama",
+  "hf_downloads": 6657,
+  "hf_likes": 28,
+  "release_date": "2024-12-14",
+  "num_hidden_layers": 22,
+  "num_attention_heads": 12,
+  "num_key_value_heads": 4,
+  "head_dim": 256,
+  "hidden_size": 3072,
+  "vocab_size": 131072,
+  "moe_intermediate_size": 9216,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "bartowski/Falcon3-3B-Instruct-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/Falcon3-3B-Instruct-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen2.5-VL-3B-Instruct",
+  "provider": "Alibaba",
+  "parameter_count": "3.8B",
+  "parameters_raw": 3754622976,
+  "min_ram_gb": 2.1,
+  "recommended_ram_gb": 3.5,
+  "min_vram_gb": 1.9,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "Instruction following, chat",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "qwen2_5_vl",
+  "hf_downloads": 4519937,
+  "hf_likes": 648,
+  "release_date": "2025-01-26",
+  "num_hidden_layers": 36,
+  "num_attention_heads": 16,
+  "num_key_value_heads": 2,
+  "head_dim": 128,
+  "hidden_size": 2048,
+  "vocab_size": 151936,
+  "moe_intermediate_size": 11008,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen2.5-VL-3B-Instruct-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "ggml-org/Qwen2.5-VL-3B-Instruct-GGUF",
+    "provider": "ggml-org"
+   },
+   {
+    "repo": "mradermacher/Qwen2.5-VL-3B-Instruct-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "microsoft/Phi-4-mini-reasoning",
+  "provider": "Microsoft",
+  "parameter_count": "3.8B",
+  "parameters_raw": 3800000000,
+  "min_ram_gb": 2.1,
+  "recommended_ram_gb": 3.5,
+  "min_vram_gb": 1.9,
+  "quantization": "Q4_K_M",
+  "context_length": 16384,
+  "use_case": "Lightweight reasoning",
+  "pipeline_tag": "text-generation",
+  "architecture": "phi4",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": "2025-04-01",
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Phi-4-mini-reasoning-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "mradermacher/Phi-4-mini-reasoning-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "microsoft/phi-3-mini-4k-instruct",
+  "provider": "Microsoft",
+  "parameter_count": "3.8B",
+  "parameters_raw": 3821079552,
+  "min_ram_gb": 2.1,
+  "recommended_ram_gb": 3.6,
+  "min_vram_gb": 2.0,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "Instruction following, chat",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "phi3",
+  "hf_downloads": 708794,
+  "hf_likes": 1422,
+  "release_date": "2024-04-22",
+  "num_hidden_layers": 32,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 32,
+  "head_dim": 96,
+  "hidden_size": 3072,
+  "vocab_size": 32064,
+  "moe_intermediate_size": 8192,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "bartowski/phi-3-mini-4k-instruct-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/phi-3-mini-4k-instruct-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "microsoft/Phi-3.5-mini-instruct",
+  "provider": "Microsoft",
+  "parameter_count": "3.8B",
+  "parameters_raw": 3821079552,
+  "min_ram_gb": 2.1,
+  "recommended_ram_gb": 3.6,
+  "min_vram_gb": 2.0,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 131072,
+  "use_case": "Instruction following, chat",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "phi3",
+  "hf_downloads": 701846,
+  "hf_likes": 980,
+  "release_date": "2024-08-16",
+  "num_hidden_layers": 32,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 32,
+  "head_dim": 96,
+  "hidden_size": 3072,
+  "vocab_size": 32064,
+  "moe_intermediate_size": 8192,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "bartowski/Phi-3.5-mini-instruct-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/Phi-3.5-mini-instruct-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "google/gemma-3n-E2B-it",
+  "provider": "Google",
+  "parameter_count": "4B",
+  "parameters_raw": 4000000000,
+  "min_ram_gb": 2.2,
+  "recommended_ram_gb": 3.7,
+  "min_vram_gb": 2.1,
+  "quantization": "Q4_K_M",
+  "context_length": 131072,
+  "use_case": "Multimodal, on-device (effective 2B)",
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "gemma3n",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": "2025-06-25",
+  "gguf_sources": [
+   {
+    "repo": "unsloth/gemma-3n-E2B-it-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "ggml-org/gemma-3n-E2B-it-GGUF",
+    "provider": "ggml-org"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3-4B",
+  "provider": "Alibaba",
+  "parameter_count": "4.0B",
+  "parameters_raw": 4022468096,
+  "min_ram_gb": 2.2,
+  "recommended_ram_gb": 3.7,
+  "min_vram_gb": 2.1,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 40960,
+  "use_case": "General purpose text generation",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "qwen3",
+  "hf_downloads": 9938728,
+  "hf_likes": 615,
+  "release_date": "2025-04-27",
+  "num_hidden_layers": 36,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 2560,
+  "vocab_size": 151936,
+  "moe_intermediate_size": 9728,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen3-4B-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "ggml-org/Qwen3-4B-GGUF",
+    "provider": "ggml-org"
+   },
+   {
+    "repo": "mradermacher/Qwen3-4B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "google/gemma-3-4b-it",
+  "provider": "Google",
+  "parameter_count": "4.3B",
+  "parameters_raw": 4300079472,
+  "min_ram_gb": 2.4,
+  "recommended_ram_gb": 4.0,
+  "min_vram_gb": 2.2,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "gemma3",
+  "hf_downloads": 2017550,
+  "hf_likes": 1332,
+  "release_date": "2025-02-20",
+  "num_hidden_layers": null,
+  "num_attention_heads": null,
+  "num_key_value_heads": null,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": null,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/gemma-3-4b-it-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "ggml-org/gemma-3-4b-it-GGUF",
+    "provider": "ggml-org"
+   },
+   {
+    "repo": "mradermacher/gemma-3-4b-it-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3.5-4B",
+  "provider": "Alibaba",
+  "parameter_count": "4.7B",
+  "parameters_raw": 4659865088,
+  "min_ram_gb": 2.6,
+  "recommended_ram_gb": 4.3,
+  "min_vram_gb": 2.4,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "qwen3_5",
+  "hf_downloads": 8078482,
+  "hf_likes": 554,
+  "release_date": "2026-02-27",
+  "num_hidden_layers": 32,
+  "num_attention_heads": 16,
+  "num_key_value_heads": 4,
+  "head_dim": 256,
+  "hidden_size": 2560,
+  "vocab_size": 248320,
+  "moe_intermediate_size": 9216,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen3.5-4B-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "mradermacher/Qwen3.5-4B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3.5-4B-Base",
+  "provider": "Alibaba",
+  "parameter_count": "4.7B",
+  "parameters_raw": 4659865088,
+  "min_ram_gb": 2.6,
+  "recommended_ram_gb": 4.3,
+  "min_vram_gb": 2.4,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "qwen3_5",
+  "hf_downloads": 179705,
+  "hf_likes": 65,
+  "release_date": "2026-02-27",
+  "num_hidden_layers": 32,
+  "num_attention_heads": 16,
+  "num_key_value_heads": 4,
+  "head_dim": 256,
+  "hidden_size": 2560,
+  "vocab_size": 248320,
+  "moe_intermediate_size": 9216,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/Qwen3.5-4B-Base-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "01-ai/Yi-6B-Chat",
+  "provider": "01.ai",
+  "parameter_count": "6.1B",
+  "parameters_raw": 6061035520,
+  "min_ram_gb": 3.4,
+  "recommended_ram_gb": 5.6,
+  "min_vram_gb": 3.1,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "Instruction following, chat",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "llama",
+  "hf_downloads": 65633,
+  "hf_likes": 70,
+  "release_date": "2023-11-22",
+  "num_hidden_layers": 32,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 4,
+  "head_dim": 128,
+  "hidden_size": 4096,
+  "vocab_size": 64000,
+  "moe_intermediate_size": 11008,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/Yi-6B-Chat-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "lmsys/vicuna-7b-v1.5",
+  "provider": "LMSYS",
+  "parameter_count": "7.0B",
+  "parameters_raw": 6738415616,
+  "min_ram_gb": 3.8,
+  "recommended_ram_gb": 6.3,
+  "min_vram_gb": 3.4,
+  "quantization": "Q4_K_M",
+  "context_length": 4096,
+  "use_case": "Instruction following, chat",
+  "pipeline_tag": "text-generation",
+  "architecture": "llama",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": null,
+  "gguf_sources": [
+   {
+    "repo": "TheBloke/vicuna-7b-v1.5-GGUF",
+    "provider": "TheBloke"
+   },
+   {
+    "repo": "mradermacher/vicuna-7b-v1.5-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "meta-llama/CodeLlama-7b-Instruct-hf",
+  "provider": "Meta",
+  "parameter_count": "6.7B",
+  "parameters_raw": 6738546688,
+  "min_ram_gb": 3.8,
+  "recommended_ram_gb": 6.3,
+  "min_vram_gb": 3.5,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "Code generation and completion",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "llama",
+  "hf_downloads": 1083,
+  "hf_likes": 60,
+  "release_date": "2024-03-13",
+  "num_hidden_layers": null,
+  "num_attention_heads": null,
+  "num_key_value_heads": null,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": null,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/CodeLlama-7b-Instruct-hf-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "ibm-granite/granite-4.0-h-tiny",
+  "provider": "ibm-granite",
+  "parameter_count": "6.9B",
+  "parameters_raw": 6939037248,
+  "min_ram_gb": 3.9,
+  "recommended_ram_gb": 6.5,
+  "min_vram_gb": 3.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 131072,
+  "use_case": "Lightweight, edge deployment",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "granitemoehybrid",
+  "hf_downloads": 99670,
+  "hf_likes": 202,
+  "release_date": "2025-09-16",
+  "num_hidden_layers": 40,
+  "num_attention_heads": 12,
+  "num_key_value_heads": 4,
+  "head_dim": 128,
+  "hidden_size": 1536,
+  "vocab_size": 100352,
+  "moe_intermediate_size": 512,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 64,
+  "active_experts": 6,
+  "active_parameters": 964959866,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/granite-4.0-h-tiny-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "mradermacher/granite-4.0-h-tiny-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "openchat/openchat-3.5-0106",
+  "provider": "OpenChat",
+  "parameter_count": "7.0B",
+  "parameters_raw": 7000000000,
+  "min_ram_gb": 3.9,
+  "recommended_ram_gb": 6.5,
+  "min_vram_gb": 3.6,
+  "quantization": "Q4_K_M",
+  "context_length": 8192,
+  "use_case": "Instruction following, chat",
+  "pipeline_tag": "text-generation",
+  "architecture": "mistral",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": null,
+  "gguf_sources": [
+   {
+    "repo": "TheBloke/openchat-3.5-0106-GGUF",
+    "provider": "TheBloke"
+   },
+   {
+    "repo": "mradermacher/openchat-3.5-0106-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "XiaomiMiMo/MiMo-7B-RL",
+  "provider": "Xiaomi",
+  "parameter_count": "7.0B",
+  "parameters_raw": 7000000000,
+  "min_ram_gb": 3.9,
+  "recommended_ram_gb": 6.5,
+  "min_vram_gb": 3.6,
+  "quantization": "Q4_K_M",
+  "context_length": 32768,
+  "use_case": "Advanced reasoning, math and code",
+  "pipeline_tag": "text-generation",
+  "architecture": "mimo",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": "2025-05-01"
+ },
+ {
+  "name": "microsoft/Orca-2-7b",
+  "provider": "Microsoft",
+  "parameter_count": "7.0B",
+  "parameters_raw": 7016400896,
+  "min_ram_gb": 3.9,
+  "recommended_ram_gb": 6.5,
+  "min_vram_gb": 3.6,
+  "quantization": "Q4_K_M",
+  "context_length": 4096,
+  "use_case": "Reasoning, step-by-step solutions",
+  "pipeline_tag": "text-generation",
+  "architecture": "llama",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": null,
+  "gguf_sources": [
+   {
+    "repo": "TheBloke/Orca-2-7b-GGUF",
+    "provider": "TheBloke"
+   },
+   {
+    "repo": "mradermacher/Orca-2-7b-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "bigcode/starcoder2-7b",
+  "provider": "BigCode",
+  "parameter_count": "7.2B",
+  "parameters_raw": 7173923840,
+  "min_ram_gb": 4.0,
+  "recommended_ram_gb": 6.7,
+  "min_vram_gb": 3.7,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 16384,
+  "use_case": "Code generation and completion",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "starcoder2",
+  "hf_downloads": 10407,
+  "hf_likes": 215,
+  "release_date": "2024-02-20",
+  "num_hidden_layers": 32,
+  "num_attention_heads": 36,
+  "num_key_value_heads": 4,
+  "head_dim": 128,
+  "hidden_size": 4608,
+  "vocab_size": 49152,
+  "moe_intermediate_size": 18432,
+  "shared_expert_intermediate_size": null
+ },
+ {
+  "name": "shoumenchougou/RWKV7-G1f-7.2B-GGUF",
+  "provider": "RWKV",
+  "parameter_count": "7.2B",
+  "parameters_raw": 7200000000,
+  "min_ram_gb": 4.0,
+  "recommended_ram_gb": 6.7,
+  "min_vram_gb": 3.7,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 8192,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "rwkv",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": null
+ },
+ {
+  "name": "tiiuae/falcon-7b-instruct",
+  "provider": "TII",
+  "parameter_count": "7.2B",
+  "parameters_raw": 7217189760,
+  "min_ram_gb": 4.0,
+  "recommended_ram_gb": 6.7,
+  "min_vram_gb": 3.7,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "Instruction following, chat",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "falcon",
+  "hf_downloads": 65051,
+  "hf_likes": 1032,
+  "release_date": "2023-04-25",
+  "num_hidden_layers": 32,
+  "num_attention_heads": 71,
+  "num_key_value_heads": 71,
+  "head_dim": 64,
+  "hidden_size": 4544,
+  "vocab_size": 65024,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/falcon-7b-instruct-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "HuggingFaceH4/zephyr-7b-beta",
+  "provider": "HuggingFace",
+  "parameter_count": "7.2B",
+  "parameters_raw": 7241732096,
+  "min_ram_gb": 4.0,
+  "recommended_ram_gb": 6.7,
+  "min_vram_gb": 3.7,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 32768,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "mistral",
+  "hf_downloads": 180544,
+  "hf_likes": 1843,
+  "release_date": "2023-10-26",
+  "num_hidden_layers": 32,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 4096,
+  "vocab_size": 32000,
+  "moe_intermediate_size": 14336,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "TheBloke/zephyr-7b-beta-GGUF",
+    "provider": "TheBloke"
+   },
+   {
+    "repo": "mradermacher/zephyr-7b-beta-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "tiiuae/Falcon3-7B-Instruct",
+  "provider": "TII",
+  "parameter_count": "7.5B",
+  "parameters_raw": 7455550464,
+  "min_ram_gb": 4.2,
+  "recommended_ram_gb": 6.9,
+  "min_vram_gb": 3.8,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 32768,
+  "use_case": "Instruction following, chat",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "llama",
+  "hf_downloads": 14597,
+  "hf_likes": 79,
+  "release_date": "2024-11-29",
+  "num_hidden_layers": 28,
+  "num_attention_heads": 12,
+  "num_key_value_heads": 4,
+  "head_dim": 256,
+  "hidden_size": 3072,
+  "vocab_size": 131072,
+  "moe_intermediate_size": 23040,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "bartowski/Falcon3-7B-Instruct-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/Falcon3-7B-Instruct-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen2.5-7B-Instruct",
+  "provider": "Alibaba",
+  "parameter_count": "7.6B",
+  "parameters_raw": 7615616512,
+  "min_ram_gb": 4.3,
+  "recommended_ram_gb": 7.1,
+  "min_vram_gb": 3.9,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 32768,
+  "use_case": "Instruction following, chat",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "qwen2",
+  "hf_downloads": 13315813,
+  "hf_likes": 1292,
+  "release_date": "2024-09-16",
+  "num_hidden_layers": 28,
+  "num_attention_heads": 28,
+  "num_key_value_heads": 4,
+  "head_dim": 128,
+  "hidden_size": 3584,
+  "vocab_size": 152064,
+  "moe_intermediate_size": 18944,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/Qwen2.5-7B-Instruct-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "provider": "Alibaba",
+  "parameter_count": "7.6B",
+  "parameters_raw": 7615616512,
+  "min_ram_gb": 4.3,
+  "recommended_ram_gb": 7.1,
+  "min_vram_gb": 3.9,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 32768,
+  "use_case": "Code generation and completion",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "qwen2",
+  "hf_downloads": 2434251,
+  "hf_likes": 707,
+  "release_date": "2024-09-17",
+  "num_hidden_layers": 28,
+  "num_attention_heads": 28,
+  "num_key_value_heads": 4,
+  "head_dim": 128,
+  "hidden_size": 3584,
+  "vocab_size": 152064,
+  "moe_intermediate_size": 18944,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen2.5-Coder-7B-Instruct-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "bartowski/Qwen2.5-Coder-7B-Instruct-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/Qwen2.5-Coder-7B-Instruct-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+  "provider": "DeepSeek",
+  "parameter_count": "7.6B",
+  "parameters_raw": 7615616512,
+  "min_ram_gb": 4.3,
+  "recommended_ram_gb": 7.1,
+  "min_vram_gb": 3.9,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 131072,
+  "use_case": "Advanced reasoning, chain-of-thought",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "qwen2",
+  "hf_downloads": 671067,
+  "hf_likes": 833,
+  "release_date": "2025-01-20",
+  "num_hidden_layers": 28,
+  "num_attention_heads": 28,
+  "num_key_value_heads": 4,
+  "head_dim": 128,
+  "hidden_size": 3584,
+  "vocab_size": 152064,
+  "moe_intermediate_size": 18944,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/DeepSeek-R1-Distill-Qwen-7B-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/DeepSeek-R1-Distill-Qwen-7B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "google/gemma-3n-E4B-it",
+  "provider": "Google",
+  "parameter_count": "8B",
+  "parameters_raw": 8000000000,
+  "min_ram_gb": 4.5,
+  "recommended_ram_gb": 7.5,
+  "min_vram_gb": 4.1,
+  "quantization": "Q4_K_M",
+  "context_length": 131072,
+  "use_case": "Multimodal, on-device (effective 4B)",
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "gemma3n",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": "2025-06-25",
+  "gguf_sources": [
+   {
+    "repo": "unsloth/gemma-3n-E4B-it-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "ggml-org/gemma-3n-E4B-it-GGUF",
+    "provider": "ggml-org"
+   },
+   {
+    "repo": "mradermacher/gemma-3n-E4B-it-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "meta-llama/Llama-3.1-8B",
+  "provider": "Meta",
+  "parameter_count": "8.0B",
+  "parameters_raw": 8030261248,
+  "min_ram_gb": 4.5,
+  "recommended_ram_gb": 7.5,
+  "min_vram_gb": 4.1,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "llama",
+  "hf_downloads": 1303067,
+  "hf_likes": 2199,
+  "release_date": "2024-07-14",
+  "num_hidden_layers": null,
+  "num_attention_heads": null,
+  "num_key_value_heads": null,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": null,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null
+ },
+ {
+  "name": "meta-llama/Llama-3.1-8B-Instruct",
+  "provider": "Meta",
+  "parameter_count": "8.0B",
+  "parameters_raw": 8030261248,
+  "min_ram_gb": 4.5,
+  "recommended_ram_gb": 7.5,
+  "min_vram_gb": 4.1,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "Instruction following, chat",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "llama",
+  "hf_downloads": 10815581,
+  "hf_likes": 5878,
+  "release_date": "2024-07-18",
+  "num_hidden_layers": null,
+  "num_attention_heads": null,
+  "num_key_value_heads": null,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": null,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Llama-3.1-8B-Instruct-GGUF",
+    "provider": "unsloth"
+   }
+  ]
+ },
+ {
+  "name": "mistralai/Ministral-8B-Instruct-2410",
+  "provider": "Mistral AI",
+  "parameter_count": "8.0B",
+  "parameters_raw": 8030261248,
+  "min_ram_gb": 4.5,
+  "recommended_ram_gb": 7.5,
+  "min_vram_gb": 4.1,
+  "quantization": "Q4_K_M",
+  "context_length": 32768,
+  "use_case": "Instruction following, chat",
+  "pipeline_tag": "text-generation",
+  "architecture": "mistral",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": null,
+  "gguf_sources": [
+   {
+    "repo": "bartowski/Ministral-8B-Instruct-2410-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/Ministral-8B-Instruct-2410-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3-8B",
+  "provider": "Alibaba",
+  "parameter_count": "8.2B",
+  "parameters_raw": 8190735360,
+  "min_ram_gb": 4.6,
+  "recommended_ram_gb": 7.6,
+  "min_vram_gb": 4.2,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 40960,
+  "use_case": "General purpose text generation",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "qwen3",
+  "hf_downloads": 11949830,
+  "hf_likes": 1096,
+  "release_date": "2025-04-27",
+  "num_hidden_layers": 36,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 4096,
+  "vocab_size": 151936,
+  "moe_intermediate_size": 12288,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen3-8B-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "ggml-org/Qwen3-8B-GGUF",
+    "provider": "ggml-org"
+   },
+   {
+    "repo": "mradermacher/Qwen3-8B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen2.5-VL-7B-Instruct",
+  "provider": "Alibaba",
+  "parameter_count": "8.3B",
+  "parameters_raw": 8292166656,
+  "min_ram_gb": 4.6,
+  "recommended_ram_gb": 7.7,
+  "min_vram_gb": 4.2,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "Instruction following, chat",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "qwen2_5_vl",
+  "hf_downloads": 4571094,
+  "hf_likes": 1542,
+  "release_date": "2025-01-26",
+  "num_hidden_layers": 28,
+  "num_attention_heads": 28,
+  "num_key_value_heads": 4,
+  "head_dim": 128,
+  "hidden_size": 3584,
+  "vocab_size": 152064,
+  "moe_intermediate_size": 18944,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen2.5-VL-7B-Instruct-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "ggml-org/Qwen2.5-VL-7B-Instruct-GGUF",
+    "provider": "ggml-org"
+   },
+   {
+    "repo": "mradermacher/Qwen2.5-VL-7B-Instruct-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "LiquidAI/LFM2-8B-A1B",
+  "provider": "Liquid AI",
+  "parameter_count": "8.3B",
+  "parameters_raw": 8339929856,
+  "min_ram_gb": 4.7,
+  "recommended_ram_gb": 7.8,
+  "min_vram_gb": 4.3,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "lfm2_moe",
+  "hf_downloads": 70799,
+  "hf_likes": 358,
+  "release_date": "2025-10-07",
+  "num_hidden_layers": 24,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 2048,
+  "vocab_size": 65536,
+  "moe_intermediate_size": 1792,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 32,
+  "active_experts": 4,
+  "active_parameters": 1500000000,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/LFM2-8B-A1B-GGUF",
+    "provider": "unsloth"
+   }
+  ]
+ },
+ {
+  "name": "nvidia/NVIDIA-Nemotron-Nano-9B-v2",
+  "provider": "nvidia",
+  "parameter_count": "8.9B",
+  "parameters_raw": 8888227328,
+  "min_ram_gb": 5.0,
+  "recommended_ram_gb": 8.3,
+  "min_vram_gb": 4.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 131072,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "nemotron_h",
+  "hf_downloads": 488553,
+  "hf_likes": 492,
+  "release_date": "2025-08-12",
+  "num_hidden_layers": 56,
+  "num_attention_heads": 40,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 4480,
+  "vocab_size": 131072,
+  "moe_intermediate_size": 15680,
+  "shared_expert_intermediate_size": null
+ },
+ {
+  "name": "google/gemma-2-9b-it",
+  "provider": "Google",
+  "parameter_count": "9.2B",
+  "parameters_raw": 9241705984,
+  "min_ram_gb": 5.2,
+  "recommended_ram_gb": 8.6,
+  "min_vram_gb": 4.7,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "gemma2",
+  "hf_downloads": 408816,
+  "hf_likes": 804,
+  "release_date": "2024-06-24",
+  "num_hidden_layers": null,
+  "num_attention_heads": null,
+  "num_key_value_heads": null,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": null,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "bartowski/gemma-2-9b-it-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/gemma-2-9b-it-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3.5-9B",
+  "provider": "Alibaba",
+  "parameter_count": "9.7B",
+  "parameters_raw": 9653104368,
+  "min_ram_gb": 5.4,
+  "recommended_ram_gb": 9.0,
+  "min_vram_gb": 4.9,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "qwen3_5",
+  "hf_downloads": 7968791,
+  "hf_likes": 1472,
+  "release_date": "2026-02-27",
+  "num_hidden_layers": 32,
+  "num_attention_heads": 16,
+  "num_key_value_heads": 4,
+  "head_dim": 256,
+  "hidden_size": 4096,
+  "vocab_size": 248320,
+  "moe_intermediate_size": 12288,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen3.5-9B-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "mradermacher/Qwen3.5-9B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3.5-9B-Base",
+  "provider": "Alibaba",
+  "parameter_count": "9.7B",
+  "parameters_raw": 9653104368,
+  "min_ram_gb": 5.4,
+  "recommended_ram_gb": 9.0,
+  "min_vram_gb": 4.9,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "qwen3_5",
+  "hf_downloads": 143046,
+  "hf_likes": 76,
+  "release_date": "2026-02-26",
+  "num_hidden_layers": 32,
+  "num_attention_heads": 16,
+  "num_key_value_heads": 4,
+  "head_dim": 256,
+  "hidden_size": 4096,
+  "vocab_size": 248320,
+  "moe_intermediate_size": 12288,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/Qwen3.5-9B-Base-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Jackrong/Qwen3.5-9B-Claude-4.6-Opus-Reasoning-Distilled-v2",
+  "provider": "jackrong",
+  "parameter_count": "9.7B",
+  "parameters_raw": 9653104368,
+  "min_ram_gb": 5.4,
+  "recommended_ram_gb": 9.0,
+  "min_vram_gb": 4.9,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "Advanced reasoning, chain-of-thought",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "qwen3_5",
+  "hf_downloads": 4397,
+  "hf_likes": 167,
+  "release_date": "2026-03-16",
+  "num_hidden_layers": 32,
+  "num_attention_heads": 16,
+  "num_key_value_heads": 4,
+  "head_dim": 256,
+  "hidden_size": 4096,
+  "vocab_size": 248320,
+  "moe_intermediate_size": 12288,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/Qwen3.5-9B-Claude-4.6-Opus-Reasoning-Distilled-v2-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "meta-llama/Llama-3.2-11B-Vision-Instruct",
+  "provider": "Meta",
+  "parameter_count": "10.7B",
+  "parameters_raw": 10670220835,
+  "min_ram_gb": 6.0,
+  "recommended_ram_gb": 9.9,
+  "min_vram_gb": 5.5,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "Instruction following, chat",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "mllama",
+  "hf_downloads": 231033,
+  "hf_likes": 1592,
+  "release_date": "2024-09-18",
+  "num_hidden_layers": null,
+  "num_attention_heads": null,
+  "num_key_value_heads": null,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": null,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null
+ },
+ {
+  "name": "upstage/SOLAR-10.7B-Instruct-v1.0",
+  "provider": "Upstage",
+  "parameter_count": "10.7B",
+  "parameters_raw": 10731524096,
+  "min_ram_gb": 6.0,
+  "recommended_ram_gb": 10.0,
+  "min_vram_gb": 5.5,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "Instruction following, chat",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "llama",
+  "hf_downloads": 61278,
+  "hf_likes": 655,
+  "release_date": "2023-12-12",
+  "num_hidden_layers": 48,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 4096,
+  "vocab_size": 32000,
+  "moe_intermediate_size": 14336,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "TheBloke/SOLAR-10.7B-Instruct-v1.0-GGUF",
+    "provider": "TheBloke"
+   },
+   {
+    "repo": "mradermacher/SOLAR-10.7B-Instruct-v1.0-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "google/gemma-3-12b-it",
+  "provider": "Google",
+  "parameter_count": "12B",
+  "parameters_raw": 12000000000,
+  "min_ram_gb": 6.7,
+  "recommended_ram_gb": 11.2,
+  "min_vram_gb": 6.1,
+  "quantization": "Q4_K_M",
+  "context_length": 131072,
+  "use_case": "Multimodal, vision and text",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "gemma3",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/gemma-3-12b-it-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "ggml-org/gemma-3-12b-it-GGUF",
+    "provider": "ggml-org"
+   },
+   {
+    "repo": "mradermacher/gemma-3-12b-it-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "mistralai/Mistral-Nemo-Instruct-2407",
+  "provider": "Mistral AI",
+  "parameter_count": "12.2B",
+  "parameters_raw": 12247076864,
+  "min_ram_gb": 6.8,
+  "recommended_ram_gb": 11.4,
+  "min_vram_gb": 6.3,
+  "quantization": "Q4_K_M",
+  "context_length": 131072,
+  "use_case": "Instruction following, chat",
+  "pipeline_tag": "text-generation",
+  "architecture": "mistral",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Mistral-Nemo-Instruct-2407-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "bartowski/Mistral-Nemo-Instruct-2407-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/Mistral-Nemo-Instruct-2407-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "microsoft/Orca-2-13b",
+  "provider": "Microsoft",
+  "parameter_count": "13.0B",
+  "parameters_raw": 13015864320,
+  "min_ram_gb": 7.3,
+  "recommended_ram_gb": 12.1,
+  "min_vram_gb": 6.7,
+  "quantization": "Q4_K_M",
+  "context_length": 4096,
+  "use_case": "Reasoning, step-by-step solutions",
+  "pipeline_tag": "text-generation",
+  "architecture": "llama",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": null,
+  "gguf_sources": [
+   {
+    "repo": "TheBloke/Orca-2-13b-GGUF",
+    "provider": "TheBloke"
+   },
+   {
+    "repo": "mradermacher/Orca-2-13b-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "lmsys/vicuna-13b-v1.5",
+  "provider": "LMSYS",
+  "parameter_count": "13.0B",
+  "parameters_raw": 13015864320,
+  "min_ram_gb": 7.3,
+  "recommended_ram_gb": 12.1,
+  "min_vram_gb": 6.7,
+  "quantization": "Q4_K_M",
+  "context_length": 4096,
+  "use_case": "Instruction following, chat",
+  "pipeline_tag": "text-generation",
+  "architecture": "llama",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": null,
+  "gguf_sources": [
+   {
+    "repo": "TheBloke/vicuna-13b-v1.5-GGUF",
+    "provider": "TheBloke"
+   },
+   {
+    "repo": "mradermacher/vicuna-13b-v1.5-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "WizardLMTeam/WizardLM-13B-V1.2",
+  "provider": "WizardLM",
+  "parameter_count": "13.0B",
+  "parameters_raw": 13015864320,
+  "min_ram_gb": 7.3,
+  "recommended_ram_gb": 12.1,
+  "min_vram_gb": 6.7,
+  "quantization": "Q4_K_M",
+  "context_length": 4096,
+  "use_case": "Instruction following, chat",
+  "pipeline_tag": "text-generation",
+  "architecture": "llama",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": null,
+  "gguf_sources": [
+   {
+    "repo": "TheBloke/WizardLM-13B-V1.2-GGUF",
+    "provider": "TheBloke"
+   },
+   {
+    "repo": "mradermacher/WizardLM-13B-V1.2-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "meta-llama/CodeLlama-13b-Instruct-hf",
+  "provider": "Meta",
+  "parameter_count": "13.0B",
+  "parameters_raw": 13016028160,
+  "min_ram_gb": 7.3,
+  "recommended_ram_gb": 12.1,
+  "min_vram_gb": 6.7,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "Code generation and completion",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "llama",
+  "hf_downloads": 602,
+  "hf_likes": 28,
+  "release_date": "2024-03-13",
+  "num_hidden_layers": null,
+  "num_attention_heads": null,
+  "num_key_value_heads": null,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": null,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/CodeLlama-13b-Instruct-hf-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "shoumenchougou/RWKV7-G1f-13.3B-GGUF",
+  "provider": "RWKV",
+  "parameter_count": "13.3B",
+  "parameters_raw": 13300000000,
+  "min_ram_gb": 7.4,
+  "recommended_ram_gb": 12.4,
+  "min_vram_gb": 6.8,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 8192,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "rwkv",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": null
+ },
+ {
+  "name": "microsoft/phi-4",
+  "provider": "Microsoft",
+  "parameter_count": "14B",
+  "parameters_raw": 14000000000,
+  "min_ram_gb": 7.8,
+  "recommended_ram_gb": 13.0,
+  "min_vram_gb": 7.2,
+  "quantization": "Q4_K_M",
+  "context_length": 16384,
+  "use_case": "Reasoning, STEM, code generation",
+  "pipeline_tag": "text-generation",
+  "architecture": "phi",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/phi-4-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "bartowski/phi-4-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/phi-4-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "microsoft/Phi-3-medium-14b-instruct",
+  "provider": "Microsoft",
+  "parameter_count": "14B",
+  "parameters_raw": 14000000000,
+  "min_ram_gb": 7.8,
+  "recommended_ram_gb": 13.0,
+  "min_vram_gb": 7.2,
+  "quantization": "Q4_K_M",
+  "context_length": 4096,
+  "use_case": "Balanced performance and size",
+  "pipeline_tag": "text-generation",
+  "architecture": "phi3",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": null
+ },
+ {
+  "name": "microsoft/Phi-4-reasoning",
+  "provider": "Microsoft",
+  "parameter_count": "14B",
+  "parameters_raw": 14000000000,
+  "min_ram_gb": 7.8,
+  "recommended_ram_gb": 13.0,
+  "min_vram_gb": 7.2,
+  "quantization": "Q4_K_M",
+  "context_length": 32768,
+  "use_case": "Advanced reasoning, math and code",
+  "pipeline_tag": "text-generation",
+  "architecture": "phi4",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": "2025-04-01",
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Phi-4-reasoning-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "mradermacher/Phi-4-reasoning-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3-14B",
+  "provider": "Alibaba",
+  "parameter_count": "14.8B",
+  "parameters_raw": 14768307200,
+  "min_ram_gb": 8.3,
+  "recommended_ram_gb": 13.8,
+  "min_vram_gb": 7.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 40960,
+  "use_case": "General purpose text generation",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "qwen3",
+  "hf_downloads": 2232422,
+  "hf_likes": 399,
+  "release_date": "2025-04-27",
+  "num_hidden_layers": 40,
+  "num_attention_heads": 40,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 5120,
+  "vocab_size": 151936,
+  "moe_intermediate_size": 17408,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen3-14B-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "ggml-org/Qwen3-14B-GGUF",
+    "provider": "ggml-org"
+   },
+   {
+    "repo": "mradermacher/Qwen3-14B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen2.5-14B-Instruct",
+  "provider": "Alibaba",
+  "parameter_count": "14.8B",
+  "parameters_raw": 14770033664,
+  "min_ram_gb": 8.3,
+  "recommended_ram_gb": 13.8,
+  "min_vram_gb": 7.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 32768,
+  "use_case": "Instruction following, chat",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "qwen2",
+  "hf_downloads": 2468207,
+  "hf_likes": 337,
+  "release_date": "2024-09-16",
+  "num_hidden_layers": 48,
+  "num_attention_heads": 40,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 5120,
+  "vocab_size": 152064,
+  "moe_intermediate_size": 13824,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "bartowski/Qwen2.5-14B-Instruct-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/Qwen2.5-14B-Instruct-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen2.5-Coder-14B-Instruct",
+  "provider": "Alibaba",
+  "parameter_count": "14.8B",
+  "parameters_raw": 14770033664,
+  "min_ram_gb": 8.3,
+  "recommended_ram_gb": 13.8,
+  "min_vram_gb": 7.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 32768,
+  "use_case": "Code generation and completion",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "qwen2",
+  "hf_downloads": 1551591,
+  "hf_likes": 156,
+  "release_date": "2024-11-06",
+  "num_hidden_layers": 48,
+  "num_attention_heads": 40,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 5120,
+  "vocab_size": 152064,
+  "moe_intermediate_size": 13824,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen2.5-Coder-14B-Instruct-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "bartowski/Qwen2.5-Coder-14B-Instruct-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/Qwen2.5-Coder-14B-Instruct-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "WizardLMTeam/WizardCoder-15B-V1.0",
+  "provider": "WizardLM",
+  "parameter_count": "15.5B",
+  "parameters_raw": 15515334656,
+  "min_ram_gb": 8.7,
+  "recommended_ram_gb": 14.5,
+  "min_vram_gb": 7.9,
+  "quantization": "Q4_K_M",
+  "context_length": 8192,
+  "use_case": "Code generation and completion",
+  "pipeline_tag": "text-generation",
+  "architecture": "starcoder",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/WizardCoder-15B-V1.0-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "bigcode/starcoder2-15b",
+  "provider": "BigCode",
+  "parameter_count": "15.7B",
+  "parameters_raw": 15700000000,
+  "min_ram_gb": 8.8,
+  "recommended_ram_gb": 14.6,
+  "min_vram_gb": 8.0,
+  "quantization": "Q4_K_M",
+  "context_length": 16384,
+  "use_case": "Code generation and completion",
+  "pipeline_tag": "text-generation",
+  "architecture": "starcoder2",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/starcoder2-15b-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct",
+  "provider": "DeepSeek",
+  "parameter_count": "15.7B",
+  "parameters_raw": 15706484224,
+  "min_ram_gb": 8.8,
+  "recommended_ram_gb": 14.6,
+  "min_vram_gb": 8.0,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 6553600,
+  "use_case": "Code generation and completion",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "deepseek_v2",
+  "hf_downloads": 1129334,
+  "hf_likes": 599,
+  "release_date": "2024-06-14",
+  "num_hidden_layers": 27,
+  "num_attention_heads": 16,
+  "num_key_value_heads": 16,
+  "head_dim": 128,
+  "hidden_size": 2048,
+  "vocab_size": 102400,
+  "moe_intermediate_size": 1408,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 64,
+  "active_experts": 6,
+  "active_parameters": 2400000000,
+  "gguf_sources": [
+   {
+    "repo": "bartowski/DeepSeek-Coder-V2-Lite-Instruct-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/DeepSeek-Coder-V2-Lite-Instruct-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "inclusionAI/Ling-lite",
+  "provider": "inclusionai",
+  "parameter_count": "16.8B",
+  "parameters_raw": 16801974272,
+  "min_ram_gb": 9.4,
+  "recommended_ram_gb": 15.6,
+  "min_vram_gb": 8.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 32768,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "bailing_moe",
+  "hf_downloads": 247,
+  "hf_likes": 80,
+  "release_date": "2025-02-28",
+  "num_hidden_layers": 28,
+  "num_attention_heads": 16,
+  "num_key_value_heads": 4,
+  "head_dim": 128,
+  "hidden_size": 2048,
+  "vocab_size": 126464,
+  "moe_intermediate_size": 1408,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 64,
+  "active_experts": 6,
+  "active_parameters": 2336524543,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/Ling-lite-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "LiquidAI/LFM2-24B-A2B",
+  "provider": "Liquid AI",
+  "parameter_count": "23.8B",
+  "parameters_raw": 23843661440,
+  "min_ram_gb": 13.3,
+  "recommended_ram_gb": 22.2,
+  "min_vram_gb": 12.2,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 128000,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "lfm2_moe",
+  "hf_downloads": 19027,
+  "hf_likes": 327,
+  "release_date": "2026-02-24",
+  "num_hidden_layers": 40,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 64,
+  "hidden_size": 2048,
+  "vocab_size": 65536,
+  "moe_intermediate_size": 1536,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 64,
+  "active_experts": 4,
+  "active_parameters": 2300000000,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/LFM2-24B-A2B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "mistralai/Mistral-Small-24B-Instruct-2501",
+  "provider": "Mistral AI",
+  "parameter_count": "24B",
+  "parameters_raw": 24000000000,
+  "min_ram_gb": 13.4,
+  "recommended_ram_gb": 22.4,
+  "min_vram_gb": 12.3,
+  "quantization": "Q4_K_M",
+  "context_length": 32768,
+  "use_case": "Instruction following, chat",
+  "pipeline_tag": "text-generation",
+  "architecture": "mistral",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Mistral-Small-24B-Instruct-2501-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "bartowski/Mistral-Small-24B-Instruct-2501-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/Mistral-Small-24B-Instruct-2501-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "google/gemma-4-26B-A4B-it",
+  "provider": "Google",
+  "parameter_count": "26.5B",
+  "parameters_raw": 26544131376,
+  "min_ram_gb": 14.8,
+  "recommended_ram_gb": 24.7,
+  "min_vram_gb": 13.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "gemma4",
+  "hf_downloads": 9742603,
+  "hf_likes": 991,
+  "release_date": "2026-03-11",
+  "num_hidden_layers": 30,
+  "num_attention_heads": 16,
+  "num_key_value_heads": 8,
+  "head_dim": 256,
+  "hidden_size": 2816,
+  "vocab_size": 262144,
+  "moe_intermediate_size": 704,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 128,
+  "active_experts": 8,
+  "active_parameters": 4000000000,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/gemma-4-26B-A4B-it-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "ggml-org/gemma-4-26B-A4B-it-GGUF",
+    "provider": "ggml-org"
+   },
+   {
+    "repo": "mradermacher/gemma-4-26B-A4B-it-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "google/gemma-2-27b-it",
+  "provider": "Google",
+  "parameter_count": "27.2B",
+  "parameters_raw": 27227128320,
+  "min_ram_gb": 15.2,
+  "recommended_ram_gb": 25.4,
+  "min_vram_gb": 13.9,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "gemma2",
+  "hf_downloads": 45325,
+  "hf_likes": 565,
+  "release_date": "2024-06-24",
+  "num_hidden_layers": null,
+  "num_attention_heads": null,
+  "num_key_value_heads": null,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": null,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "bartowski/gemma-2-27b-it-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/gemma-2-27b-it-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "google/gemma-3-27b-it",
+  "provider": "Google",
+  "parameter_count": "27.4B",
+  "parameters_raw": 27432406640,
+  "min_ram_gb": 15.3,
+  "recommended_ram_gb": 25.5,
+  "min_vram_gb": 14.1,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "gemma3",
+  "hf_downloads": 1085521,
+  "hf_likes": 1970,
+  "release_date": "2025-03-01",
+  "num_hidden_layers": null,
+  "num_attention_heads": null,
+  "num_key_value_heads": null,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": null,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/gemma-3-27b-it-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "ggml-org/gemma-3-27b-it-GGUF",
+    "provider": "ggml-org"
+   },
+   {
+    "repo": "mradermacher/gemma-3-27b-it-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3.5-27B",
+  "provider": "Alibaba",
+  "parameter_count": "27.8B",
+  "parameters_raw": 27781427952,
+  "min_ram_gb": 15.5,
+  "recommended_ram_gb": 25.9,
+  "min_vram_gb": 14.2,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "qwen3_5",
+  "hf_downloads": 3317745,
+  "hf_likes": 976,
+  "release_date": "2026-02-24",
+  "num_hidden_layers": 64,
+  "num_attention_heads": 24,
+  "num_key_value_heads": 4,
+  "head_dim": 256,
+  "hidden_size": 5120,
+  "vocab_size": 248320,
+  "moe_intermediate_size": 17408,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen3.5-27B-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "mradermacher/Qwen3.5-27B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled",
+  "provider": "jackrong",
+  "parameter_count": "27.8B",
+  "parameters_raw": 27781427952,
+  "min_ram_gb": 15.5,
+  "recommended_ram_gb": 25.9,
+  "min_vram_gb": 14.2,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "Advanced reasoning, chain-of-thought",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "qwen3_5",
+  "hf_downloads": 199356,
+  "hf_likes": 2848,
+  "release_date": "2026-02-27",
+  "num_hidden_layers": 64,
+  "num_attention_heads": 24,
+  "num_key_value_heads": 4,
+  "head_dim": 256,
+  "hidden_size": 5120,
+  "vocab_size": 248320,
+  "moe_intermediate_size": 17408,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3.6-27B",
+  "provider": "Alibaba",
+  "parameter_count": "27.8B",
+  "parameters_raw": 27781427952,
+  "min_ram_gb": 15.5,
+  "recommended_ram_gb": 25.9,
+  "min_vram_gb": 14.2,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "qwen3_5",
+  "hf_downloads": 4049995,
+  "hf_likes": 1391,
+  "release_date": "2026-04-21",
+  "num_hidden_layers": 64,
+  "num_attention_heads": 24,
+  "num_key_value_heads": 4,
+  "head_dim": 256,
+  "hidden_size": 5120,
+  "vocab_size": 248320,
+  "moe_intermediate_size": 17408,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "ggml-org/Qwen3.6-27B-GGUF",
+    "provider": "ggml-org"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3-30B-A3B",
+  "provider": "Alibaba",
+  "parameter_count": "30.5B",
+  "parameters_raw": 30532122624,
+  "min_ram_gb": 17.1,
+  "recommended_ram_gb": 28.4,
+  "min_vram_gb": 15.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 40960,
+  "use_case": "General purpose text generation",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "qwen3_moe",
+  "hf_downloads": 1808188,
+  "hf_likes": 889,
+  "release_date": "2025-04-27",
+  "num_hidden_layers": 48,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 4,
+  "head_dim": 128,
+  "hidden_size": 2048,
+  "vocab_size": 151936,
+  "moe_intermediate_size": 768,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 128,
+  "active_experts": 8,
+  "active_parameters": 3300000000
+ },
+ {
+  "name": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16",
+  "provider": "nvidia",
+  "parameter_count": "31.6B",
+  "parameters_raw": 31577937344,
+  "min_ram_gb": 17.6,
+  "recommended_ram_gb": 29.4,
+  "min_vram_gb": 16.2,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "nemotron_h",
+  "hf_downloads": 1375688,
+  "hf_likes": 737,
+  "release_date": "2025-12-04",
+  "num_hidden_layers": 52,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 2,
+  "head_dim": 128,
+  "hidden_size": 2688,
+  "vocab_size": 131072,
+  "moe_intermediate_size": 1856,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 128,
+  "active_experts": 6,
+  "active_parameters": 3000000000,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "LGAI-EXAONE/EXAONE-Deep-32B",
+  "provider": "lgai-exaone",
+  "parameter_count": "32.0B",
+  "parameters_raw": 32003200000,
+  "min_ram_gb": 17.9,
+  "recommended_ram_gb": 29.8,
+  "min_vram_gb": 16.4,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "exaone",
+  "hf_downloads": 663,
+  "hf_likes": 300,
+  "release_date": "2025-03-12",
+  "num_hidden_layers": null,
+  "num_attention_heads": 40,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 5120,
+  "vocab_size": 102400,
+  "moe_intermediate_size": 27392,
+  "shared_expert_intermediate_size": null
+ },
+ {
+  "name": "LGAI-EXAONE/EXAONE-4.0-32B",
+  "provider": "lgai-exaone",
+  "parameter_count": "32.0B",
+  "parameters_raw": 32003216384,
+  "min_ram_gb": 17.9,
+  "recommended_ram_gb": 29.8,
+  "min_vram_gb": 16.4,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 2097152,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "exaone4",
+  "hf_downloads": 37958,
+  "hf_likes": 281,
+  "release_date": "2025-07-11",
+  "num_hidden_layers": 64,
+  "num_attention_heads": 40,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 5120,
+  "vocab_size": 102400,
+  "moe_intermediate_size": 27392,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/EXAONE-4.0-32B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "allenai/OLMo-2-0325-32B-Instruct",
+  "provider": "allenai",
+  "parameter_count": "32.2B",
+  "parameters_raw": 32234279936,
+  "min_ram_gb": 18.0,
+  "recommended_ram_gb": 30.0,
+  "min_vram_gb": 16.5,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "Instruction following, chat",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "olmo2",
+  "hf_downloads": 5823,
+  "hf_likes": 148,
+  "release_date": "2025-03-12",
+  "num_hidden_layers": 64,
+  "num_attention_heads": 40,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 5120,
+  "vocab_size": 100352,
+  "moe_intermediate_size": 27648,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/OLMo-2-0325-32B-Instruct-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "mradermacher/OLMo-2-0325-32B-Instruct-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "google/gemma-4-31B-it",
+  "provider": "Google",
+  "parameter_count": "32.7B",
+  "parameters_raw": 32682372656,
+  "min_ram_gb": 18.3,
+  "recommended_ram_gb": 30.4,
+  "min_vram_gb": 16.7,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "gemma4",
+  "hf_downloads": 10283716,
+  "hf_likes": 2735,
+  "release_date": "2026-03-11",
+  "num_hidden_layers": 60,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 16,
+  "head_dim": 256,
+  "hidden_size": 5376,
+  "vocab_size": 262144,
+  "moe_intermediate_size": 21504,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/gemma-4-31B-it-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "ggml-org/gemma-4-31B-it-GGUF",
+    "provider": "ggml-org"
+   },
+   {
+    "repo": "mradermacher/gemma-4-31B-it-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3-32B",
+  "provider": "Alibaba",
+  "parameter_count": "32.8B",
+  "parameters_raw": 32762123264,
+  "min_ram_gb": 18.3,
+  "recommended_ram_gb": 30.5,
+  "min_vram_gb": 16.8,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 40960,
+  "use_case": "General purpose text generation",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "qwen3",
+  "hf_downloads": 7112254,
+  "hf_likes": 692,
+  "release_date": "2025-04-27",
+  "num_hidden_layers": 64,
+  "num_attention_heads": 64,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 5120,
+  "vocab_size": 151936,
+  "moe_intermediate_size": 25600,
+  "shared_expert_intermediate_size": null
+ },
+ {
+  "name": "Qwen/Qwen2.5-32B-Instruct",
+  "provider": "Alibaba",
+  "parameter_count": "32.8B",
+  "parameters_raw": 32763876352,
+  "min_ram_gb": 18.3,
+  "recommended_ram_gb": 30.5,
+  "min_vram_gb": 16.8,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 32768,
+  "use_case": "Instruction following, chat",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "qwen2",
+  "hf_downloads": 898678,
+  "hf_likes": 352,
+  "release_date": "2024-09-17",
+  "num_hidden_layers": 64,
+  "num_attention_heads": 40,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 5120,
+  "vocab_size": 152064,
+  "moe_intermediate_size": 27648,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "bartowski/Qwen2.5-32B-Instruct-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/Qwen2.5-32B-Instruct-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen2.5-Coder-32B-Instruct",
+  "provider": "Alibaba",
+  "parameter_count": "32.8B",
+  "parameters_raw": 32763876352,
+  "min_ram_gb": 18.3,
+  "recommended_ram_gb": 30.5,
+  "min_vram_gb": 16.8,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 32768,
+  "use_case": "Code generation and completion",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "qwen2",
+  "hf_downloads": 786586,
+  "hf_likes": 2019,
+  "release_date": "2024-11-06",
+  "num_hidden_layers": 64,
+  "num_attention_heads": 40,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 5120,
+  "vocab_size": 152064,
+  "moe_intermediate_size": 27648,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen2.5-Coder-32B-Instruct-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "bartowski/Qwen2.5-Coder-32B-Instruct-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/Qwen2.5-Coder-32B-Instruct-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
+  "provider": "DeepSeek",
+  "parameter_count": "32.8B",
+  "parameters_raw": 32763876352,
+  "min_ram_gb": 18.3,
+  "recommended_ram_gb": 30.5,
+  "min_vram_gb": 16.8,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 131072,
+  "use_case": "Advanced reasoning, chain-of-thought",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "qwen2",
+  "hf_downloads": 696648,
+  "hf_likes": 1561,
+  "release_date": "2025-01-20",
+  "num_hidden_layers": 64,
+  "num_attention_heads": 40,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 5120,
+  "vocab_size": 152064,
+  "moe_intermediate_size": 27648,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/DeepSeek-R1-Distill-Qwen-32B-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "bartowski/DeepSeek-R1-Distill-Qwen-32B-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/DeepSeek-R1-Distill-Qwen-32B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "meta-llama/CodeLlama-34b-Instruct-hf",
+  "provider": "Meta",
+  "parameter_count": "33.7B",
+  "parameters_raw": 33743970304,
+  "min_ram_gb": 18.9,
+  "recommended_ram_gb": 31.4,
+  "min_vram_gb": 17.3,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "Code generation and completion",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "llama",
+  "hf_downloads": 1628,
+  "hf_likes": 19,
+  "release_date": "2024-03-14",
+  "num_hidden_layers": null,
+  "num_attention_heads": null,
+  "num_key_value_heads": null,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": null,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/CodeLlama-34b-Instruct-hf-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "01-ai/Yi-34B-Chat",
+  "provider": "01.ai",
+  "parameter_count": "34.4B",
+  "parameters_raw": 34388917248,
+  "min_ram_gb": 19.2,
+  "recommended_ram_gb": 32.0,
+  "min_vram_gb": 17.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "Instruction following, chat",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "llama",
+  "hf_downloads": 75296,
+  "hf_likes": 356,
+  "release_date": "2023-11-22",
+  "num_hidden_layers": 60,
+  "num_attention_heads": 56,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 7168,
+  "vocab_size": 64000,
+  "moe_intermediate_size": 20480,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "TheBloke/Yi-34B-Chat-GGUF",
+    "provider": "TheBloke"
+   },
+   {
+    "repo": "mradermacher/Yi-34B-Chat-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "CohereForAI/c4ai-command-r-v01",
+  "provider": "Cohere",
+  "parameter_count": "35.0B",
+  "parameters_raw": 34980831232,
+  "min_ram_gb": 19.5,
+  "recommended_ram_gb": 32.6,
+  "min_vram_gb": 17.9,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "General purpose text generation",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "cohere",
+  "hf_downloads": 29420,
+  "hf_likes": 1106,
+  "release_date": "2024-03-11",
+  "num_hidden_layers": null,
+  "num_attention_heads": null,
+  "num_key_value_heads": null,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": null,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "bartowski/c4ai-command-r-v01-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/c4ai-command-r-v01-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3.5-35B-A3B",
+  "provider": "Alibaba",
+  "parameter_count": "36.0B",
+  "parameters_raw": 35951822704,
+  "min_ram_gb": 20.1,
+  "recommended_ram_gb": 33.5,
+  "min_vram_gb": 18.4,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "qwen3_5_moe",
+  "hf_downloads": 3065015,
+  "hf_likes": 1431,
+  "release_date": "2026-02-24",
+  "num_hidden_layers": 40,
+  "num_attention_heads": 16,
+  "num_key_value_heads": 2,
+  "head_dim": 256,
+  "hidden_size": 2048,
+  "vocab_size": 248320,
+  "moe_intermediate_size": 512,
+  "shared_expert_intermediate_size": 512,
+  "is_moe": true,
+  "num_experts": 256,
+  "active_experts": 8,
+  "active_parameters": 3000000000,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen3.5-35B-A3B-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "ggml-org/Qwen3.5-35B-A3B-GGUF",
+    "provider": "ggml-org"
+   },
+   {
+    "repo": "mradermacher/Qwen3.5-35B-A3B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Jackrong/Qwen3.5-35B-A3B-Claude-4.6-Opus-Reasoning-Distilled",
+  "provider": "jackrong",
+  "parameter_count": "36.0B",
+  "parameters_raw": 35951822704,
+  "min_ram_gb": 20.1,
+  "recommended_ram_gb": 33.5,
+  "min_vram_gb": 18.4,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "Advanced reasoning, chain-of-thought",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "qwen3_5_moe",
+  "hf_downloads": 1084,
+  "hf_likes": 128,
+  "release_date": "2026-03-07",
+  "num_hidden_layers": 40,
+  "num_attention_heads": 16,
+  "num_key_value_heads": 2,
+  "head_dim": 256,
+  "hidden_size": 2048,
+  "vocab_size": 248320,
+  "moe_intermediate_size": 512,
+  "shared_expert_intermediate_size": 512,
+  "is_moe": true,
+  "num_experts": 256,
+  "active_experts": 8,
+  "active_parameters": 2864910871,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/Qwen3.5-35B-A3B-Claude-4.6-Opus-Reasoning-Distilled-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3.6-35B-A3B",
+  "provider": "Alibaba",
+  "parameter_count": "36.0B",
+  "parameters_raw": 35951822704,
+  "min_ram_gb": 20.1,
+  "recommended_ram_gb": 33.5,
+  "min_vram_gb": 18.4,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "qwen3_5_moe",
+  "hf_downloads": 5978432,
+  "hf_likes": 1870,
+  "release_date": "2026-04-15",
+  "num_hidden_layers": 40,
+  "num_attention_heads": 16,
+  "num_key_value_heads": 2,
+  "head_dim": 256,
+  "hidden_size": 2048,
+  "vocab_size": 248320,
+  "moe_intermediate_size": 512,
+  "shared_expert_intermediate_size": 512,
+  "is_moe": true,
+  "num_experts": 256,
+  "active_experts": 8,
+  "active_parameters": 3000000000,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen3.6-35B-A3B-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "ggml-org/Qwen3.6-35B-A3B-GGUF",
+    "provider": "ggml-org"
+   },
+   {
+    "repo": "mradermacher/Qwen3.6-35B-A3B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "tiiuae/falcon-40b-instruct",
+  "provider": "TII",
+  "parameter_count": "40.0B",
+  "parameters_raw": 40000000000,
+  "min_ram_gb": 22.4,
+  "recommended_ram_gb": 37.3,
+  "min_vram_gb": 20.5,
+  "quantization": "Q4_K_M",
+  "context_length": 2048,
+  "use_case": "Instruction following, chat",
+  "pipeline_tag": "text-generation",
+  "architecture": "falcon",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": null,
+  "gguf_sources": [
+   {
+    "repo": "mradermacher/falcon-40b-instruct-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO",
+  "provider": "NousResearch",
+  "parameter_count": "46.7B",
+  "parameters_raw": 46702809088,
+  "min_ram_gb": 26.1,
+  "recommended_ram_gb": 43.5,
+  "min_vram_gb": 23.9,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 32768,
+  "use_case": "General purpose text generation",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "mixtral",
+  "hf_downloads": 9190,
+  "hf_likes": 453,
+  "release_date": "2024-01-11",
+  "num_hidden_layers": 32,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 4096,
+  "vocab_size": 32002,
+  "moe_intermediate_size": 14336,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 8,
+  "active_experts": 2,
+  "active_parameters": 12900000000,
+  "gguf_sources": [
+   {
+    "repo": "TheBloke/Nous-Hermes-2-Mixtral-8x7B-DPO-GGUF",
+    "provider": "TheBloke"
+   },
+   {
+    "repo": "mradermacher/Nous-Hermes-2-Mixtral-8x7B-DPO-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "nvidia/Llama-3.3-Nemotron-Super-49B-v1",
+  "provider": "nvidia",
+  "parameter_count": "49.9B",
+  "parameters_raw": 49867145216,
+  "min_ram_gb": 27.9,
+  "recommended_ram_gb": 46.4,
+  "min_vram_gb": 25.5,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 1048576,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "nemotron-nas",
+  "hf_downloads": 60806,
+  "hf_likes": 323,
+  "release_date": "2025-03-16",
+  "num_hidden_layers": 80,
+  "num_attention_heads": 64,
+  "num_key_value_heads": 64,
+  "head_dim": 128,
+  "hidden_size": 8192,
+  "vocab_size": 128256,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null
+ },
+ {
+  "name": "meta-llama/Llama-3.1-70B-Instruct",
+  "provider": "Meta",
+  "parameter_count": "70.6B",
+  "parameters_raw": 70553706496,
+  "min_ram_gb": 39.4,
+  "recommended_ram_gb": 65.7,
+  "min_vram_gb": 36.1,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "Instruction following, chat",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "llama",
+  "hf_downloads": 768764,
+  "hf_likes": 916,
+  "release_date": "2024-07-16",
+  "num_hidden_layers": null,
+  "num_attention_heads": null,
+  "num_key_value_heads": null,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": null,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null
+ },
+ {
+  "name": "meta-llama/Llama-3.3-70B-Instruct",
+  "provider": "Meta",
+  "parameter_count": "70.6B",
+  "parameters_raw": 70553706496,
+  "min_ram_gb": 39.4,
+  "recommended_ram_gb": 65.7,
+  "min_vram_gb": 36.1,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "Instruction following, chat",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "llama",
+  "hf_downloads": 972996,
+  "hf_likes": 2773,
+  "release_date": "2024-11-26",
+  "num_hidden_layers": null,
+  "num_attention_heads": null,
+  "num_key_value_heads": null,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": null,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Llama-3.3-70B-Instruct-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "bartowski/Llama-3.3-70B-Instruct-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/Llama-3.3-70B-Instruct-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen2.5-72B-Instruct",
+  "provider": "Alibaba",
+  "parameter_count": "72.7B",
+  "parameters_raw": 72706203648,
+  "min_ram_gb": 40.6,
+  "recommended_ram_gb": 67.7,
+  "min_vram_gb": 37.2,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 32768,
+  "use_case": "Instruction following, chat",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "qwen2",
+  "hf_downloads": 887042,
+  "hf_likes": 940,
+  "release_date": "2024-09-16",
+  "num_hidden_layers": 80,
+  "num_attention_heads": 64,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 8192,
+  "vocab_size": 152064,
+  "moe_intermediate_size": 29568,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "bartowski/Qwen2.5-72B-Instruct-GGUF",
+    "provider": "bartowski"
+   },
+   {
+    "repo": "mradermacher/Qwen2.5-72B-Instruct-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3-Coder-Next",
+  "provider": "Alibaba",
+  "parameter_count": "79.7B",
+  "parameters_raw": 79674391296,
+  "min_ram_gb": 44.5,
+  "recommended_ram_gb": 74.2,
+  "min_vram_gb": 40.8,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "Code generation and completion",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "qwen3_next",
+  "hf_downloads": 1135373,
+  "hf_likes": 1378,
+  "release_date": "2026-01-30",
+  "num_hidden_layers": 48,
+  "num_attention_heads": 16,
+  "num_key_value_heads": 2,
+  "head_dim": 256,
+  "hidden_size": 2048,
+  "vocab_size": 151936,
+  "moe_intermediate_size": 512,
+  "shared_expert_intermediate_size": 512,
+  "is_moe": true,
+  "num_experts": 512,
+  "active_experts": 10,
+  "active_parameters": 3000000000,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen3-Coder-Next-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "ggml-org/Qwen3-Coder-Next-GGUF",
+    "provider": "ggml-org"
+   }
+  ]
+ },
+ {
+  "name": "CohereForAI/c4ai-command-r-plus-08-2024",
+  "provider": "Cohere",
+  "parameter_count": "103.8B",
+  "parameters_raw": 103810674688,
+  "min_ram_gb": 58.0,
+  "recommended_ram_gb": 96.7,
+  "min_vram_gb": 53.2,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "General purpose text generation",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "cohere",
+  "hf_downloads": 2617,
+  "hf_likes": 285,
+  "release_date": "2024-08-21",
+  "num_hidden_layers": null,
+  "num_attention_heads": null,
+  "num_key_value_heads": null,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": null,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null
+ },
+ {
+  "name": "CohereForAI/c4ai-command-a-03-2025",
+  "provider": "Cohere",
+  "parameter_count": "111.1B",
+  "parameters_raw": 111057580032,
+  "min_ram_gb": 62.1,
+  "recommended_ram_gb": 103.4,
+  "min_vram_gb": 56.9,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "cohere2",
+  "hf_downloads": 4082,
+  "hf_likes": 388,
+  "release_date": "2025-03-11",
+  "num_hidden_layers": null,
+  "num_attention_heads": null,
+  "num_key_value_heads": null,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": null,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/c4ai-command-a-03-2025-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "mradermacher/c4ai-command-a-03-2025-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3.5-122B-A10B",
+  "provider": "Alibaba",
+  "parameter_count": "125.1B",
+  "parameters_raw": 125086497008,
+  "min_ram_gb": 69.9,
+  "recommended_ram_gb": 116.5,
+  "min_vram_gb": 64.1,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "qwen3_5_moe",
+  "hf_downloads": 972662,
+  "hf_likes": 545,
+  "release_date": "2026-02-24",
+  "num_hidden_layers": 48,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 2,
+  "head_dim": 256,
+  "hidden_size": 3072,
+  "vocab_size": 248320,
+  "moe_intermediate_size": 1024,
+  "shared_expert_intermediate_size": 1024,
+  "is_moe": true,
+  "num_experts": 256,
+  "active_experts": 8,
+  "active_parameters": 10000000000,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen3.5-122B-A10B-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "mradermacher/Qwen3.5-122B-A10B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "rednote-hilab/dots.llm1.inst",
+  "provider": "rednote-hilab",
+  "parameter_count": "142.8B",
+  "parameters_raw": 142774381696,
+  "min_ram_gb": 79.8,
+  "recommended_ram_gb": 133.0,
+  "min_vram_gb": 73.1,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 32768,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "dots1",
+  "hf_downloads": 22965,
+  "hf_likes": 176,
+  "release_date": "2025-05-14",
+  "num_hidden_layers": 62,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 32,
+  "head_dim": 128,
+  "hidden_size": 4096,
+  "vocab_size": 152064,
+  "moe_intermediate_size": 1408,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 128,
+  "active_experts": 6,
+  "active_parameters": 13496640768,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/dots.llm1.inst-GGUF",
+    "provider": "unsloth"
+   }
+  ]
+ },
+ {
+  "name": "deepseek-ai/DeepSeek-V4-Flash",
+  "provider": "DeepSeek",
+  "parameter_count": "158.1B",
+  "parameters_raw": 158069433298,
+  "min_ram_gb": 88.3,
+  "recommended_ram_gb": 147.2,
+  "min_vram_gb": 81.0,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 16777216,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "deepseek_v4",
+  "hf_downloads": 2556531,
+  "hf_likes": 1195,
+  "release_date": "2026-04-22",
+  "num_hidden_layers": 43,
+  "num_attention_heads": 64,
+  "num_key_value_heads": 1,
+  "head_dim": 512,
+  "hidden_size": 4096,
+  "vocab_size": 129280,
+  "moe_intermediate_size": 2048,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 256,
+  "active_experts": 6,
+  "active_parameters": 13000000000
+ },
+ {
+  "name": "bigscience/bloom",
+  "provider": "bigscience",
+  "parameter_count": "176.2B",
+  "parameters_raw": 176247271424,
+  "min_ram_gb": 98.5,
+  "recommended_ram_gb": 164.1,
+  "min_vram_gb": 90.3,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "bloom",
+  "hf_downloads": 5919,
+  "hf_likes": 5003,
+  "release_date": "2022-05-19",
+  "num_hidden_layers": null,
+  "num_attention_heads": 112,
+  "num_key_value_heads": 112,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": 250880,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null
+ },
+ {
+  "name": "tiiuae/falcon-180B-chat",
+  "provider": "TII",
+  "parameter_count": "179.5B",
+  "parameters_raw": 179522565120,
+  "min_ram_gb": 100.3,
+  "recommended_ram_gb": 167.2,
+  "min_vram_gb": 92.0,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "Instruction following, chat",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "falcon",
+  "hf_downloads": 99,
+  "hf_likes": 548,
+  "release_date": "2023-09-04",
+  "num_hidden_layers": null,
+  "num_attention_heads": null,
+  "num_key_value_heads": null,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": null,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null
+ },
+ {
+  "name": "MiniMaxAI/MiniMax-M3",
+  "provider": "minimaxai",
+  "parameter_count": "228.7B",
+  "parameters_raw": 228703644928,
+  "min_ram_gb": 127.8,
+  "recommended_ram_gb": 213.0,
+  "min_vram_gb": 117.1,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 524288,
+  "use_case": "Latest flagship: 512K context, 128K max output, image input",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "minimax_m2",
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": "2026-06-03",
+  "num_hidden_layers": 62,
+  "num_attention_heads": 48,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 3072,
+  "vocab_size": 200064,
+  "moe_intermediate_size": 1536,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 256,
+  "active_experts": 8,
+  "active_parameters": 10000000000
+ },
+ {
+  "name": "MiniMaxAI/MiniMax-M2.7",
+  "provider": "minimaxai",
+  "parameter_count": "228.7B",
+  "parameters_raw": 228703644928,
+  "min_ram_gb": 127.8,
+  "recommended_ram_gb": 213.0,
+  "min_vram_gb": 117.1,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 204800,
+  "use_case": "Previous flagship, enhanced reasoning and coding",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "minimax_m2",
+  "hf_downloads": 603505,
+  "hf_likes": 1140,
+  "release_date": "2026-04-09",
+  "num_hidden_layers": 62,
+  "num_attention_heads": 48,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 3072,
+  "vocab_size": 200064,
+  "moe_intermediate_size": 1536,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 256,
+  "active_experts": 8,
+  "active_parameters": 10000000000,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/MiniMax-M2.7-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "mradermacher/MiniMax-M2.7-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3-235B-A22B",
+  "provider": "Alibaba",
+  "parameter_count": "235.1B",
+  "parameters_raw": 235093634560,
+  "min_ram_gb": 131.4,
+  "recommended_ram_gb": 218.9,
+  "min_vram_gb": 120.4,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 40960,
+  "use_case": "General purpose text generation",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "qwen3_moe",
+  "hf_downloads": 439352,
+  "hf_likes": 1092,
+  "release_date": "2025-04-27",
+  "num_hidden_layers": 94,
+  "num_attention_heads": 64,
+  "num_key_value_heads": 4,
+  "head_dim": 128,
+  "hidden_size": 4096,
+  "vocab_size": 151936,
+  "moe_intermediate_size": 1536,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 128,
+  "active_experts": 8,
+  "active_parameters": 22000000000,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen3-235B-A22B-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "ggml-org/Qwen3-235B-A22B-GGUF",
+    "provider": "ggml-org"
+   }
+  ]
+ },
+ {
+  "name": "baidu/ERNIE-4.5-300B-A47B-Paddle",
+  "provider": "baidu",
+  "parameter_count": "300.5B",
+  "parameters_raw": 300474051776,
+  "min_ram_gb": 167.9,
+  "recommended_ram_gb": 279.8,
+  "min_vram_gb": 153.9,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 131072,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "ernie4_5_moe",
+  "hf_downloads": 177,
+  "hf_likes": 13,
+  "release_date": "2025-06-28",
+  "num_hidden_layers": 54,
+  "num_attention_heads": 64,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 8192,
+  "vocab_size": 103424,
+  "moe_intermediate_size": 3584,
+  "shared_expert_intermediate_size": null
+ },
+ {
+  "name": "XiaomiMiMo/MiMo-V2-Flash",
+  "provider": "xiaomimimo",
+  "parameter_count": "309.8B",
+  "parameters_raw": 309785318400,
+  "min_ram_gb": 173.1,
+  "recommended_ram_gb": 288.5,
+  "min_vram_gb": 158.7,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "mimo_v2_flash",
+  "hf_downloads": 114139,
+  "hf_likes": 729,
+  "release_date": "2025-12-16",
+  "num_hidden_layers": 48,
+  "num_attention_heads": 64,
+  "num_key_value_heads": 4,
+  "head_dim": 192,
+  "hidden_size": 4096,
+  "vocab_size": 152576,
+  "moe_intermediate_size": 2048,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 256,
+  "active_experts": 8,
+  "active_parameters": 15000000000,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/MiMo-V2-Flash-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "mradermacher/MiMo-V2-Flash-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "meta-llama/Llama-4-Maverick-17B-128E-Instruct",
+  "provider": "Meta",
+  "parameter_count": "401.6B",
+  "parameters_raw": 401583781376,
+  "min_ram_gb": 224.4,
+  "recommended_ram_gb": 374.0,
+  "min_vram_gb": 205.7,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "Instruction following, chat",
+  "capabilities": [
+   "vision"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "llama4",
+  "hf_downloads": 38917,
+  "hf_likes": 486,
+  "release_date": "2025-04-01",
+  "num_hidden_layers": null,
+  "num_attention_heads": null,
+  "num_key_value_heads": null,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": null,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 16,
+  "active_experts": 1,
+  "active_parameters": 17000000000,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Llama-4-Maverick-17B-128E-Instruct-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "mradermacher/Llama-4-Maverick-17B-128E-Instruct-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "Qwen/Qwen3.5-397B-A17B",
+  "provider": "Alibaba",
+  "parameter_count": "403.4B",
+  "parameters_raw": 403397928944,
+  "min_ram_gb": 225.4,
+  "recommended_ram_gb": 375.7,
+  "min_vram_gb": 206.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision",
+   "tool_use"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "qwen3_5_moe",
+  "hf_downloads": 1149180,
+  "hf_likes": 1485,
+  "release_date": "2026-02-16",
+  "num_hidden_layers": 60,
+  "num_attention_heads": 32,
+  "num_key_value_heads": 2,
+  "head_dim": 256,
+  "hidden_size": 4096,
+  "vocab_size": 248320,
+  "moe_intermediate_size": 1024,
+  "shared_expert_intermediate_size": 1024,
+  "is_moe": true,
+  "num_experts": 512,
+  "active_experts": 10,
+  "active_parameters": 17000000000,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen3.5-397B-A17B-GGUF",
+    "provider": "unsloth"
+   },
+   {
+    "repo": "mradermacher/Qwen3.5-397B-A17B-GGUF",
+    "provider": "mradermacher"
+   }
+  ]
+ },
+ {
+  "name": "meta-llama/Llama-3.1-405B-Instruct",
+  "provider": "Meta",
+  "parameter_count": "405.9B",
+  "parameters_raw": 405853388800,
+  "min_ram_gb": 226.8,
+  "recommended_ram_gb": 378.0,
+  "min_vram_gb": 207.9,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4096,
+  "use_case": "Instruction following, chat",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "llama",
+  "hf_downloads": 229448,
+  "hf_likes": 594,
+  "release_date": "2024-07-16",
+  "num_hidden_layers": null,
+  "num_attention_heads": null,
+  "num_key_value_heads": null,
+  "head_dim": null,
+  "hidden_size": null,
+  "vocab_size": null,
+  "moe_intermediate_size": null,
+  "shared_expert_intermediate_size": null
+ },
+ {
+  "name": "Qwen/Qwen3-Coder-480B-A35B-Instruct",
+  "provider": "Alibaba",
+  "parameter_count": "480.2B",
+  "parameters_raw": 480154875392,
+  "min_ram_gb": 268.3,
+  "recommended_ram_gb": 447.2,
+  "min_vram_gb": 245.9,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 262144,
+  "use_case": "Code generation and completion",
+  "capabilities": [
+   "tool_use"
+  ],
+  "pipeline_tag": "text-generation",
+  "architecture": "qwen3_moe",
+  "hf_downloads": 31713,
+  "hf_likes": 1336,
+  "release_date": "2025-07-22",
+  "num_hidden_layers": 62,
+  "num_attention_heads": 96,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "hidden_size": 6144,
+  "vocab_size": 151936,
+  "moe_intermediate_size": 2560,
+  "shared_expert_intermediate_size": 0,
+  "is_moe": true,
+  "num_experts": 160,
+  "active_experts": 8,
+  "active_parameters": 35000000000,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Qwen3-Coder-480B-A35B-Instruct-GGUF",
+    "provider": "unsloth"
+   }
+  ]
+ },
+ {
+  "name": "deepseek-ai/DeepSeek-V3",
+  "provider": "DeepSeek",
+  "parameter_count": "684.5B",
+  "parameters_raw": 684531386000,
+  "min_ram_gb": 382.5,
+  "recommended_ram_gb": 637.5,
+  "min_vram_gb": 350.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 6553600,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "deepseek_v3",
+  "hf_downloads": 1200091,
+  "hf_likes": 4072,
+  "release_date": "2024-12-25",
+  "num_hidden_layers": 61,
+  "num_attention_heads": 128,
+  "num_key_value_heads": 128,
+  "head_dim": 56,
+  "hidden_size": 7168,
+  "vocab_size": 129280,
+  "moe_intermediate_size": 2048,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 256,
+  "active_experts": 8,
+  "active_parameters": 37000000000,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/DeepSeek-V3-GGUF",
+    "provider": "unsloth"
+   }
+  ]
+ },
+ {
+  "name": "deepseek-ai/DeepSeek-R1",
+  "provider": "DeepSeek",
+  "parameter_count": "684.5B",
+  "parameters_raw": 684531386000,
+  "min_ram_gb": 382.5,
+  "recommended_ram_gb": 637.5,
+  "min_vram_gb": 350.6,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 6553600,
+  "use_case": "Advanced reasoning, chain-of-thought",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "deepseek_v3",
+  "hf_downloads": 4297965,
+  "hf_likes": 13336,
+  "release_date": "2025-01-20",
+  "num_hidden_layers": 61,
+  "num_attention_heads": 128,
+  "num_key_value_heads": 128,
+  "head_dim": 56,
+  "hidden_size": 7168,
+  "vocab_size": 129280,
+  "moe_intermediate_size": 2048,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 256,
+  "active_experts": 8,
+  "active_parameters": 37000000000,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/DeepSeek-R1-GGUF",
+    "provider": "unsloth"
+   }
+  ]
+ },
+ {
+  "name": "deepseek-ai/DeepSeek-V3.2-Speciale",
+  "provider": "DeepSeek",
+  "parameter_count": "685B",
+  "parameters_raw": 685000000000,
+  "min_ram_gb": 383.2,
+  "recommended_ram_gb": 638.7,
+  "min_vram_gb": 351.3,
+  "quantization": "Q4_K_M",
+  "context_length": 131072,
+  "use_case": "Advanced reasoning, chain-of-thought",
+  "pipeline_tag": "text-generation",
+  "architecture": "deepseek_v3",
+  "is_moe": true,
+  "num_experts": 256,
+  "active_experts": 8,
+  "active_parameters": 37000000000,
+  "hf_downloads": 0,
+  "hf_likes": 0,
+  "release_date": "2025-12-01"
+ },
+ {
+  "name": "deepseek-ai/DeepSeek-V3.2",
+  "provider": "DeepSeek",
+  "parameter_count": "685.4B",
+  "parameters_raw": 685396921376,
+  "min_ram_gb": 383.0,
+  "recommended_ram_gb": 638.3,
+  "min_vram_gb": 351.1,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 6553600,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "deepseek_v32",
+  "hf_downloads": 4289290,
+  "hf_likes": 1436,
+  "release_date": "2025-12-01",
+  "num_hidden_layers": 61,
+  "num_attention_heads": 128,
+  "num_key_value_heads": 128,
+  "head_dim": 56,
+  "hidden_size": 7168,
+  "vocab_size": 129280,
+  "moe_intermediate_size": 2048,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 256,
+  "active_experts": 8,
+  "active_parameters": 37000000000,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/DeepSeek-V3.2-GGUF",
+    "provider": "unsloth"
+   }
+  ]
+ },
+ {
+  "name": "zai-org/GLM-5",
+  "provider": "zai-org",
+  "parameter_count": "753.9B",
+  "parameters_raw": 753864139008,
+  "min_ram_gb": 421.3,
+  "recommended_ram_gb": 702.1,
+  "min_vram_gb": 386.1,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 202752,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "glm_moe_dsa",
+  "hf_downloads": 216321,
+  "hf_likes": 2088,
+  "release_date": "2026-02-11",
+  "num_hidden_layers": 78,
+  "num_attention_heads": 64,
+  "num_key_value_heads": 64,
+  "head_dim": 64,
+  "hidden_size": 6144,
+  "vocab_size": 154880,
+  "moe_intermediate_size": 2048,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 256,
+  "active_experts": 8,
+  "active_parameters": 40000000000,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/GLM-5-GGUF",
+    "provider": "unsloth"
+   }
+  ]
+ },
+ {
+  "name": "deepseek-ai/DeepSeek-V4-Pro",
+  "provider": "DeepSeek",
+  "parameter_count": "861.6B",
+  "parameters_raw": 861608274846,
+  "min_ram_gb": 481.5,
+  "recommended_ram_gb": 802.4,
+  "min_vram_gb": 441.3,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 16777216,
+  "use_case": "General purpose text generation",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "deepseek_v4",
+  "hf_downloads": 4287396,
+  "hf_likes": 4161,
+  "release_date": "2026-04-22",
+  "num_hidden_layers": 61,
+  "num_attention_heads": 128,
+  "num_key_value_heads": 1,
+  "head_dim": 512,
+  "hidden_size": 7168,
+  "vocab_size": 129280,
+  "moe_intermediate_size": 3072,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 384,
+  "active_experts": 6,
+  "active_parameters": 49000000000
+ },
+ {
+  "name": "moonshotai/Kimi-K2-Instruct",
+  "provider": "moonshotai",
+  "parameter_count": "1026.5B",
+  "parameters_raw": 1026470731056,
+  "min_ram_gb": 573.6,
+  "recommended_ram_gb": 956.0,
+  "min_vram_gb": 525.8,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 4194304,
+  "use_case": "Instruction following, chat",
+  "capabilities": [],
+  "pipeline_tag": "text-generation",
+  "architecture": "kimi_k2",
+  "hf_downloads": 813587,
+  "hf_likes": 2359,
+  "release_date": "2025-07-11",
+  "num_hidden_layers": 61,
+  "num_attention_heads": 64,
+  "num_key_value_heads": 64,
+  "head_dim": 112,
+  "hidden_size": 7168,
+  "vocab_size": 163840,
+  "moe_intermediate_size": 2048,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 384,
+  "active_experts": 8,
+  "active_parameters": 32000000000,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Kimi-K2-Instruct-GGUF",
+    "provider": "unsloth"
+   }
+  ]
+ },
+ {
+  "name": "moonshotai/Kimi-K2.5",
+  "provider": "moonshotai",
+  "parameter_count": "1058.6B",
+  "parameters_raw": 1058589420528,
+  "min_ram_gb": 591.5,
+  "recommended_ram_gb": 985.9,
+  "min_vram_gb": 542.2,
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "context_length": 16777216,
+  "use_case": "General purpose",
+  "capabilities": [
+   "vision"
+  ],
+  "pipeline_tag": "image-text-to-text",
+  "architecture": "kimi_k25",
+  "hf_downloads": 1536548,
+  "hf_likes": 2793,
+  "release_date": "2026-01-01",
+  "num_hidden_layers": 61,
+  "num_attention_heads": 64,
+  "num_key_value_heads": 64,
+  "head_dim": 112,
+  "hidden_size": 7168,
+  "vocab_size": 163840,
+  "moe_intermediate_size": 2048,
+  "shared_expert_intermediate_size": null,
+  "is_moe": true,
+  "num_experts": 384,
+  "active_experts": 8,
+  "active_parameters": 32000000000,
+  "gguf_sources": [
+   {
+    "repo": "unsloth/Kimi-K2.5-GGUF",
+    "provider": "unsloth"
+   }
+  ]
+ }
+]

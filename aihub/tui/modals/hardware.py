@@ -1,6 +1,7 @@
 """HardwareModal — rich system diagnostics with colour-coded bars."""
 from __future__ import annotations
 
+from textual import work
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Container, VerticalScroll
@@ -139,14 +140,33 @@ class HardwareModal(ModalScreen):
     def compose(self) -> ComposeResult:
         with Container(id="hw-container"):
             with VerticalScroll():
-                yield Static(_hw_text(), id="hw-body")
+                # Placeholder so the modal paints instantly; the hardware scan
+                # (rocm-smi / nvidia-smi, etc.) runs off-thread to avoid freezing
+                # the UI — which would leave the chat visible behind the modal.
+                yield Static("[#6b6b73]Scanning hardware…[/#6b6b73]", id="hw-body")
+
+    def on_mount(self) -> None:
+        self._scan()
+
+    @work(thread=True, exclusive=True, group="hw-scan")
+    def _scan(self) -> None:
+        text = _hw_text()
+        try:
+            self.app.call_from_thread(
+                lambda: self.query_one("#hw-body", Static).update(text)
+            )
+        except Exception:
+            pass
 
     def action_refresh(self) -> None:
         try:
-            self.query_one("#hw-body", Static).update(_hw_text())
-            self.notify("Refreshed.", severity="information")
+            self.query_one("#hw-body", Static).update(
+                "[#6b6b73]Scanning hardware…[/#6b6b73]"
+            )
         except Exception:
             pass
+        self._scan()
+        self.notify("Refreshing…", severity="information")
 
     def action_close(self) -> None:
         self.dismiss(None)

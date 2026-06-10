@@ -69,8 +69,13 @@ Sidebar {
     color: $border;
 }
 
-#sidebar-spacer {
+#sidebar-nav {
     height: 1fr;
+    scrollbar-size: 1 1;
+    scrollbar-background: $bg-1;
+    scrollbar-color: $border;
+    scrollbar-color-hover: $fg-2;
+    scrollbar-color-active: $fg-1;
 }
 
 .nav-item {
@@ -82,6 +87,18 @@ Sidebar {
 .nav-item:hover {
     background: $bg-2;
     color: $accent;
+}
+
+/* ─── Too-small terminal guard ─────────────────────────────────────────── */
+
+#too-small {
+    display: none;
+    width: 100%;
+    height: 100%;
+    content-align: center middle;
+    text-align: center;
+    background: $bg-0;
+    color: $warn;
 }
 
 /* ─── Info bar (StatusBar) ─────────────────────────────────────────────── */
@@ -202,7 +219,8 @@ StatusBar {
 
 ModalScreen {
     align: center middle;
-    background: rgba(0, 0, 0, 0.85);
+    /* Opaque so the chat screen behind is fully hidden — no bleed-through. */
+    background: $bg-0;
 }
 
 ModalScreen > Container {
@@ -350,6 +368,33 @@ ModalScreen Horizontal {
 #set-container Checkbox:focus {
     color: $accent;
 }
+
+/* ─── Permission modal (agent plan mode) ───────────────────────────────── */
+
+#perm-container {
+    width: 70%;
+    max-width: 84;
+    height: auto;
+    max-height: 28;
+    border: round $warn;
+    background: $bg-1;
+    padding: 1 2;
+    layout: vertical;
+}
+
+#perm-title { height: 1; color: $fg-0; }
+
+#perm-detail {
+    height: auto;
+    max-height: 18;
+    color: $fg-1;
+    background: $bg-2;
+    border: tall $border;
+    padding: 1 1;
+    margin: 1 0;
+}
+
+#perm-buttons { height: 3; align: right middle; }
 
 /* ─── Ollama variant picker modal ──────────────────────────────────────── */
 

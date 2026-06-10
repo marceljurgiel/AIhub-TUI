@@ -26,7 +26,7 @@ from ..chat import (
 )
 from ..config import config
 from ..memory import (
-    clear_memory, load_memory, update_memory_entry,
+    clear_memory, load_memory, memory_present, update_memory_entry,
 )
 from ..ollama_client import unload_model
 from ..slash import (
@@ -43,8 +43,10 @@ from .messages import (
 )
 from .modals import (
     CommandPaletteModal, ContextConfigModal, HardwareModal, HelpModal,
-    HistoryModal, MemoryModal, ModelPickerModal, SettingsModal,
+    HistoryModal, MemoryModal, ModelPickerModal, PermissionModal, SettingsModal,
 )
+from ..agent import agent_capable, system_prompt as agent_system_prompt, permission_for
+from ..tools import AGENT_TOOLS_SCHEMA
 from .state import SessionState
 from .widgets import ChatInput, ChatLog, SlashSuggest, StatusBar
 from .widgets.sidebar import Sidebar
@@ -65,11 +67,18 @@ class ChatScreen(Screen):
         Binding("ctrl+n", "new_chat",     "New",     show=False, priority=True),
         Binding("ctrl+s", "save_session", "Save",    show=False, priority=True),
         Binding("ctrl+t", "toggle_tools", "Tools",   show=False, priority=True),
+        Binding("ctrl+g", "agent",        "Agent",   show=False, priority=True),
+        Binding("f2",     "toggle_agent_submode", "Plan/Build", show=False, priority=True),
         Binding("escape", "cancel_stream","Cancel",  show=False),
         Binding("f1",     "help",         "Help",    show=False, priority=True),
         Binding("question_mark", "help",  "Help",    show=False),
         Binding("ctrl+q", "quit",         "Quit",    show=False, priority=True),
     ]
+
+    # Smallest terminal the UI stays usable at. Below this, a guard overlay
+    # replaces the main layout with a "resize" message.
+    MIN_WIDTH = 80
+    MIN_HEIGHT = 18
 
     # Reactive state
     current_model = reactive("(no model)")
@@ -103,8 +112,34 @@ class ChatScreen(Screen):
                 yield ChatLog(id="chat-log")
                 yield SlashSuggest()
                 yield ChatInput()
+        # Overlay shown when the terminal is too small for the UI to be usable.
+        yield Static("", id="too-small")
+
+    def on_resize(self, event) -> None:
+        self._apply_size_guard(event.size.width, event.size.height)
+
+    def _apply_size_guard(self, width: int, height: int) -> None:
+        """Hide the main UI behind a 'resize' message when the terminal is too
+        small for everything to be visible/usable."""
+        too_small = width < self.MIN_WIDTH or height < self.MIN_HEIGHT
+        try:
+            guard = self.query_one("#too-small", Static)
+            main = self.query_one("#main-layout")
+            bar = self.query_one(StatusBar)
+        except Exception:
+            return
+        guard.display = too_small
+        main.display = not too_small
+        bar.display = not too_small
+        if too_small:
+            guard.update(
+                "[b]Terminal too small[/b]\n\n"
+                f"Resize to at least [b]{self.MIN_WIDTH}×{self.MIN_HEIGHT}[/b]\n"
+                f"[#6b6b73]current: {width}×{height}[/#6b6b73]"
+            )
 
     def on_mount(self) -> None:
+        self._apply_size_guard(self.size.width, self.size.height)
         log = self.query_one(ChatLog)
         log.add_system(
             "[b][#a855f7]Welcome to AIHub.[/#a855f7][/b]  "
@@ -273,14 +308,21 @@ class ChatScreen(Screen):
             from ..api_client import chat_stream as api_stream
             stream_fn = api_stream
             stream_model = self.state.stream_model or self.current_model
+        agent = self.state.mode == "agent"
+        approve_fn = self._make_approve_fn() if agent else None
+        tools_schema = AGENT_TOOLS_SCHEMA if agent else None
+        # Agent mode always uses tools; chat keeps the per-backend toggle.
+        tools_on = True if agent else (self.tools_enabled and self.state.backend != "api")
         workers.stream_chat(
             self,
             stream_model,
             self.state.messages,
             temperature=self.temperature,
             context_length=self.context_length,
-            tools_enabled=self.tools_enabled and self.state.backend != "api",
+            tools_enabled=tools_on,
             stream_fn=stream_fn,
+            approve_fn=approve_fn,
+            tools_schema=tools_schema,
         )
 
     def _set_streaming(self, value: bool) -> None:
@@ -339,40 +381,31 @@ class ChatScreen(Screen):
         elif kind == KIND_CLEAR:
             self.action_clear_chat()
         elif kind == KIND_MEMORY_SHOW:
-            if self.current_model in ("(no model)", "", None):
-                log.add_system("No model selected.")
+            mem = load_memory()
+            if mem:
+                log.add_system(f"Memory:\n\n{mem}")
             else:
-                mem = load_memory(self.current_model)
-                if mem:
-                    log.add_system(f"Memory: {self.current_model}\n\n{mem}")
-                else:
-                    log.add_system(
-                        f"No memory stored for {self.current_model}. "
-                        "Use /memory save <key> <value> to add."
-                    )
-        elif kind == KIND_MEMORY_SAVE:
-            if self.current_model in ("(no model)", "", None):
-                log.add_system("No model selected.")
-            else:
-                k = result.payload["key"]
-                v = result.payload["value"]
-                update_memory_entry(self.current_model, k, v)
-                log.add_system(f"Memory saved: {k} → {v}")
-        elif kind == KIND_MEMORY_CLEAR:
-            if self.current_model in ("(no model)", "", None):
-                log.add_system("No model selected.")
-            else:
-                cleared = clear_memory(self.current_model)
                 log.add_system(
-                    "Memory cleared." if cleared else "No memory file found."
+                    "No memory stored. Use /memory save <key> <value> to add."
                 )
+        elif kind == KIND_MEMORY_SAVE:
+            k = result.payload["key"]
+            v = result.payload["value"]
+            update_memory_entry(k, v)
+            self.memory_enabled = memory_present()
+            log.add_system(f"Memory saved: {k} → {v}")
+        elif kind == KIND_MEMORY_CLEAR:
+            cleared = clear_memory()
+            self.memory_enabled = memory_present()
+            log.add_system(
+                "Memory cleared." if cleared else "No memory file found."
+            )
         elif kind == KIND_MEMORY_EXTRACT:
-            target = result.payload["target"]
             if self.current_model in ("(no model)", "", None):
-                log.add_system("No model selected.")
+                log.add_system("No model selected — needed to summarize the chat.")
             else:
-                log.add_system(f"Extracting facts → {target} memory…")
-                self._extract_memory_worker(target)
+                log.add_system("Extracting facts → memory…")
+                self._extract_memory_worker()
         elif kind == KIND_HISTORY_BROWSE:
             self.action_history()
         elif kind == KIND_USAGE:
@@ -406,7 +439,7 @@ class ChatScreen(Screen):
         self.state.reset_for(new_model, self.context_length)
         new_messages = start_session(new_model)
         self.state.messages = new_messages
-        has_memory = any(m.get("role") == "system" for m in new_messages)
+        has_memory = memory_present()
         self.state.memory_enabled = has_memory
         self.current_model = new_model
         self.memory_enabled = has_memory
@@ -419,22 +452,16 @@ class ChatScreen(Screen):
         )
 
     @work(thread=True, exclusive=False, group="memory-extract")
-    def _extract_memory_worker(self, target: str) -> None:
-        workers.extract_memory(self, self.current_model, list(self.state.messages), target)
+    def _extract_memory_worker(self) -> None:
+        workers.extract_memory(self, self.current_model, list(self.state.messages))
 
     def on_memory_updated(self, message: MemoryUpdated) -> None:
         log = self.query_one(ChatLog)
         if message.summary and message.summary.startswith("Error:"):
             log.add_system(f"[#ff6e6e]{message.summary}[/#ff6e6e]")
         else:
-            log.add_system(
-                f"Memory updated for {message.model_name}:\n{message.summary or ''}"
-            )
-        # Refresh memory_enabled (a fresh system message may now exist)
-        if self.current_model and self.current_model != "(no model)":
-            self.memory_enabled = any(
-                m.get("role") == "system" for m in self.state.messages
-            )
+            log.add_system(f"Memory updated:\n{message.summary or ''}")
+        self.memory_enabled = memory_present()
 
     # ── Modal actions ────────────────────────────────────────────────────
 
@@ -448,11 +475,11 @@ class ChatScreen(Screen):
             "model_picker":     self.action_model_picker,
             "clear_chat":       self.action_clear_chat,
             "new_chat":         self.action_new_chat,
+            "agent":            self.action_agent,
             "save_session":     self.action_save_session,
             "history":          self.action_history,
             "memory":           self.action_memory,
-            "memoryadd_chat":   lambda: self._palette_memoryadd("chat"),
-            "memoryadd_global": lambda: self._palette_memoryadd("global"),
+            "memoryadd":        self._palette_memoryadd,
             "hardware":         self.action_hardware,
             "settings":         self.action_settings,
             "toggle_tools":     self.action_toggle_tools,
@@ -463,12 +490,14 @@ class ChatScreen(Screen):
         if fn:
             fn()
 
-    def _palette_memoryadd(self, target: str) -> None:
+    def _palette_memoryadd(self) -> None:
         if self.current_model in ("(no model)", "", None):
-            self.query_one(ChatLog).add_system("No model selected.")
+            self.query_one(ChatLog).add_system(
+                "No model selected — needed to summarize the chat."
+            )
             return
-        self.query_one(ChatLog).add_system(f"Extracting facts → {target} memory…")
-        self._extract_memory_worker(target)
+        self.query_one(ChatLog).add_system("Extracting facts → memory…")
+        self._extract_memory_worker()
 
     def action_model_picker(self) -> None:
         # Load registry on demand from cli.py's helper. Cheap; ~104 entries.
@@ -523,7 +552,7 @@ class ChatScreen(Screen):
         self.state.stream_model = stream_model
         new_messages = start_session(model_name)
         self.state.messages = new_messages
-        has_memory = any(m.get("role") == "system" for m in new_messages)
+        has_memory = memory_present()
         self.state.memory_enabled = has_memory
         self.current_model = model_name
         self.memory_enabled = has_memory
@@ -571,8 +600,7 @@ class ChatScreen(Screen):
         log.add_system(f"Resumed {len(self.state.messages)} messages.")
 
     def action_memory(self) -> None:
-        model = self.current_model if self.current_model != "(no model)" else None
-        self.app.push_screen(MemoryModal(model))
+        self.app.push_screen(MemoryModal())
 
     def action_hardware(self) -> None:
         self.app.push_screen(HardwareModal())
@@ -608,7 +636,7 @@ class ChatScreen(Screen):
         # Rebuild messages with fresh memory injection
         self.state.messages = start_session(self.state.model_name or "")
         self.state.start_time = __import__("datetime").datetime.now()
-        has_memory = any(m.get("role") == "system" for m in self.state.messages)
+        has_memory = memory_present()
         self.memory_enabled = has_memory
         log.clear_keeping_system()
         log.add_system(
@@ -632,6 +660,100 @@ class ChatScreen(Screen):
         self.query_one(ChatLog).add_system(
             f"Tools {'enabled' if self.tools_enabled else 'disabled'}."
         )
+
+    # ── Agent mode ────────────────────────────────────────────────────────
+
+    def action_agent(self) -> None:
+        log = self.query_one(ChatLog)
+        if self.state.mode == "agent":
+            self._exit_agent()
+            return
+        if self.current_model in ("(no model)", "", None):
+            log.add_system("Select a model first (Ctrl+O).")
+            return
+        ok, reason, max_ctx = agent_capable(self.current_model, self.state.backend)
+        if not ok:
+            log.add_system(
+                f"[#ff6e6e]Agent mode needs a tool-capable model:[/#ff6e6e] {reason}. "
+                "Pick another model (Ctrl+O)."
+            )
+            return
+        # Enter agent mode — raise context, swap to the agent system prompt.
+        self.state.mode = "agent"
+        self.state.agent_submode = "build"
+        target_ctx = max(config.agent_min_context,
+                         min(max_ctx or config.agent_default_context,
+                             config.agent_default_context))
+        self.context_length = target_ctx
+        self.state.context_length = target_ctx
+        self._apply_agent_prompt()
+        self._sync_status(agent_mode=True, agent_submode="build")
+        log.add_system(
+            f"[#a855f7]◆ Agent mode — build[/#a855f7]  "
+            f"[#6b6b73]ctx {target_ctx} · F2 plan/build · Ctrl+G exit[/#6b6b73]"
+        )
+
+    def _exit_agent(self) -> None:
+        self.state.mode = "chat"
+        # Restore the normal chat system prompt.
+        from ..memory import build_system_prompt
+        sp = build_system_prompt()
+        if self.state.messages and self.state.messages[0].get("role") == "system":
+            self.state.messages[0]["content"] = sp
+        self._sync_status(agent_mode=False)
+        self.query_one(ChatLog).add_system("Left agent mode — back to chat.")
+
+    def action_toggle_agent_submode(self) -> None:
+        if self.state.mode != "agent":
+            return
+        self.state.agent_submode = "plan" if self.state.agent_submode == "build" else "build"
+        self._apply_agent_prompt()
+        self._sync_status(agent_submode=self.state.agent_submode)
+        sub = self.state.agent_submode
+        note = ("read-only; edits/commands need approval" if sub == "plan"
+                else "full access")
+        self.query_one(ChatLog).add_system(
+            f"[#a855f7]◆ Agent · {sub}[/#a855f7]  [#6b6b73]{note}[/#6b6b73]"
+        )
+
+    def _apply_agent_prompt(self) -> None:
+        sp = agent_system_prompt(self.state.agent_submode)
+        msgs = self.state.messages
+        if msgs and msgs[0].get("role") == "system":
+            msgs[0]["content"] = sp
+        else:
+            msgs.insert(0, {"role": "system", "content": sp})
+
+    def _make_approve_fn(self):
+        """Build a blocking approve(name, args)->bool for the worker thread.
+
+        Read-only tools (and Build mode) auto-allow. In Plan mode, mutating
+        tools pop a PermissionModal on the UI thread; the worker blocks on an
+        Event until the user decides.
+        """
+        import threading
+        submode = self.state.agent_submode
+
+        def approve(name: str, args: dict) -> bool:
+            if permission_for(submode, name) != "ask":
+                return True
+            ev = threading.Event()
+            box = {"ok": False}
+
+            def ask():
+                def after(allowed):
+                    box["ok"] = bool(allowed)
+                    ev.set()
+                self.app.push_screen(PermissionModal(name, args), after)
+
+            try:
+                self.app.call_from_thread(ask)
+            except Exception:
+                return False
+            ev.wait()
+            return box["ok"]
+
+        return approve
 
     def action_cancel_stream(self) -> None:
         # Cancel the chat-stream worker group. Sync workers can't be
@@ -658,11 +780,23 @@ class ChatScreen(Screen):
                 )
             except Exception:
                 pass
+        # Unload happens in on_unmount (covers every exit path, not just Ctrl+Q).
+        self.app.exit()
+
+    def _unload_current_model(self) -> None:
+        """Free VRAM/RAM by unloading the active model. Only Ollama supports
+        unload — llama.cpp owns its own process and API models hold nothing
+        locally."""
+        if self.state.backend == "ollama" and self.state.model_name:
             try:
                 unload_model(self.state.model_name)
             except Exception:
                 pass
-        self.app.exit()
+
+    def on_unmount(self) -> None:
+        # Fires on every shutdown (Ctrl+Q, Ctrl+C, SIGTERM, window close), so
+        # the model is always released even when action_quit is bypassed.
+        self._unload_current_model()
 
     # ── Cancellation message ─────────────────────────────────────────────
 

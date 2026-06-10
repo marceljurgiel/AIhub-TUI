@@ -131,8 +131,13 @@ def chat_sync(model_name: str, messages: List[Dict[str, Any]], temperature: floa
 
 def get_model_info(model_name: str) -> dict:
     """
-    Fetch detailed information about a model from Ollama, including context length.
-    Returns a dict with 'context_length' and other potential metadata.
+    Fetch model details from Ollama `/api/show`.
+
+    Returns a dict with:
+      context_length:  configured num_ctx if set, else the model's max
+      max_context:     the model's true maximum context window (from model_info)
+      capabilities:    list, e.g. ["completion", "tools", "vision"]
+      supports_tools:  bool — whether tool calling is supported
     """
     url     = f"{config.ollama_api_url}/api/show"
     payload = {"name": model_name}
@@ -141,17 +146,38 @@ def get_model_info(model_name: str) -> dict:
         response.raise_for_status()
         data = response.json()
 
-        # Parse context length from parameters or modelfile
-        params = data.get("parameters", "")
-        # Common pattern: num_ctx 4096
-        ctx_match = re.search(r"num_ctx\s+(\d+)", params)
-        if ctx_match:
-            return {"context_length": int(ctx_match.group(1))}
+        capabilities = data.get("capabilities") or []
 
-        # If not in params, check modelfile or fallback to config default
-        return {"context_length": config.default_context_length}
+        # True max context from model_info: "<arch>.context_length"
+        max_context = 0
+        model_info = data.get("model_info") or {}
+        for k, v in model_info.items():
+            if k.endswith(".context_length"):
+                try:
+                    max_context = int(v)
+                except (TypeError, ValueError):
+                    pass
+                break
+
+        # Configured num_ctx, if pinned in the modelfile parameters
+        params = data.get("parameters", "")
+        ctx_match = re.search(r"num_ctx\s+(\d+)", params)
+        configured = int(ctx_match.group(1)) if ctx_match else 0
+
+        context_length = configured or max_context or config.default_context_length
+        return {
+            "context_length": context_length,
+            "max_context":    max_context or context_length,
+            "capabilities":   capabilities,
+            "supports_tools": "tools" in capabilities,
+        }
     except Exception:
-        return {"context_length": config.default_context_length}
+        return {
+            "context_length": config.default_context_length,
+            "max_context":    config.default_context_length,
+            "capabilities":   [],
+            "supports_tools": False,
+        }
 
 
 def unload_model(model_name: str):

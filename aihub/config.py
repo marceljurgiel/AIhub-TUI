@@ -41,7 +41,7 @@ class AppConfig(BaseModel):
     max_history_sessions: int = Field(default=50, description="Max saved sessions per model")
 
     # v0.1.1 — Memory and Hardware
-    global_memory_enabled: bool = Field(default=False, description="Enable global memory across all models")
+    memory_enabled: bool = Field(default=True, description="Inject shared memory into chat sessions")
     hardware_scan_completed: bool = Field(default=False, description="Whether the initial hardware scan was completed")
     # v0.1.2 — Context Length
     default_context_length: int = Field(default=2048, description="Default context window size (num_ctx) for models")
@@ -55,6 +55,12 @@ class AppConfig(BaseModel):
     hf_gguf_limit:         int  = Field(default=20,                           description="Max GGUF model entries fetched from HuggingFace")
     models_download_dir:   str  = Field(default=os.path.join(os.path.expanduser("~"), ".aihub", "models"),
                                         description="Directory where downloaded GGUF files are saved")
+
+    # v0.3.0 — Agent mode (OpenCode-style plan/build harness)
+    agent_min_context:     int  = Field(default=16384, description="Minimum model context window required to enter agent mode")
+    agent_default_context: int  = Field(default=32768, description="Context window agent sessions request (capped to the model max)")
+    llamacpp_agent_allow:  bool = Field(default=False, description="Allow llama.cpp models in agent mode (tool support is model-dependent)")
+    project_dir:           str  = Field(default="",    description="Working directory for agent file/shell tools (empty = current dir)")
 
 
 def load_config() -> AppConfig:

@@ -18,6 +18,8 @@ def stream_chat(
     context_length: int,
     tools_enabled: bool,
     stream_fn=None,
+    approve_fn=None,
+    tools_schema=None,
 ) -> None:
     """Drive `run_chat_turn` and forward every event as a ChatEventReceived.
 
@@ -38,6 +40,8 @@ def stream_chat(
             context_length=context_length,
             tools_enabled=tools_enabled,
             stream_fn=stream_fn,
+            approve_fn=approve_fn,
+            tools_schema=tools_schema,
         ):
             # Capture final text so the Done event in `finally` is meaningful
             # even if the engine itself didn't emit a Done (it should, but
@@ -79,13 +83,13 @@ def poll_backends(screen) -> None:
 poll_ollama = poll_backends
 
 
-def extract_memory(screen, model_name: str, messages, target: str) -> None:
+def extract_memory(screen, model_name: str, messages) -> None:
     """Run memory.extract_and_update_memory in a worker; report via SystemBubble."""
     from ..memory import extract_and_update_memory
     from .messages import MemoryUpdated, ChatEventReceived
     from ..chat import Error
     try:
-        outcome = extract_and_update_memory(model_name, messages, target=target)
+        outcome = extract_and_update_memory(model_name, messages)
     except Exception as exc:
         screen.post_message(ChatEventReceived(Error(
             message=f"Memory extraction failed: {exc}", fatal=False,

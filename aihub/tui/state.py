@@ -21,6 +21,8 @@ class SessionState:
     tools_enabled: bool = True
     backend: str = "ollama"          # "ollama" | "llamacpp" | "api"
     stream_model: str = ""           # actual id passed to the stream (e.g. api:// url)
+    mode: str = "chat"               # "chat" | "agent"
+    agent_submode: str = "build"     # "plan" | "build" (when mode == "agent")
     start_time: datetime = field(default_factory=datetime.now)
 
     def reset_for(self, model_name: str, context_length: int) -> None:
@@ -30,4 +32,6 @@ class SessionState:
         self.memory_enabled = False
         self.backend = "ollama"
         self.stream_model = ""
+        self.mode = "chat"
+        self.agent_submode = "build"
         self.start_time = datetime.now()

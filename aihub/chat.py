@@ -23,6 +23,16 @@ from .memory import build_system_prompt
 from .tools import run_tool, wants_tools, TOOLS_SCHEMA
 
 
+def _truncate(text: str, max_chars: int = 8000) -> str:
+    """Cap a tool result so large outputs don't blow the context window."""
+    if not text or len(text) <= max_chars:
+        return text
+    head = text[: max_chars // 2]
+    tail = text[-max_chars // 2:]
+    omitted = len(text) - max_chars
+    return f"{head}\n\n... [truncated {omitted} chars] ...\n\n{tail}"
+
+
 # ── Event types ───────────────────────────────────────────────────────────────
 
 @dataclass(frozen=True)
@@ -105,7 +115,7 @@ def start_session(
         clean = {k: v for k, v in m.items() if k != "tool_calls"}
         messages.append(clean)
 
-    sys_prompt = build_system_prompt(model_name)
+    sys_prompt = build_system_prompt()
     if sys_prompt:
         if messages and messages[0].get("role") == "system":
             messages[0]["content"] = sys_prompt
@@ -143,6 +153,8 @@ def run_chat_turn(
     tools_enabled: bool = True,
     max_tool_rounds: int = 25,
     stream_fn=None,
+    approve_fn=None,
+    tools_schema=None,
 ) -> Iterator[ChatEvent]:
     """
     Drive one assistant turn — initial text plus any subsequent tool rounds —
@@ -153,6 +165,13 @@ def run_chat_turn(
 
     stream_fn: callable matching ollama_client.chat_stream signature.
     Defaults to ollama_client.chat_stream when None.
+
+    approve_fn: optional callable(tool_name, args) -> bool, consulted before
+    executing each tool. Returning False denies the call (the model is told).
+    Used by agent Plan mode for interactive approval. Default = allow all.
+
+    tools_schema: optional explicit tool schema. When provided (agent mode), the
+    full set is always offered (the chat `wants_tools` intent gate is skipped).
     """
     # Resolve backend lazily — only imports ollama_client when needed
     if stream_fn is None:
@@ -160,9 +179,13 @@ def run_chat_turn(
     else:
         _sf = stream_fn
 
-    # Tool-intent gate: only offer tools when the latest user message shows
-    # intent that may require one — keeps models from firing tools on plain chat.
-    tools_active = tools_enabled and wants_tools(messages)
+    active_schema = tools_schema if tools_schema is not None else TOOLS_SCHEMA
+    if tools_schema is not None:
+        # Agent mode: tools are always available (no intent gate).
+        tools_active = tools_enabled
+    else:
+        # Chat: only offer tools when the latest user message shows tool intent.
+        tools_active = tools_enabled and wants_tools(messages)
     final_text = ""
 
     for round_index in range(max_tool_rounds):
@@ -175,7 +198,7 @@ def run_chat_turn(
             pending_tool_calls = []
             stream_kwargs: Dict[str, Any] = {}
             if tools_active:
-                stream_kwargs["tools"] = TOOLS_SCHEMA
+                stream_kwargs["tools"] = active_schema
 
             retry = False
             try:
@@ -278,12 +301,16 @@ def run_chat_turn(
             )
 
             t0 = time.monotonic()
-            try:
-                result_text = run_tool(name, **args)
+            if approve_fn is not None and not approve_fn(name, args):
+                result_text = "[Denied by user] The user declined this action."
                 error = None
-            except Exception as exc:
-                result_text = f"[Tool Error] {exc}"
-                error = str(exc)
+            else:
+                try:
+                    result_text = _truncate(run_tool(name, **args))
+                    error = None
+                except Exception as exc:
+                    result_text = f"[Tool Error] {exc}"
+                    error = str(exc)
             duration_ms = int((time.monotonic() - t0) * 1000)
 
             messages.append({"role": "tool", "content": result_text})

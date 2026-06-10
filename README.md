@@ -482,3 +482,10 @@ MIT License - See [LICENSE](LICENSE) for details.
 - [Ollama](https://ollama.com/) - Local AI runtime
 - [Questionary](https://questionary.readthedocs.io/) - CLI prompts
 - [Rich](https://rich.readthedocs.io/) - Terminal formatting
+- [llmfit](https://github.com/AlexsJones/llmfit) (MIT) - the "Recommended" hardware-fit
+  engine is a Python port of its approach; the model catalog in
+  `aihub/data/llmfit_models.json` is derived from llmfit's database
+  (see `aihub/data/LICENSE-llmfit`)
+- [OpenCode](https://github.com/sst/opencode) (MIT) - Agent mode's plan/build harness,
+  permission model, system prompts, and tool descriptions are ported/adapted from
+  OpenCode (see `aihub/data/LICENSE-opencode`)

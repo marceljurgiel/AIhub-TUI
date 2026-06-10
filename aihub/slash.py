@@ -23,7 +23,7 @@ KIND_NEW_CHAT        = "new_chat"
 KIND_MEMORY_SHOW     = "memory_show"
 KIND_MEMORY_SAVE     = "memory_save"
 KIND_MEMORY_CLEAR    = "memory_clear"
-KIND_MEMORY_EXTRACT  = "memory_extract"   # payload: {"target": "chat"|"global"}
+KIND_MEMORY_EXTRACT  = "memory_extract"
 KIND_HISTORY_BROWSE  = "history_browse"
 KIND_USAGE           = "usage"            # malformed but recognised command
 KIND_UNKNOWN         = "unknown"
@@ -46,7 +46,7 @@ def parse_slash(raw: str) -> SlashResult:
       /memory
       /memory save <key> <value...>
       /memory clear
-      /memoryadd [chat|global]
+      /memoryadd
       /history
     """
     if not raw.startswith("/"):
@@ -96,16 +96,7 @@ def parse_slash(raw: str) -> SlashResult:
         )
 
     if head == "/memoryadd":
-        target = parts[1].lower() if len(parts) > 1 else "chat"
-        if target not in ("chat", "global"):
-            return SlashResult(
-                kind=KIND_USAGE,
-                message="Usage: /memoryadd [chat|global]",
-            )
-        return SlashResult(
-            kind=KIND_MEMORY_EXTRACT,
-            payload={"target": target},
-        )
+        return SlashResult(kind=KIND_MEMORY_EXTRACT)
 
     return SlashResult(
         kind=KIND_UNKNOWN,
@@ -126,11 +117,10 @@ HELP_TEXT = """\
   /new                        Save session & start a fresh chat
   /help                       Show this help
   /model                      Switch model
-  /memory                     Show current memory
+  /memory                     Show saved memory
   /memory save <key> <value>  Save a fact to memory
-  /memory clear               Clear memory for this model
-  /memoryadd chat             Auto-extract facts → model memory
-  /memoryadd global           Auto-extract facts → global memory
+  /memory clear               Clear all memory
+  /memoryadd                  Auto-extract facts from this chat → memory
   /history                    Browse & resume past sessions
   /tools                      List available agentic tools
   /clear                      Clear chat context (keep system)

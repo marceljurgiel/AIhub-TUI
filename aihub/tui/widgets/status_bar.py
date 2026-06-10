@@ -26,6 +26,8 @@ class StatusBar(Static):
         self.memory_enabled = False
         self.tools_enabled = True
         self.streaming = False
+        self.agent_mode = False
+        self.agent_submode = "build"
 
     def on_mount(self) -> None:
         self.refresh_status()
@@ -73,6 +75,11 @@ class StatusBar(Static):
         except Exception:
             ram_str = "[#6b6b73]RAM ?[/#6b6b73]"
 
+        # Agent mode indicator
+        agent_seg = ""
+        if self.agent_mode:
+            agent_seg = f"  [b][#a855f7]◆ agent · {self.agent_submode}[/#a855f7][/b]"
+
         # Streaming indicator
         stream_marker = "  [#ffb454]⟳ streaming…[/#ffb454]" if self.streaming else ""
 
@@ -93,5 +100,5 @@ class StatusBar(Static):
         self.update(
             f" {dot} {sep} {model_str} {sep} ctx {ctx_str} {sep}"
             f" {temp_str} {sep} {mem_str} {sep} {tools_str} {sep}"
-            f" {ram_str} {sep} {clock}{stream_marker}{lc_seg}"
+            f" {ram_str} {sep} {clock}{agent_seg}{stream_marker}{lc_seg}"
         )
