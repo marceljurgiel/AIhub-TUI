@@ -358,6 +358,11 @@ ModalScreen Horizontal {
     margin: 0;
 }
 
+#set-container Select {
+    width: 100%;
+    margin: 0;
+}
+
 .set-row {
     height: auto;
 }

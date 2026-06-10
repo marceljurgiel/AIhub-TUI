@@ -6,7 +6,7 @@ from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Container, Horizontal, Vertical, VerticalScroll
 from textual.screen import ModalScreen
-from textual.widgets import Button, Checkbox, Input, Static
+from textual.widgets import Button, Checkbox, Input, Select, Static
 
 from ...config import config, save_config
 
@@ -40,14 +40,12 @@ class SettingsModal(ModalScreen):
 
                 # ── AI / Chat ────────────────────────────────────────────
                 yield _section("AI & Chat")
-                yield _label("Default model", "used when launching a new session")
-                with Horizontal(classes="set-row"):
-                    yield Input(
-                        value=config.default_chat_model,
-                        id="set-model",
-                        placeholder="e.g. qwen2.5:3b",
-                    )
-                    yield Button("Choose…", id="set-model-pick")
+                yield _label("Default model", "pick from your downloaded models")
+                yield Select(
+                    [], id="set-model",
+                    prompt="Select a downloaded model…",
+                    allow_blank=True,
+                )
                 yield _label("Default context length (tokens)", "num_ctx sent to Ollama")
                 yield Input(
                     value=str(config.default_context_length),
@@ -144,6 +142,33 @@ class SettingsModal(ModalScreen):
 
     def on_mount(self) -> None:
         self._probe_llamacpp()
+        self._populate_models()
+
+    @work(thread=True, exclusive=True, group="model-list")
+    def _populate_models(self) -> None:
+        # Fill the Default-model dropdown from downloaded (installed) models.
+        from ...ollama_client import get_local_model_sizes, is_ollama_running
+        names = []
+        try:
+            if is_ollama_running():
+                names = sorted(get_local_model_sizes().keys())
+        except Exception:
+            names = []
+        current = config.default_chat_model
+        # Preserve a previously-set default even if it isn't installed here.
+        if current and current not in names:
+            names = [current] + names
+        self.app.call_from_thread(self._apply_models, names, current)
+
+    def _apply_models(self, names: list, current: str) -> None:
+        try:
+            sel = self.query_one("#set-model", Select)
+        except Exception:
+            return
+        if names:
+            sel.set_options([(n, n) for n in names])
+            if current in names:
+                sel.value = current
 
     @work(thread=True, exclusive=True, group="llamacpp-probe")
     def _probe_llamacpp(self) -> None:
@@ -167,13 +192,6 @@ class SettingsModal(ModalScreen):
             self.action_save()
         elif event.button.id == "set-cancel":
             self.dismiss(None)
-        elif event.button.id == "set-model-pick":
-            from .model_chooser import ModelChooserModal
-
-            def _picked(name) -> None:
-                if name:
-                    self.query_one("#set-model", Input).value = name
-            self.app.push_screen(ModelChooserModal(), _picked)
 
     def action_save(self) -> None:
         def _int(widget_id: str, fallback: int) -> int:
@@ -193,9 +211,9 @@ class SettingsModal(ModalScreen):
         if ollama:
             config.ollama_api_url = ollama
 
-        model = self.query_one("#set-model", Input).value.strip()
-        if model:
-            config.default_chat_model = model
+        model = self.query_one("#set-model", Select).value
+        if isinstance(model, str) and model.strip():
+            config.default_chat_model = model.strip()
 
         hf = self.query_one("#set-hf", Input).value.strip()
         config.hf_api_token = hf
