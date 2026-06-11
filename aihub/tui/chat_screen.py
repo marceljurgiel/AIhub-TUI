@@ -48,7 +48,7 @@ from .modals import (
 from ..agent import agent_capable, system_prompt as agent_system_prompt, permission_for
 from ..tools import AGENT_TOOLS_SCHEMA
 from .state import SessionState
-from .widgets import ChatInput, ChatLog, SlashSuggest, StatusBar
+from .widgets import ChatInput, ChatLog, FooterBar, SlashSuggest, StatusBar
 from .widgets.sidebar import Sidebar
 from . import workers
 
@@ -112,6 +112,11 @@ class ChatScreen(Screen):
                 yield ChatLog(id="chat-log")
                 yield SlashSuggest()
                 yield ChatInput()
+                yield Static(
+                    "[#6b6b73]↵ send · ⇧↵ newline · ^R rerun[/#6b6b73]",
+                    id="input-hint",
+                )
+        yield FooterBar()
         # Overlay shown when the terminal is too small for the UI to be usable.
         yield Static("", id="too-small")
 
@@ -126,11 +131,13 @@ class ChatScreen(Screen):
             guard = self.query_one("#too-small", Static)
             main = self.query_one("#main-layout")
             bar = self.query_one(StatusBar)
+            foot = self.query_one(FooterBar)
         except Exception:
             return
         guard.display = too_small
         main.display = not too_small
         bar.display = not too_small
+        foot.display = not too_small
         if too_small:
             guard.update(
                 "[b]Terminal too small[/b]\n\n"
@@ -175,6 +182,7 @@ class ChatScreen(Screen):
         )
         self._poll_ollama_worker()
         self.set_interval(15.0, self._poll_ollama_worker)
+        self._sync_meta()
 
     # ── Watcher helpers ──────────────────────────────────────────────────
 
@@ -185,16 +193,30 @@ class ChatScreen(Screen):
             pass
 
     def _sync_status(self, **changes) -> None:
-        try:
-            bar = self.query_one(StatusBar)
-        except Exception:
-            return
-        for key, value in changes.items():
-            setattr(bar, key, value)
-        try:
-            bar.refresh_status()
-        except Exception:
-            pass
+        # Push the same attributes to both the top header and the bottom bar.
+        for bar_cls in (StatusBar, FooterBar):
+            try:
+                bar = self.query_one(bar_cls)
+            except Exception:
+                continue
+            for key, value in changes.items():
+                setattr(bar, key, value)
+            try:
+                bar.refresh_status()
+            except Exception:
+                pass
+
+    def _sync_meta(self) -> None:
+        """Refresh the header's session title + message count from state."""
+        msgs = [m for m in self.state.messages
+                if m.get("role") in ("user", "assistant")]
+        title = "new session"
+        for m in self.state.messages:
+            if m.get("role") == "user" and m.get("content", "").strip():
+                t = " ".join(m["content"].split())
+                title = t if len(t) <= 42 else t[:41] + "…"
+                break
+        self._sync_status(session_title=title, message_count=len(msgs))
 
     def watch_current_model(self, _old: str, new: str) -> None:
         self._refresh_header()
@@ -265,6 +287,7 @@ class ChatScreen(Screen):
 
         log.add_user(text)
         self.state.messages.append({"role": "user", "content": text})
+        self._sync_meta()
         self._start_stream()
 
     # ── Slash autocomplete ───────────────────────────────────────────────
@@ -359,6 +382,7 @@ class ChatScreen(Screen):
             log.end_assistant()
             self.streaming = False
             self._cancelled = False
+            self._sync_meta()
             return
         # Drop late events after cancel.
         if self._cancelled:
@@ -700,6 +724,7 @@ class ChatScreen(Screen):
             "[b][#a855f7]New chat started.[/#a855f7][/b]  "
             f"Model: [#a855f7]{self.current_model or '(none)'}[/#a855f7]"
         )
+        self._sync_meta()
 
     def action_save_session(self) -> None:
         log = self.query_one(ChatLog)

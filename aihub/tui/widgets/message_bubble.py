@@ -74,7 +74,20 @@ class BubbleBase(Vertical):
 
     @staticmethod
     def _looks_like_markdown(text: str) -> bool:
-        return "```" in text or text.lstrip().startswith(("- ", "* ", "1. ", "# "))
+        t = text.strip()
+        if not t:
+            return False
+        # Code fences, tables, bold, or inline code anywhere → Markdown.
+        if "```" in t or "|" in t or "**" in t or "`" in t:
+            return True
+        # Any line starting as a heading / list / blockquote → Markdown.
+        for line in t.splitlines():
+            ls = line.lstrip()
+            if ls.startswith(("#", "- ", "* ", "> ", "+ ")):
+                return True
+            if len(ls) >= 3 and ls[0].isdigit() and ls[1:3] == ". ":
+                return True
+        return False
 
 
 class UserBubble(BubbleBase):

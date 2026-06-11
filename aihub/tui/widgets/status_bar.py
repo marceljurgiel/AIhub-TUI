@@ -1,13 +1,19 @@
-"""InfoBar — top info strip showing model · ctx · temp · memory · tools status.
+"""Top header bar + bottom vim-style status line.
 
-Uses purple accent for active/online indicators. All key session info visible at
-a glance without opening any modal.
+`StatusBar`  — docked top: session title · status · message count  |  device ·
+               context fill · model pill.
+`FooterBar`  — docked bottom: MODE · path · model · mem/tools/temp  |  ctx · clock.
+
+Both read the same flat set of attributes, pushed by ChatScreen._sync_status().
 """
 from __future__ import annotations
 
+import os
 from datetime import datetime
 
 import psutil
+from rich.table import Table
+from rich.text import Text
 from textual.widgets import Static
 
 
@@ -31,125 +37,143 @@ def _usage_colour(pct: float) -> str:
     return "#ff6e6e"
 
 
-class StatusBar(Static):
+def _split(left: str, right: str) -> Table:
+    """A full-width grid: left-justified + right-justified, one line."""
+    t = Table.grid(expand=True, padding=0)
+    t.add_column(justify="left", ratio=1, no_wrap=True)
+    t.add_column(justify="right", no_wrap=True)
+    t.add_row(Text.from_markup(left), Text.from_markup(right))
+    return t
+
+
+class _BarBase(Static):
+    """Shared status attributes for both bars."""
+
     DEFAULT_CSS = ""
 
     def __init__(self) -> None:
-        super().__init__("loading…")
+        super().__init__("")
         self.ollama_online = False
         self.llamacpp_online = False
         self.llamacpp_model = ""
         self.model_name = "(no model)"
         self.context_length = 2048
-        self.context_used = 0
         self.temperature = 0.7
         self.memory_enabled = False
         self.tools_enabled = True
         self.streaming = False
         self.agent_mode = False
         self.agent_submode = "build"
+        # session meta
+        self.session_title = "new session"
+        self.message_count = 0
         # token usage
         self.ctx_used = 0
         self.ctx_max = 0
         self.session_tokens = 0
         # device usage
-        self.gpu_util = -1.0          # -1 = unknown/no GPU
+        self.gpu_util = -1.0
         self.vram_used_gb = 0.0
         self.vram_total_gb = 0.0
         self.cpu_percent = 0.0
+
+    # convenience ----------------------------------------------------------
+    def _model_short(self, width: int = 28) -> str:
+        m = self.model_name or ""
+        if not m or m == "(no model)":
+            return ""
+        return m if len(m) <= width else m[: width - 1] + "…"
+
+    def _ctx_markup(self) -> str:
+        if self.ctx_max:
+            ratio = (self.ctx_used / self.ctx_max) if self.ctx_max else 0
+            col = _usage_colour(ratio * 100)
+            return f"[{col}]{_k(self.ctx_used)}/{_k(self.ctx_max)}[/{col}]"
+        if self.context_length:
+            return f"[#6b6b73]–/{_k(self.context_length)}[/#6b6b73]"
+        return "[#6b6b73]–[/#6b6b73]"
+
+    def _device_markup(self) -> str:
+        if self.vram_total_gb > 0:
+            util = (f"[{_usage_colour(self.gpu_util)}]{self.gpu_util:.0f}%[/]"
+                    if self.gpu_util >= 0 else "[#6b6b73]–[/#6b6b73]")
+            vcol = _usage_colour(self.vram_used_gb / self.vram_total_gb * 100)
+            return (f"[#6b6b73]GPU[/#6b6b73] {util} "
+                    f"[{vcol}]{self.vram_used_gb:.1f}/{self.vram_total_gb:.0f}G[/]")
+        cpu = (f"[{_usage_colour(self.cpu_percent)}]{self.cpu_percent:.0f}%[/]"
+               if self.cpu_percent else "[#6b6b73]–[/#6b6b73]")
+        try:
+            free = psutil.virtual_memory().available / 1024**3
+            ram = f"[#6b6b73]{free:.1f}G[/#6b6b73]"
+        except Exception:
+            ram = ""
+        return f"[#6b6b73]CPU[/#6b6b73] {cpu} {ram}"
+
+
+class StatusBar(_BarBase):
+    """Top header — title · status · messages  |  device · ctx · model."""
 
     def on_mount(self) -> None:
         self.refresh_status()
         self.set_interval(15.0, self.refresh_status)
 
     def refresh_status(self) -> None:
-        # Ollama dot — green when online
-        if self.ollama_online:
-            dot = "[#22c55e]●[/#22c55e]"
+        title = self.session_title or "new session"
+        if self.streaming:
+            status = "[#ffb454]streaming…[/#ffb454]"
+        elif self.agent_mode:
+            status = f"[#a855f7]agent · {self.agent_submode}[/#a855f7]"
         else:
-            dot = "[#ff6e6e]○[/#ff6e6e]"
+            status = "[#6b6b73]active session[/#6b6b73]"
+        dot = "[#a855f7]●[/#a855f7]"
+        sep = "[#2a2a30]·[/#2a2a30]"
+        left = (f"{dot} [b]{title}[/b]  {sep} {status}  {sep} "
+                f"[#6b6b73]{self.message_count} messages[/#6b6b73]")
 
-        # Model name (purple)
-        if self.model_name and self.model_name != "(no model)":
-            model_str = f"[b][#a855f7]{self.model_name}[/#a855f7][/b]"
-        else:
-            model_str = "[#6b6b73]no model[/#6b6b73]"
+        odot = "[#22c55e]●[/#22c55e]" if self.ollama_online else "[#6b6b73]○[/#6b6b73]"
+        model = self._model_short()
+        pill = (f"{odot} [#a855f7]{model}[/#a855f7] [#6b6b73]▾[/#6b6b73]"
+                if model else f"{odot} [#6b6b73]no model ▾[/#6b6b73]")
+        right = f"{self._device_markup()}  {sep} {self._ctx_markup()}  {sep} {pill}"
 
-        # Context (purple — informational)
-        ctx_str = (
-            f"[#a855f7]{self.context_length // 1024}k[/#a855f7]"
-            if self.context_length >= 1024
-            else f"[#a855f7]{self.context_length}[/#a855f7]"
-        )
+        self.update(_split(left, right))
 
-        # Temperature (purple — informational)
-        temp_str = f"[#a855f7]T {self.temperature:.1f}[/#a855f7]"
 
-        # Memory — green when ON, grey when off
-        if self.memory_enabled:
-            mem_str = "[#22c55e]mem ✓[/#22c55e]"
-        else:
-            mem_str = "[#6b6b73]mem ·[/#6b6b73]"
+class FooterBar(_BarBase):
+    """Bottom vim-style line — MODE · path · model · flags  |  ctx · clock."""
 
-        # Tools — green when ON, grey when off
-        if self.tools_enabled:
-            tools_str = "[#22c55e]tools ✓[/#22c55e]"
-        else:
-            tools_str = "[#6b6b73]tools ·[/#6b6b73]"
+    def on_mount(self) -> None:
+        self.refresh_status()
+        self.set_interval(15.0, self.refresh_status)
 
-        # Device usage — GPU util + VRAM when a GPU is present, else CPU + RAM.
-        if self.vram_total_gb > 0:
-            util = (f"[{_usage_colour(self.gpu_util)}]{self.gpu_util:.0f}%[/]"
-                    if self.gpu_util >= 0 else "[#6b6b73]–[/#6b6b73]")
-            vcol = _usage_colour(self.vram_used_gb / self.vram_total_gb * 100
-                                 if self.vram_total_gb else 0)
-            ram_str = (f"[#a8a8b0]GPU[/#a8a8b0] {util} "
-                       f"[{vcol}]{self.vram_used_gb:.1f}/{self.vram_total_gb:.0f}G[/]")
-        else:
-            try:
-                ram = psutil.virtual_memory()
-                ram_g = f"[#6b6b73]RAM {ram.available / 1024**3:.1f}G[/#6b6b73]"
-            except Exception:
-                ram_g = "[#6b6b73]RAM ?[/#6b6b73]"
-            cpu = (f"[{_usage_colour(self.cpu_percent)}]{self.cpu_percent:.0f}%[/]"
-                   if self.cpu_percent else "[#6b6b73]–[/#6b6b73]")
-            ram_str = f"[#a8a8b0]CPU[/#a8a8b0] {cpu}  {ram_g}"
-
-        # Token usage — context fill + cumulative session tokens.
-        if self.ctx_max:
-            ratio = self.ctx_used / self.ctx_max if self.ctx_max else 0
-            tcol = _usage_colour(ratio * 100)
-            tok_str = (f"[#a8a8b0]ctx[/#a8a8b0] [{tcol}]{_k(self.ctx_used)}/"
-                       f"{_k(self.ctx_max)}[/]")
-        else:
-            tok_str = "[#a8a8b0]ctx[/#a8a8b0] [#6b6b73]–[/#6b6b73]"
-        if self.session_tokens:
-            tok_str += f" [#6b6b73]· {_k(self.session_tokens)} tok[/#6b6b73]"
-
-        # Agent mode indicator
-        agent_seg = ""
+    def refresh_status(self) -> None:
         if self.agent_mode:
-            agent_seg = f"  [b][#a855f7]◆ agent · {self.agent_submode}[/#a855f7][/b]"
+            mode = f"AGENT·{self.agent_submode.upper()}"
+            modecol = "#ffb454"
+        elif self.streaming:
+            mode, modecol = "STREAM", "#a855f7"
+        else:
+            mode, modecol = "NORMAL", "#a855f7"
+        mode_block = f"[on {modecol}][#0e0e10] {mode} [/#0e0e10][/]"
 
-        # Streaming indicator
-        stream_marker = "  [#ffb454]⟳ streaming…[/#ffb454]" if self.streaming else ""
+        try:
+            from ...config import config as _cfg
+            base = os.path.basename(_cfg.project_dir.rstrip("/")) if _cfg.project_dir else ""
+        except Exception:
+            base = ""
+        path = f"[#6b6b73]~/{base or 'aihub'}[/#6b6b73]"
 
-        # Clock
+        model = self._model_short(24)
+        mdot = "[#22c55e]●[/#22c55e]"
+        model_seg = f"{mdot} [#a8a8b0]{model}[/#a8a8b0]" if model else f"{mdot} [#6b6b73]no model[/#6b6b73]"
+
+        mem = "[#22c55e]mem ✓[/#22c55e]" if self.memory_enabled else "[#6b6b73]mem ·[/#6b6b73]"
+        tools = "[#22c55e]tools ✓[/#22c55e]" if self.tools_enabled else "[#6b6b73]tools ·[/#6b6b73]"
+        temp = f"[#6b6b73]T {self.temperature:.1f}[/#6b6b73]"
+        sep = "[#2a2a30]·[/#2a2a30]"
+        left = f"{mode_block} {path}  {sep} {model_seg}  {sep} {mem}  {tools}  {temp}"
+
         clock = f"[#6b6b73]{datetime.now().strftime('%H:%M')}[/#6b6b73]"
+        right = f"[#6b6b73]ctx[/#6b6b73] {self._ctx_markup()}  {clock}"
 
-        # llama.cpp indicator (shown only when enabled)
-        from ...config import config as _cfg
-        lc_seg = ""
-        if _cfg.llamacpp_enabled:
-            if self.llamacpp_online:
-                lc_model = f" [#a855f7]{self.llamacpp_model}[/#a855f7]" if self.llamacpp_model else ""
-                lc_seg = f"  [#a8a8b0]llama.cpp[/#a8a8b0] [#22c55e]●[/#22c55e]{lc_model}"
-            else:
-                lc_seg = "  [#a8a8b0]llama.cpp[/#a8a8b0] [#6b6b73]○[/#6b6b73]"
-
-        sep = "[#2a2a30] │ [/#2a2a30]"
-        self.update(
-            f" {dot} {sep} {model_str} {sep} {tok_str} {sep}"
-            f" {temp_str} {sep} {mem_str} {sep} {tools_str} {sep}"
-            f" {ram_str} {sep} {clock}{agent_seg}{stream_marker}{lc_seg}"
-        )
+        self.update(_split(left, right))
