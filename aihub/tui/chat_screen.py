@@ -21,7 +21,7 @@ from textual.widgets import Static
 
 from ..chat import (
     Done, Error, RoundCompleted, TextChunk,
-    ToolCallRequested, ToolCallResult,
+    ToolCallRequested, ToolCallResult, Usage,
     finalize_session, start_session,
 )
 from ..config import config
@@ -138,8 +138,30 @@ class ChatScreen(Screen):
                 f"[#6b6b73]current: {width}×{height}[/#6b6b73]"
             )
 
+    @work(thread=True, exclusive=True, group="usage-poll")
+    def _refresh_usage(self) -> None:
+        # nvidia-smi/psutil run off the UI thread (subprocess can block).
+        from ..hardware import get_gpu_usage, get_cpu_usage
+        g = get_gpu_usage()
+        cpu = get_cpu_usage()
+
+        def apply() -> None:
+            self._sync_status(
+                gpu_util=g.get("util_percent", -1.0) if g else -1.0,
+                vram_used_gb=(g.get("vram_used_mb", 0) / 1024.0) if g else 0.0,
+                vram_total_gb=(g.get("vram_total_mb", 0) / 1024.0) if g else 0.0,
+                cpu_percent=cpu,
+            )
+        try:
+            self.app.call_from_thread(apply)
+        except Exception:
+            pass
+
     def on_mount(self) -> None:
         self._apply_size_guard(self.size.width, self.size.height)
+        # Live device-usage poll (GPU util/VRAM or CPU%) — off-thread.
+        self._refresh_usage()
+        self.set_interval(4.0, self._refresh_usage)
         log = self.query_one(ChatLog)
         log.add_system(
             "[b][#a855f7]Welcome to AIHub.[/#a855f7][/b]  "
@@ -352,6 +374,14 @@ class ChatScreen(Screen):
             )
         elif isinstance(event, RoundCompleted):
             log.end_assistant()
+        elif isinstance(event, Usage):
+            self.state.session_tokens += event.prompt_tokens + event.completion_tokens
+            self.state.ctx_used = event.prompt_tokens
+            self._sync_status(
+                ctx_used=event.prompt_tokens,
+                ctx_max=self.context_length,
+                session_tokens=self.state.session_tokens,
+            )
         elif isinstance(event, Error):
             colour = "#ff6e6e" if event.fatal else "#ffb454"
             log.add_system(f"[{colour}]{event.message}[/{colour}]")

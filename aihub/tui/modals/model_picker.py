@@ -179,19 +179,32 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
             f"[#a8a8b0]Fit for: {hw_str}[/#a8a8b0]  [#22c55e]· {fitting} fit[/#22c55e]  "
             "[#6b6b73]· best quant picked · Enter to download (llama.cpp)[/#6b6b73]"
         )
-        opts = []
+        # Header row (column labels) — disabled so it isn't selectable.
+        header = (
+            f"[#6b6b73]  {'Model':<33}{'Params':>6}  {'Quant':<7}{'Size':>6}  "
+            f"{'t/s':>5}  Fit[/#6b6b73]"
+        )
+        opts = [Option(header, id="__hdr__", disabled=True)]
         for entry, f in results:
             name = entry["name"]
-            colour = "#a855f7" if f.fits else "#6b6b73"
-            tps = f"{f.est_tps:.0f} t/s" if f.fits else "—"
             params = entry.get("parameter_count", "?")
+            # Colour by fit quality: green = good, amber = tight/CPU, red = won't fit.
+            col = "#ff6e6e" if not f.fits else ("#22c55e" if f.score >= 70 else "#ffb454")
+            filled = max(0, min(10, round(f.score / 10)))
+            bar = (f"[{col}]{'█' * filled}[/{col}]"
+                   f"[#2a2a30]{'░' * (10 - filled)}[/#2a2a30]")
+            tps = f"{f.est_tps:.0f}" if f.fits else "—"
+            short = (name[:32] + "…") if len(name) > 33 else name
             row = (
-                f"[{colour}]{name:<40.40}[/{colour}]  "
-                f"[#a8a8b0]{params:>5}  {f.best_quant:<7} {f.size_gb:>4.1f}GB[/#a8a8b0]  "
-                f"[#6b6b73]{f.run_mode:<7} {tps:>8}  score {f.score}[/#6b6b73]"
+                f"[{col}]●[/{col}] [#e6e6e6]{short:<33}[/#e6e6e6]"
+                f"[#a8a8b0]{params:>6}[/#a8a8b0]  "
+                f"[#a8a8b0]{f.best_quant:<7}[/#a8a8b0]"
+                f"[#a8a8b0]{f.size_gb:>5.1f}G[/#a8a8b0]  "
+                f"[#6b6b73]{tps:>5}[/#6b6b73]  "
+                f"{bar} [{col}]{f.score:>3}[/{col}]"
             )
             opts.append(Option(row, id=f"fit:{name}"))
-        if not opts:
+        if len(opts) == 1:   # only the header → no models
             opts.append(Option("(catalog unavailable)", id="__none__", disabled=True))
         olist.clear_options()
         olist.add_options(opts)
@@ -514,7 +527,7 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
             return "installed"
 
     def _dispatch_use(self, opt_id: Optional[str]) -> None:
-        if not opt_id or opt_id == "__none__":
+        if not opt_id or opt_id.startswith("__"):   # __none__, __hdr__
             return
         if opt_id.startswith("api://"):
             self._use_api_model(opt_id)

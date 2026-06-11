@@ -23,6 +23,8 @@ class SessionState:
     stream_model: str = ""           # actual id passed to the stream (e.g. api:// url)
     mode: str = "chat"               # "chat" | "agent"
     agent_submode: str = "build"     # "plan" | "build" (when mode == "agent")
+    session_tokens: int = 0          # cumulative tokens used this session
+    ctx_used: int = 0                # prompt tokens of the latest model call
     start_time: datetime = field(default_factory=datetime.now)
 
     def reset_for(self, model_name: str, context_length: int) -> None:
@@ -34,4 +36,6 @@ class SessionState:
         self.stream_model = ""
         self.mode = "chat"
         self.agent_submode = "build"
+        self.session_tokens = 0
+        self.ctx_used = 0
         self.start_time = datetime.now()

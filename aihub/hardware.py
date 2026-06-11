@@ -153,6 +153,48 @@ def get_gpu_info() -> Dict[str, Any]:
     }
 
 
+def get_gpu_usage() -> Dict[str, Any]:
+    """
+    Live GPU utilization + VRAM. Returns
+        {util_percent, vram_used_mb, vram_total_mb}
+    or {} when no usable GPU is detected.
+    """
+    if shutil.which("nvidia-smi"):
+        try:
+            out = subprocess.check_output(
+                "nvidia-smi --query-gpu=utilization.gpu,memory.used,memory.total "
+                "--format=csv,noheader,nounits",
+                shell=True, text=True, stderr=subprocess.DEVNULL,
+            ).strip().split("\n")
+            if out and out[0]:
+                util, used, total = [p.strip() for p in out[0].split(",")]
+                return {
+                    "util_percent":  float(util),
+                    "vram_used_mb":  float(used),
+                    "vram_total_mb": float(total),
+                }
+        except Exception:
+            pass
+    # AMD best-effort: utilization not reliably parseable; fall back to totals.
+    gpu = get_gpu_info()
+    if gpu.get("vram_total_mb"):
+        used = gpu["vram_total_mb"] - gpu.get("vram_free_mb", gpu["vram_total_mb"])
+        return {
+            "util_percent":  -1.0,   # unknown
+            "vram_used_mb":  float(max(0, used)),
+            "vram_total_mb": float(gpu["vram_total_mb"]),
+        }
+    return {}
+
+
+def get_cpu_usage() -> float:
+    """Instantaneous CPU utilization % (non-blocking — since the last call)."""
+    try:
+        return psutil.cpu_percent(interval=None)
+    except Exception:
+        return 0.0
+
+
 def get_os_info() -> str:
     """Return a human-readable OS description."""
     return platform.platform()

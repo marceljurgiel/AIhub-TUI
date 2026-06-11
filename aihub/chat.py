@@ -79,6 +79,15 @@ class Done:
 
 
 @dataclass(frozen=True)
+class Usage:
+    """Token usage for one model call (round). prompt_tokens is the context the
+    model read this round; completion_tokens is what it generated."""
+    prompt_tokens: int
+    completion_tokens: int
+    round_index: int
+
+
+@dataclass(frozen=True)
 class Error:
     """A streaming or tool error.
 
@@ -92,7 +101,7 @@ class Error:
 
 
 ChatEvent = Union[TextChunk, ToolCallRequested, ToolCallResult,
-                  RoundCompleted, Done, Error]
+                  RoundCompleted, Usage, Done, Error]
 
 
 # ── Session setup / teardown ──────────────────────────────────────────────────
@@ -192,10 +201,15 @@ def run_chat_turn(
         full_text = ""
         pending_tool_calls: List[Dict[str, Any]] = []
 
+        prompt_tokens = 0
+        completion_tokens = 0
+
         # One round may need to retry once if the model rejects the tools field.
         for attempt in (1, 2):
             full_text = ""
             pending_tool_calls = []
+            prompt_tokens = 0
+            completion_tokens = 0
             stream_kwargs: Dict[str, Any] = {}
             if tools_active:
                 stream_kwargs["tools"] = active_schema
@@ -232,6 +246,14 @@ def run_chat_turn(
                         yield TextChunk(text=piece, round_index=round_index)
                     for tc in msg.get("tool_calls", []) or []:
                         pending_tool_calls.append(tc)
+                    # Token usage — Ollama (top-level eval counts) or API ("usage").
+                    if "prompt_eval_count" in chunk or "eval_count" in chunk:
+                        prompt_tokens = chunk.get("prompt_eval_count") or prompt_tokens
+                        completion_tokens = chunk.get("eval_count") or completion_tokens
+                    usage = chunk.get("usage")
+                    if usage:
+                        prompt_tokens = usage.get("prompt_tokens") or prompt_tokens
+                        completion_tokens = usage.get("completion_tokens") or completion_tokens
             except Exception as exc:
                 exc_str = str(exc).lower()
                 _tool_exc = (
@@ -252,6 +274,14 @@ def run_chat_turn(
 
             if not retry:
                 break
+
+        # Report this round's token usage (if the backend provided it).
+        if prompt_tokens or completion_tokens:
+            yield Usage(
+                prompt_tokens=int(prompt_tokens),
+                completion_tokens=int(completion_tokens),
+                round_index=round_index,
+            )
 
         # ── No tool calls → final text, end turn ──────────────────────────
         if not pending_tool_calls:

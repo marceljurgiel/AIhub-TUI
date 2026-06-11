@@ -121,7 +121,17 @@ def _anthropic_stream(
             for text in stream.text_stream:
                 if text:
                     yield {"message": {"content": text}, "done": False}
-        yield {"message": {"content": ""}, "done": True}
+            # Final message carries token usage.
+            usage = {}
+            try:
+                u = stream.get_final_message().usage
+                usage = {
+                    "prompt_tokens": int(getattr(u, "input_tokens", 0) or 0),
+                    "completion_tokens": int(getattr(u, "output_tokens", 0) or 0),
+                }
+            except Exception:
+                usage = {}
+        yield {"message": {"content": ""}, "done": True, "usage": usage}
     except anthropic.AuthenticationError:
         yield {"error": "Invalid Anthropic API key."}
     except anthropic.RateLimitError:
