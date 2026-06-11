@@ -75,6 +75,16 @@ python -m pip install --upgrade pip >/dev/null
 echo "→ Installing AIHub-TUI…"
 python -m pip install -e .
 
+# Make `aihub` available in any shell (not just inside the venv), and have it
+# track code updates (editable install). Symlink the venv entry point onto PATH.
+AIHUB_BIN="$(pwd)/.venv/bin/aihub"
+for d in /usr/local/bin "$HOME/.local/bin"; do
+    if [ -d "$d" ] && { [ -w "$d" ] || [ "$(id -u)" -eq 0 ]; }; then
+        ln -sf "$AIHUB_BIN" "$d/aihub" 2>/dev/null && \
+            echo "→ Linked: $d/aihub → .venv/bin/aihub" && break
+    fi
+done
+
 # Optional: Ollama runtime (for local models).
 if [ "${INSTALL_OLLAMA:-0}" = "1" ] && ! command -v ollama >/dev/null 2>&1; then
     echo "→ Installing Ollama…"
@@ -83,8 +93,9 @@ if [ "${INSTALL_OLLAMA:-0}" = "1" ] && ! command -v ollama >/dev/null 2>&1; then
 fi
 
 echo
-echo "✓ Installed. Run it with:"
-echo "    source $REPO_DIR/.venv/bin/activate && aihub"
+echo "✓ Installed. Just run:  aihub"
+echo "  (if 'aihub' isn't found, run directly: $REPO_DIR/.venv/bin/aihub"
+echo "   or add ~/.local/bin to PATH)"
 echo
 if ! command -v ollama >/dev/null 2>&1; then
     echo "Note: local models need the Ollama runtime — https://ollama.com/download"

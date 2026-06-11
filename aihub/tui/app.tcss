@@ -73,6 +73,13 @@ Sidebar {
     color: $border;
 }
 
+#sidebar-version {
+    height: 1;
+    color: $fg-2;
+    border-top: solid $border;
+    padding: 0 0 0 1;
+}
+
 #sidebar-nav {
     height: 1fr;
     scrollbar-size: 1 1;

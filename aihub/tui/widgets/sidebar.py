@@ -11,6 +11,8 @@ from textual.message import Message
 from textual.widget import Widget
 from textual.widgets import Static
 
+from ... import __version__ as _VERSION
+
 
 # ASCII art logo — figlet "standard" font, vertical purple gradient
 # (light lavender at the top → deep violet at the bottom).
@@ -76,6 +78,7 @@ class Sidebar(Widget):
             with VerticalScroll(id="sidebar-nav"):
                 for action_name, label, _hint in NAV_ITEMS:
                     yield NavItem(action_name, label)
+            yield Static(f"  [#6b6b73]AIHub v{_VERSION}[/#6b6b73]", id="sidebar-version")
 
     def update_model(self, model_name: str, context_length: int) -> None:
         ctx = f"{context_length // 1024}k" if context_length >= 1024 else str(context_length)

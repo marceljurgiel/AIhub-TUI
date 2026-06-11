@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aihub-tui"
-version = "0.2.0"
+version = "0.3.0"
 description = "AIHub TUI Edition — chat-first Textual terminal interface for local AI model management"
 readme = "README.md"
 authors = [{ name = "AIHub Contributors" }]
