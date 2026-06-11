@@ -72,6 +72,17 @@ class ChatScreen(Screen):
         Binding("escape", "cancel_stream","Cancel",  show=False),
         Binding("f1",     "help",         "Help",    show=False, priority=True),
         Binding("question_mark", "help",  "Help",    show=False),
+        # Single-key nav shortcuts (vim-style) — fire only when the chat input
+        # is NOT focused, since the TextArea consumes printable keys while typing.
+        # The Ctrl-combos above still work while typing.
+        Binding("n", "new_chat",        show=False),
+        Binding("a", "agent",           show=False),
+        Binding("m", "model_picker",    show=False),
+        Binding("h", "history",         show=False),
+        Binding("e", "memory",          show=False),
+        Binding("w", "hardware",        show=False),
+        Binding("s", "settings",        show=False),
+        Binding("p", "command_palette", show=False),
         Binding("ctrl+q", "quit",         "Quit",    show=False, priority=True),
     ]
 
@@ -187,8 +198,12 @@ class ChatScreen(Screen):
     # ── Watcher helpers ──────────────────────────────────────────────────
 
     def _refresh_header(self) -> None:
+        # CONNECTED (green) only when a model is actually selected; OFFLINE (red)
+        # otherwise.
+        online = bool(self.current_model)
         try:
-            self.query_one(Sidebar).update_model(self.current_model, self.context_length)
+            self.query_one(Sidebar).update_model(
+                self.current_model, self.context_length, online)
         except Exception:
             pass
 

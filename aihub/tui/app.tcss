@@ -58,8 +58,9 @@ Sidebar {
 }
 
 #sidebar-model {
-    height: 4;
-    padding: 1 0;
+    height: auto;
+    min-height: 3;
+    padding: 1 0 1 0;
     color: $accent;
     border-bottom: solid $border;
 }
@@ -76,7 +77,7 @@ Sidebar {
 #sidebar-version {
     height: 1;
     color: $fg-2;
-    border-top: solid $border;
+    background: $bg-1;
     padding: 0 0 0 1;
 }
 
@@ -227,7 +228,6 @@ StatusBar {
     background: $bg-1;
     color: $fg-1;
     padding: 0 2;
-    border-bottom: solid $border;
 }
 
 FooterBar {
@@ -236,7 +236,6 @@ FooterBar {
     background: $bg-1;
     color: $fg-1;
     padding: 0 1;
-    border-top: solid $border;
 }
 
 #input-hint {

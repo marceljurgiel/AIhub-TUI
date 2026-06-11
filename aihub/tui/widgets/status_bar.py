@@ -4,7 +4,10 @@
                context fill · model pill.
 `FooterBar`  — docked bottom: MODE · path · model · mem/tools/temp  |  ctx · clock.
 
-Both read the same flat set of attributes, pushed by ChatScreen._sync_status().
+Both read the same flat set of attributes, pushed by ChatScreen._sync_status(),
+and render a single right-padded line via render() (Textual measures Rich Tables
+as zero-height, so we lay out the left/right split manually using the widget
+width, which is known at render() time).
 """
 from __future__ import annotations
 
@@ -12,7 +15,6 @@ import os
 from datetime import datetime
 
 import psutil
-from rich.table import Table
 from rich.text import Text
 from textual.widgets import Static
 
@@ -37,17 +39,8 @@ def _usage_colour(pct: float) -> str:
     return "#ff6e6e"
 
 
-def _split(left: str, right: str) -> Table:
-    """A full-width grid: left-justified + right-justified, one line."""
-    t = Table.grid(expand=True, padding=0)
-    t.add_column(justify="left", ratio=1, no_wrap=True)
-    t.add_column(justify="right", no_wrap=True)
-    t.add_row(Text.from_markup(left), Text.from_markup(right))
-    return t
-
-
 class _BarBase(Static):
-    """Shared status attributes for both bars."""
+    """Shared status attributes + left/right split rendering for both bars."""
 
     DEFAULT_CSS = ""
 
@@ -77,6 +70,14 @@ class _BarBase(Static):
         self.vram_total_gb = 0.0
         self.cpu_percent = 0.0
 
+    def on_mount(self) -> None:
+        self.refresh_status()
+        self.set_interval(15.0, self.refresh_status)
+
+    def refresh_status(self) -> None:
+        # render() does the work; just trigger a repaint.
+        self.refresh()
+
     # convenience ----------------------------------------------------------
     def _model_short(self, width: int = 28) -> str:
         m = self.model_name or ""
@@ -90,7 +91,7 @@ class _BarBase(Static):
             col = _usage_colour(ratio * 100)
             return f"[{col}]{_k(self.ctx_used)}/{_k(self.ctx_max)}[/{col}]"
         if self.context_length:
-            return f"[#6b6b73]–/{_k(self.context_length)}[/#6b6b73]"
+            return f"[#6b6b73]0/{_k(self.context_length)}[/#6b6b73]"
         return "[#6b6b73]–[/#6b6b73]"
 
     def _device_markup(self) -> str:
@@ -109,15 +110,26 @@ class _BarBase(Static):
             ram = ""
         return f"[#6b6b73]CPU[/#6b6b73] {cpu} {ram}"
 
+    def _split(self, left_markup: str, right_markup: str) -> Text:
+        """One line: left-justified + right-justified, padded to the widget
+        width. Left side is ellipsis-truncated if the two would overlap."""
+        left = Text.from_markup(left_markup)
+        right = Text.from_markup(right_markup)
+        width = max(int(self.size.width) or 0, 1)
+        if left.cell_len + right.cell_len + 1 > width:
+            left.truncate(max(0, width - right.cell_len - 1), overflow="ellipsis")
+        pad = max(1, width - left.cell_len - right.cell_len)
+        out = Text()
+        out.append_text(left)
+        out.append(" " * pad)
+        out.append_text(right)
+        return out
+
 
 class StatusBar(_BarBase):
     """Top header — title · status · messages  |  device · ctx · model."""
 
-    def on_mount(self) -> None:
-        self.refresh_status()
-        self.set_interval(15.0, self.refresh_status)
-
-    def refresh_status(self) -> None:
+    def render(self) -> Text:
         title = self.session_title or "new session"
         if self.streaming:
             status = "[#ffb454]streaming…[/#ffb454]"
@@ -134,19 +146,15 @@ class StatusBar(_BarBase):
         model = self._model_short()
         pill = (f"{odot} [#a855f7]{model}[/#a855f7] [#6b6b73]▾[/#6b6b73]"
                 if model else f"{odot} [#6b6b73]no model ▾[/#6b6b73]")
-        right = f"{self._device_markup()}  {sep} {self._ctx_markup()}  {sep} {pill}"
-
-        self.update(_split(left, right))
+        right = (f"[#a8a8b0]ctx[/#a8a8b0] {self._ctx_markup()}  {sep} "
+                 f"{self._device_markup()}  {sep} {pill}")
+        return self._split(left, right)
 
 
 class FooterBar(_BarBase):
     """Bottom vim-style line — MODE · path · model · flags  |  ctx · clock."""
 
-    def on_mount(self) -> None:
-        self.refresh_status()
-        self.set_interval(15.0, self.refresh_status)
-
-    def refresh_status(self) -> None:
+    def render(self) -> Text:
         if self.agent_mode:
             mode = f"AGENT·{self.agent_submode.upper()}"
             modecol = "#ffb454"
@@ -164,8 +172,9 @@ class FooterBar(_BarBase):
         path = f"[#6b6b73]~/{base or 'aihub'}[/#6b6b73]"
 
         model = self._model_short(24)
-        mdot = "[#22c55e]●[/#22c55e]"
-        model_seg = f"{mdot} [#a8a8b0]{model}[/#a8a8b0]" if model else f"{mdot} [#6b6b73]no model[/#6b6b73]"
+        mdot = "[#22c55e]●[/#22c55e]" if model else "[#6b6b73]●[/#6b6b73]"
+        model_seg = (f"{mdot} [#a8a8b0]{model}[/#a8a8b0]" if model
+                     else f"{mdot} [#6b6b73]no model[/#6b6b73]")
 
         mem = "[#22c55e]mem ✓[/#22c55e]" if self.memory_enabled else "[#6b6b73]mem ·[/#6b6b73]"
         tools = "[#22c55e]tools ✓[/#22c55e]" if self.tools_enabled else "[#6b6b73]tools ·[/#6b6b73]"
@@ -175,5 +184,4 @@ class FooterBar(_BarBase):
 
         clock = f"[#6b6b73]{datetime.now().strftime('%H:%M')}[/#6b6b73]"
         right = f"[#6b6b73]ctx[/#6b6b73] {self._ctx_markup()}  {clock}"
-
-        self.update(_split(left, right))
+        return self._split(left, right)

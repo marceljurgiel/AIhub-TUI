@@ -2,10 +2,13 @@
 
 Nav items dispatch action names directly to ChatScreen — no simulate_key,
 so clicking always works regardless of terminal key mappings.
+
+Rendering note: Textual 8.x measures a Rich Table as zero-height, so nav rows
+build a manually right-padded Rich Text in render() (the widget width is known
+there) rather than a Table.grid.
 """
 from __future__ import annotations
 
-from rich.table import Table
 from rich.text import Text
 from textual.app import ComposeResult
 from textual.containers import Vertical, VerticalScroll
@@ -30,17 +33,17 @@ LOGO = "\n".join(
     for i, line in enumerate(_ART_LINES)
 )
 
-# (action_name, label, key_hint)
+# (action_name, label, single-key shortcut)
 NAV_ITEMS = [
-    ("new_chat",        "New Chat",  "^N"),
-    ("agent",           "Agent",     "^G"),
-    ("model_picker",    "Models",    "^O"),
-    ("history",         "History",   "^R"),
-    ("memory",          "Memory",    "^E"),
-    ("hardware",        "Hardware",  "^B"),
-    ("settings",        "Settings",  "^,"),
-    ("command_palette", "Palette",   "^P"),
-    ("help",            "Help",      "F1"),
+    ("new_chat",        "New Chat",  "N"),
+    ("agent",           "Agent",     "A"),
+    ("model_picker",    "Models",    "M"),
+    ("history",         "History",   "H"),
+    ("memory",          "Memory",    "E"),
+    ("hardware",        "Hardware",  "W"),
+    ("settings",        "Settings",  "S"),
+    ("command_palette", "Palette",   "P"),
+    ("help",            "Help",      "?"),
 ]
 
 
@@ -68,19 +71,22 @@ class NavItem(Static):
         if active:
             self.add_class("-active")
 
-    def render(self):
+    def render(self) -> Text:
         active = self.has_class("-active")
-        marker = "[#a855f7]▎[/#a855f7]" if active else " "
-        icon = "[#a855f7]◆[/#a855f7]" if active else "[#6b6b73]◆[/#6b6b73]"
+        width = max(int(self.size.width) or 0, 12)
+        icon_col = "#a855f7" if active else "#6b6b73"
         lab_col = "#e6e6e6" if active else "#a8a8b0"
-        t = Table.grid(expand=True, padding=0)
-        t.add_column(justify="left", ratio=1, no_wrap=True)
-        t.add_column(justify="right", no_wrap=True)
-        t.add_row(
-            Text.from_markup(f"{marker} {icon}  [{lab_col}]{self._label}[/{lab_col}]"),
-            Text.from_markup(f"[#6b6b73]{self._key}[/#6b6b73] "),
-        )
-        return t
+        left = Text()
+        left.append("▎ " if active else "  ", style="#a855f7")
+        left.append("◆  ", style=icon_col)
+        left.append(self._label, style=lab_col)
+        right = Text(self._key + " ", style="#6b6b73")
+        pad = max(1, width - left.cell_len - right.cell_len)
+        out = Text()
+        out.append_text(left)
+        out.append(" " * pad)
+        out.append_text(right)
+        return out
 
     def set_active(self, active: bool) -> None:
         self.set_class(active, "-active")
@@ -97,33 +103,36 @@ class Sidebar(Widget):
         with Vertical(id="sidebar-inner"):
             yield Static(LOGO, id="sidebar-logo")
             yield ClickableModel(
-                "  [#6b6b73]● no model — click to choose[/#6b6b73]\n"
-                "  [#6b6b73]DISCONNECTED[/#6b6b73]",
+                "  [#6b6b73]●[/#6b6b73] [#6b6b73]no model — click to choose[/#6b6b73]\n"
+                "  [#ff6e6e]OFFLINE[/#ff6e6e]",
                 id="sidebar-model",
             )
             with VerticalScroll(id="sidebar-nav"):
                 for i, (action_name, label, key) in enumerate(NAV_ITEMS):
                     yield NavItem(action_name, label, key, active=(i == 0))
-            footer = Table.grid(expand=True, padding=0)
-            footer.add_column(justify="left", ratio=1, no_wrap=True)
-            footer.add_column(justify="right", no_wrap=True)
-            footer.add_row(
-                Text.from_markup(f" [#6b6b73]aihub v{_VERSION}[/#6b6b73]"),
-                Text.from_markup("[#6b6b73]⌘K palette[/#6b6b73] "),
+            yield Static(
+                f" [#6b6b73]aihub v{_VERSION}[/#6b6b73]  "
+                f"[#2a2a30]·[/#2a2a30]  [#6b6b73]⌘K palette[/#6b6b73]",
+                id="sidebar-version",
             )
-            yield Static(footer, id="sidebar-version")
 
     def update_model(self, model_name: str, context_length: int,
                      online: bool = True) -> None:
+        """online=True (model chosen and backend working) → green CONNECTED;
+        otherwise red OFFLINE."""
         ctx = f"{context_length // 1024}K" if context_length >= 1024 else str(context_length)
         short = model_name if len(model_name) <= 30 else model_name[:29] + "…"
-        dot = "[#22c55e]●[/#22c55e]" if online else "[#6b6b73]●[/#6b6b73]"
-        conn = "[#22c55e]CONNECTED[/#22c55e]" if online else "[#6b6b73]OFFLINE[/#6b6b73]"
+        if online and model_name:
+            dot = "[#22c55e]●[/#22c55e]"
+            line1 = f"  {dot} [b][#a855f7]{short}[/#a855f7][/b]"
+            line2 = f"  [#22c55e]CONNECTED[/#22c55e] [#2a2a30]·[/#2a2a30] [#6b6b73]{ctx} CTX[/#6b6b73]"
+        else:
+            dot = "[#ff6e6e]●[/#ff6e6e]"
+            label = short if model_name else "no model — click to choose"
+            line1 = f"  {dot} [#a8a8b0]{label}[/#a8a8b0]"
+            line2 = f"  [#ff6e6e]OFFLINE[/#ff6e6e]"
         try:
-            self.query_one("#sidebar-model", Static).update(
-                f"  {dot} [b][#a855f7]{short}[/#a855f7][/b]\n"
-                f"  {conn} [#2a2a30]·[/#2a2a30] [#6b6b73]{ctx} CTX[/#6b6b73]"
-            )
+            self.query_one("#sidebar-model", Static).update(f"{line1}\n{line2}")
         except Exception:
             pass
 
