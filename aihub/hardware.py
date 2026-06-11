@@ -272,3 +272,50 @@ def estimate_kv_cache_gb(context_size: int, model_name: str = "") -> float:
         
     estimated_gb = (context_size / 8192) * gb_per_8k
     return round(estimated_gb, 2)
+
+
+def free_vram_gb() -> float:
+    """Free GPU VRAM in GB (0.0 when no dedicated GPU is detected)."""
+    gpu = get_gpu_info()
+    free = gpu.get("vram_free_mb") or gpu.get("vram_total_mb") or 0
+    return round(free / 1024.0, 2)
+
+
+# Context ladder used when auto-fitting to VRAM.
+_CTX_LADDER = [2048, 4096, 8192, 16384, 32768, 65536, 131072]
+
+
+def recommend_context(model_name: str, hard_cap: int | None = None) -> int:
+    """Largest sensible context whose model weights + KV cache fit GPU VRAM.
+
+    Falls back to config.default_context_length when no GPU is detected (on CPU
+    the context size doesn't change the GPU/CPU decision). Capped at `hard_cap`
+    (the model's true max context) when provided.
+    """
+    from .config import config
+    gpu = get_gpu_info()
+    vram_gb = (gpu.get("vram_total_mb") or 0) / 1024.0
+    if vram_gb <= 0:
+        return config.default_context_length
+
+    # Weight size of the installed model (GB), if we can find it.
+    model_gb = 0.0
+    try:
+        from .ollama_client import get_local_model_sizes
+        sizes = get_local_model_sizes()
+        model_gb = sizes.get(model_name) or sizes.get(model_name + ":latest") or 0.0
+    except Exception:
+        model_gb = 0.0
+
+    headroom = 0.8  # GB reserved for runtime/compute buffers
+    cap = hard_cap or _CTX_LADDER[-1]
+    best = _CTX_LADDER[0]
+    for ctx in _CTX_LADDER:
+        if ctx > cap:
+            break
+        need = model_gb + estimate_kv_cache_gb(ctx, model_name) + headroom
+        if need <= vram_gb:
+            best = ctx
+        else:
+            break
+    return min(best, cap)

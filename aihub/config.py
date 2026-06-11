@@ -45,6 +45,9 @@ class AppConfig(BaseModel):
     hardware_scan_completed: bool = Field(default=False, description="Whether the initial hardware scan was completed")
     # v0.1.2 — Context Length
     default_context_length: int = Field(default=2048, description="Default context window size (num_ctx) for models")
+    # v0.3.1 — Ollama GPU offload. 0 = auto (Ollama decides). >0 = force that many
+    # layers onto the GPU (e.g. 999 = all). Never send 0 to Ollama (that = CPU-only).
+    ollama_num_gpu: int = Field(default=0, description="Ollama num_gpu layers: 0=auto, 999=force all on GPU")
 
     # v0.2.0 — llama.cpp backend
     llamacpp_url:          str  = Field(default="http://localhost:8080",     description="Base URL of a running llama-server (OpenAI-compatible)")

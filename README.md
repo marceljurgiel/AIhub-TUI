@@ -193,6 +193,24 @@ Options: `INSTALL_OLLAMA=1 ./install.sh` also installs the Ollama runtime;
 `PYTHON=python3.12 ./install.sh` picks a specific interpreter. Cloud API models
 (OpenAI / Anthropic / Google) work without Ollama; local models require it.
 
+### GPU not being used (CPU instead)?
+
+The GPU-vs-CPU decision is made by the **Ollama server**, not aihub. aihub helps
+in three ways:
+
+- **Auto-fit context** — the per-chat context length defaults to the largest that
+  fits your detected GPU VRAM, and warns (red) if a value you pick will spill the
+  KV cache to CPU.
+- **Force GPU** — Settings → *Ollama GPU layers (num_gpu)*: `0` = auto,
+  `999` = force all layers onto the GPU.
+- **Placement check** — after your first message, aihub reports `Running on GPU`,
+  `Partial GPU`, or `Running on CPU` (via Ollama's `/api/ps`).
+
+If it still runs on CPU: confirm the **server** can use the GPU (`ollama run <model>`
+should use it) and that there's enough free VRAM for the model + context. On AMD
+this needs a working ROCm setup on the server (e.g. `HSA_OVERRIDE_GFX_VERSION` for
+some cards) — configured where Ollama runs, not in aihub.
+
 ### Updating
 
 To pull the latest version any time (force-syncs to the pushed version, even if

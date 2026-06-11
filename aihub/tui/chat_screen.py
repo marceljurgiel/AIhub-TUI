@@ -113,6 +113,8 @@ class ChatScreen(Screen):
         # While set, late ChatEventReceived messages (text/tool) are ignored;
         # Done is still processed so streaming flag is reset cleanly.
         self._cancelled = False
+        # Model we've already reported GPU/CPU placement for (once per load).
+        self._placement_checked_for = None
 
     def compose(self) -> ComposeResult:
         from textual.containers import Horizontal as HBox, Vertical as VBox
@@ -172,6 +174,34 @@ class ChatScreen(Screen):
             )
         try:
             self.app.call_from_thread(apply)
+        except Exception:
+            pass
+
+    @work(thread=True, exclusive=True, group="placement")
+    def _check_placement(self, model_name: str) -> None:
+        # Query Ollama /api/ps off-thread and report whether the model loaded
+        # on GPU, partially, or on CPU.
+        from ..ollama_client import model_placement
+        p = model_placement(model_name)
+
+        def show() -> None:
+            if not p:
+                return
+            log = self.query_one(ChatLog)
+            pct = int(round(p.get("gpu_fraction", 0.0) * 100))
+            if pct >= 99:
+                log.add_system(f"[#22c55e]● Running on GPU ({pct}%).[/#22c55e]")
+            elif pct > 0:
+                log.add_system(
+                    f"[#ffb454]◐ Partial GPU ({pct}%) — lower context (Models → "
+                    f"context) or set GPU layers = 999 in Settings.[/#ffb454]")
+            else:
+                log.add_system(
+                    "[#ff6e6e]⚠ Running on CPU — model/KV cache exceeds VRAM. "
+                    "Lower context (Models → context) or set GPU layers = 999 "
+                    "in Settings.[/#ff6e6e]")
+        try:
+            self.app.call_from_thread(show)
         except Exception:
             pass
 
@@ -398,6 +428,11 @@ class ChatScreen(Screen):
             self.streaming = False
             self._cancelled = False
             self._sync_meta()
+            # Report GPU/CPU placement once per loaded Ollama model.
+            if (self.state.backend == "ollama" and self.current_model
+                    and self._placement_checked_for != self.current_model):
+                self._placement_checked_for = self.current_model
+                self._check_placement(self.current_model)
             return
         # Drop late events after cancel.
         if self._cancelled:
@@ -632,6 +667,7 @@ class ChatScreen(Screen):
         self.state.reset_for(model_name, self.context_length)
         self.state.backend = backend
         self.state.stream_model = stream_model
+        self._placement_checked_for = None   # re-check placement for the new model
         new_messages = start_session(model_name)
         self.state.messages = new_messages
         has_memory = bool(config.memory_enabled)

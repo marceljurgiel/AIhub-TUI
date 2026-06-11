@@ -81,6 +81,10 @@ def chat_stream(model_name: str, messages: List[Dict[str, Any]], temperature: fl
         "temperature": temperature,
         "num_ctx":     context_length or config.default_context_length
     }
+    # Force GPU layer offload when configured. Only send when > 0 — num_gpu=0
+    # would force Ollama to run on CPU.
+    if getattr(config, "ollama_num_gpu", 0) and config.ollama_num_gpu > 0:
+        options["num_gpu"] = config.ollama_num_gpu
     payload = {
         "model":    model_name,
         "messages": messages,
@@ -195,3 +199,29 @@ def unload_model(model_name: str):
         requests.post(url, json=payload, timeout=5)
     except Exception:
         pass
+
+
+def get_running_models() -> list:
+    """Return Ollama's currently-loaded models (GET /api/ps). Each entry has
+    'name', 'size' (total bytes) and 'size_vram' (bytes resident on GPU)."""
+    try:
+        response = requests.get(f"{config.ollama_api_url}/api/ps", timeout=3)
+        response.raise_for_status()
+        return response.json().get("models", []) or []
+    except Exception:
+        return []
+
+
+def model_placement(model_name: str) -> dict:
+    """Where is `model_name` running? Returns
+        {"size", "size_vram", "gpu_fraction"}  (gpu_fraction in 0..1)
+    or {} when the model isn't currently loaded."""
+    for m in get_running_models():
+        name = m.get("name") or m.get("model") or ""
+        # Match on the loaded name or its bare stem (Ollama may add ':latest').
+        if name == model_name or name.split(":")[0] == model_name.split(":")[0]:
+            size = float(m.get("size", 0) or 0)
+            vram = float(m.get("size_vram", 0) or 0)
+            frac = (vram / size) if size else 0.0
+            return {"size": size, "size_vram": vram, "gpu_fraction": frac}
+    return {}

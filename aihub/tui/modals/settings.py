@@ -65,6 +65,13 @@ class SettingsModal(ModalScreen):
                     id="set-ctx",
                     placeholder="2048",
                 )
+                yield _label("Ollama GPU layers (num_gpu)",
+                             "0 = auto · 999 = force all layers on GPU")
+                yield Input(
+                    value=str(config.ollama_num_gpu),
+                    id="set-num-gpu",
+                    placeholder="0",
+                )
 
                 # ── Features ─────────────────────────────────────────────
                 yield _section("Features")
@@ -207,6 +214,10 @@ class SettingsModal(ModalScreen):
         config.tools_enabled          = self.query_one("#set-tools",    Checkbox).value
         config.memory_enabled         = self.query_one("#set-globalmem",Checkbox).value
         config.default_context_length = max(256, _int("#set-ctx", config.default_context_length))
+        try:
+            config.ollama_num_gpu = max(0, int(self.query_one("#set-num-gpu", Input).value))
+        except (ValueError, TypeError):
+            pass
         config.tool_timeout_seconds   = _int("#set-timeout", config.tool_timeout_seconds)
         config.max_history_sessions   = _int("#set-history",  config.max_history_sessions)
         config.hf_models_limit        = _int("#set-hf-limit", config.hf_models_limit)
