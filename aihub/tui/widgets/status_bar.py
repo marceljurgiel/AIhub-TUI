@@ -64,6 +64,7 @@ class _BarBase(Static):
         self.ctx_used = 0
         self.ctx_max = 0
         self.session_tokens = 0
+        self.tps = 0.0          # generation speed (tokens/second)
         # device usage
         self.gpu_util = -1.0
         self.vram_used_gb = 0.0
@@ -93,6 +94,14 @@ class _BarBase(Static):
         if self.context_length:
             return f"[#6b6b73]0/{_k(self.context_length)}[/#6b6b73]"
         return "[#6b6b73]–[/#6b6b73]"
+
+    def _tps_markup(self) -> str:
+        """Generation speed, colour-coded: fast→green, medium→amber, slow→red
+        (slow usually means CPU)."""
+        if not self.tps or self.tps <= 0:
+            return ""
+        col = "#22c55e" if self.tps >= 20 else ("#ffb454" if self.tps >= 8 else "#ff6e6e")
+        return f"[{col}]{self.tps:.0f} tok/s[/{col}]"
 
     def _device_markup(self) -> str:
         if self.vram_total_gb > 0:
@@ -146,7 +155,9 @@ class StatusBar(_BarBase):
         model = self._model_short()
         pill = (f"{odot} [#a855f7]{model}[/#a855f7] [#6b6b73]▾[/#6b6b73]"
                 if model else f"{odot} [#6b6b73]no model ▾[/#6b6b73]")
-        right = (f"[#a8a8b0]ctx[/#a8a8b0] {self._ctx_markup()}  {sep} "
+        tps = self._tps_markup()
+        tps_seg = f"{tps}  {sep} " if tps else ""
+        right = (f"{tps_seg}[#a8a8b0]ctx[/#a8a8b0] {self._ctx_markup()}  {sep} "
                  f"{self._device_markup()}  {sep} {pill}")
         return self._split(left, right)
 
@@ -183,5 +194,7 @@ class FooterBar(_BarBase):
         left = f"{mode_block} {path}  {sep} {model_seg}  {sep} {mem}  {tools}  {temp}"
 
         clock = f"[#6b6b73]{datetime.now().strftime('%H:%M')}[/#6b6b73]"
-        right = f"[#6b6b73]ctx[/#6b6b73] {self._ctx_markup()}  {clock}"
+        tps = self._tps_markup()
+        tps_seg = f"{tps}  {sep} " if tps else ""
+        right = f"{tps_seg}[#6b6b73]ctx[/#6b6b73] {self._ctx_markup()}  {clock}"
         return self._split(left, right)

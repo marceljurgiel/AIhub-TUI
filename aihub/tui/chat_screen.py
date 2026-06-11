@@ -455,6 +455,7 @@ class ChatScreen(Screen):
                 ctx_used=event.prompt_tokens,
                 ctx_max=self.context_length,
                 session_tokens=self.state.session_tokens,
+                tps=event.tps,
             )
         elif isinstance(event, Error):
             colour = "#ff6e6e" if event.fatal else "#ffb454"
@@ -811,12 +812,15 @@ class ChatScreen(Screen):
                 "Pick another model (Ctrl+O)."
             )
             return
-        # Enter agent mode — raise context, swap to the agent system prompt.
+        # Enter agent mode — pick a context that gives the agent prompt+tools room
+        # but still fits GPU VRAM (a too-large context spills Ollama to CPU and
+        # makes agent mode crawl). Cap to agent_default; floor so the prompt fits.
         self.state.mode = "agent"
         self.state.agent_submode = "build"
-        target_ctx = max(config.agent_min_context,
-                         min(max_ctx or config.agent_default_context,
-                             config.agent_default_context))
+        from ..hardware import recommend_context
+        hard_cap = min(max_ctx or config.agent_default_context, config.agent_default_context)
+        fit = recommend_context(self.current_model, hard_cap=hard_cap)
+        target_ctx = min(config.agent_default_context, max(fit, 4096))
         self.context_length = target_ctx
         self.state.context_length = target_ctx
         self._apply_agent_prompt()
