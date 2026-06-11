@@ -1,37 +1,45 @@
 #!/usr/bin/env bash
 #
-# AIHub-TUI updater — force-syncs this checkout to the latest pushed version.
+# AIHub-TUI updater — force-syncs this checkout to the latest pushed version and
+# guarantees an EDITABLE install so the `aihub` command actually reflects the
+# pulled code (the #1 "I updated but nothing changed" cause is a frozen,
+# non-editable install).
 #
 #   ./update.sh
 #
-# Unlike `git pull`, this never gets blocked by local edits or a diverged
-# branch: it fetches origin and hard-resets to origin/main, then reinstalls so
-# any dependency changes are picked up. Run it any time new changes are pushed.
-#
-# ⚠ This DISCARDS local changes in this checkout (intended for a deploy/test box).
+# ⚠ DISCARDS local changes in this checkout (intended for a deploy/test box).
 #
 set -euo pipefail
 cd "$(dirname "$0")"
 
 BRANCH="${BRANCH:-main}"
+PYBIN="${PYTHON:-python3}"
 
 echo "→ Fetching latest from origin…"
 git fetch origin "$BRANCH"
-
-echo "→ Hard-resetting to origin/$BRANCH (discards local edits)…"
+echo "→ Hard-resetting to origin/$BRANCH…"
 git reset --hard "origin/$BRANCH"
-git clean -fd -e .venv >/dev/null 2>&1 || true   # drop stray untracked files, keep the venv
-
+git clean -fd -e .venv >/dev/null 2>&1 || true
 echo "→ Now on: $(git log --oneline -1)"
 
-if [ -d .venv ]; then
-    # shellcheck disable=SC1091
-    source .venv/bin/activate
-    echo "→ Reinstalling (picks up any dependency changes)…"
-    python -m pip install -e . >/dev/null
-    echo
-    echo "✓ Updated. Run it with:  source $(pwd)/.venv/bin/activate && aihub"
-else
-    echo
-    echo "✓ Code updated. No .venv found — run ./install.sh once to set it up."
-fi
+# Ensure a venv exists, then (re)install EDITABLE so source changes take effect.
+[ -d .venv ] || { echo "→ Creating virtualenv (.venv)…"; "$PYBIN" -m venv .venv; }
+# shellcheck disable=SC1091
+source .venv/bin/activate
+echo "→ Reinstalling (editable)…"
+python -m pip install -e . >/dev/null
+
+# (Re)link `aihub` onto PATH so the command works in any shell and points at
+# this editable install — overriding any older frozen copy.
+AIHUB_BIN="$(pwd)/.venv/bin/aihub"
+for d in /usr/local/bin "$HOME/.local/bin"; do
+    if [ -d "$d" ] && { [ -w "$d" ] || [ "$(id -u)" -eq 0 ]; }; then
+        ln -sf "$AIHUB_BIN" "$d/aihub" 2>/dev/null && \
+            echo "→ Linked: $d/aihub" && break
+    fi
+done
+
+VER="$(python -c 'import aihub; print(aihub.__version__)' 2>/dev/null || echo '?')"
+echo
+echo "✓ Updated to $(git log --oneline -1 | cut -c1-7) (AIHub v$VER). Run:  aihub"
+echo "  (restart aihub if it's already open: Ctrl+Q, then 'aihub')"
