@@ -1,5 +1,47 @@
 # Changelog
 
+The 0.2.x–0.3.x line is the chat-first Textual TUI rebuild; 0.0.1–0.1.4 below is the
+earlier menu-based CLI.
+
+## [0.3.3] - 2026-06-12
+### Fixed
+- Web search: `duckduckgo.com/html/` now returns an empty stub page, so queries
+  silently returned no results. Switched to the `html.duckduckgo.com/html/` scrape
+  host with a `lite.duckduckgo.com/lite/` fallback, handled the new direct-href
+  format (dropped `uddg=` redirect), and filtered sponsored/ad results.
+
+## [0.3.2] - 2026-06-11
+### Added
+- Tokens/sec counter in the header and footer, colour-coded (green = fast/GPU,
+  red = slow/CPU); uses Ollama's `eval_duration` when available, else wall-clock.
+### Changed
+- Agent sessions auto-fit their context to free VRAM so they stay on the GPU
+  instead of forcing a large window that spills to CPU.
+
+## [0.3.1] - 2026-06-11
+### Added
+- Auto-fit chat context to detected VRAM, with a red warning when a chosen value
+  would spill the KV cache to CPU.
+- `ollama_num_gpu` force lever in Settings (0 = auto, 999 = force all layers on GPU).
+- GPU placement check after the first response (GPU / partial / CPU) via `/api/ps`.
+
+## [0.3.0] - 2026-06-11
+### Added
+- Reference UI redesign: top header bar, vim-style footer, sidebar with model pill
+  and single-key navigation, markdown rendering in the chat log.
+- Live token counter, GPU/CPU usage, `CONNECTED`/`OFFLINE` indicator, llmfit-style
+  hardware-fit table in the model picker.
+- App version shown in the sidebar; global `aihub` command via `install.sh`;
+  self-healing `update.sh` for one-command updates.
+
+## [0.2.0] - 2026-06-07
+### Added
+- Chat-first TUI rebuild on Textual — full-screen chat replaces the menu CLI.
+- Cloud API models (Anthropic, OpenAI, Google) alongside local Ollama; optional
+  llama.cpp backend.
+- Agent mode (plan/build) ported from OpenCode; llmfit-based hardware-fit engine;
+  7-tool calling system (terminal, read/write/edit/list files, web search, file search).
+
 ## [0.1.4] - 2026-04-12
 ### Added
 - Browse & Manage Models redesigned: chat/agentic models only (image/video removed)

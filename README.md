@@ -426,10 +426,44 @@ scaffolded behind `llamacpp_enabled` in config.
 
 ## Change Log
 
-**Current: 0.3.x — the chat-first TUI rebuild.** AIHub is now a full-screen Textual
-interface with agent mode (plan/build), single-key navigation, live tok/s + context +
-GPU/CPU readouts, VRAM-aware context fitting, GPU placement checks, and a `num_gpu`
-force lever. The table below covers the earlier CLI era (0.0.1 → 0.1.4).
+The **0.2.x–0.3.x** line is the chat-first Textual TUI rebuild. The table further
+down covers the earlier menu-based CLI era (0.0.1 → 0.1.4).
+
+### 0.3.3 — 2026-06-12
+- **Fixed Web Search** — the public `duckduckgo.com/html/` endpoint started serving an
+  empty stub page, so search silently returned no results. Switched to the working
+  scrape host with a lite-host fallback, handled the new direct-href format, and
+  filtered sponsored/ad results.
+
+### 0.3.2 — 2026-06-11
+- **Tokens/sec counter** in the header and footer, colour-coded (green = fast/GPU,
+  red = slow/CPU), using Ollama's precise `eval_duration` when available.
+- **Agent mode stays on GPU** — agent sessions auto-fit their context to free VRAM
+  instead of forcing a large window that spills to CPU.
+
+### 0.3.1 — 2026-06-11
+- **Keep inference on the GPU** — chat context auto-fits to detected VRAM (with a red
+  warning when a chosen value would spill to CPU).
+- **`num_gpu` force lever** in Settings (`0` = auto, `999` = force all layers on GPU).
+- **GPU placement check** — after the first response, AIHub reports GPU / partial / CPU
+  via Ollama's `/api/ps`.
+
+### 0.3.0 — 2026-06-11
+- **Reference UI redesign** — top header bar, vim-style footer, sidebar with the model
+  pill and single-key navigation, markdown rendering in the chat log.
+- **Live status** — token counter, GPU/CPU usage, `CONNECTED`/`OFFLINE` indicator, and
+  an llmfit-style hardware-fit table in the model picker.
+- **App version in the sidebar**; `install.sh` installs a global `aihub` command and a
+  self-healing `update.sh` for one-command updates.
+
+### 0.2.0 — 2026-06-07
+- **Chat-first TUI rebuild** on Textual — full-screen chat replaces the menu-based CLI.
+- **Cloud API models** (Anthropic, OpenAI, Google) alongside local Ollama, plus an
+  optional llama.cpp backend.
+- **Agent mode** (plan/build) ported from OpenCode, with an llmfit-based hardware-fit
+  engine and the 7-tool calling system.
+
+---
 
 ### 0.0.1 (Alpha) → 0.1.4
 
