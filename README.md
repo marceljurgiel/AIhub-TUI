@@ -2,18 +2,31 @@
 
 # AIHub 🤖
 
-**Your all-in-one local AI management platform.**
+**A chat-first terminal UI for your local AI models.**
 
-AIHub is a unified interface for managing, browsing, and chatting with local AI models. It provides hardware-aware model selection, persistent memory, and a tool-calling agentic system.
-
-> **Note:** API integration (OpenAI, Anthropic, Google) is currently in development and not available in this version.
+AIHub is a full-screen [Textual](https://textual.textualize.io/) TUI for running, managing, and chatting with local models through Ollama. It pairs a fast keyboard-driven chat with hardware-aware model selection, persistent memory, a tool-calling agent mode, and live GPU/throughput readouts — all in the terminal.
 
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
+![AIHub TUI — agent mode running a system-spec check, with live tok/s, context fill, and GPU placement](screenshots/aihub-tui.png)
+
 </div>
 
 ## Features
+
+### Chat-First TUI
+Running `aihub` opens the full-screen terminal interface:
+- **Keyboard-driven** — single-key navigation from the sidebar: `N` New Chat, `A` Agent, `M` Models, `H` History, `E` Memory, `W` Hardware, `S` Settings, `P` Palette, `?` Help.
+- **Live status bars** — top header and vim-style footer show the active model, connection state (green `CONNECTED` / red `OFFLINE`), **context fill** (`ctx 1.5k/16k`), **tokens/sec** (colour-coded: green = fast/GPU, red = slow/CPU), and **GPU/CPU usage**.
+- **Streaming chat** — token-by-token replies, with `↵` send · `⇧↵` newline · `^R` rerun.
+- **Command palette** — `⌘K` / `P` to jump to any action.
+
+### Agent Mode
+A tool-calling agent (`A`) with **plan** and **build** sub-modes that can run terminal commands, read/write/edit files, search files, and search the web to complete multi-step tasks:
+- **VRAM-aware context** — agent sessions auto-pick the largest context that fits your GPU (capped at the model max), so they stay on the GPU instead of spilling to CPU.
+- **Placement check** — after the first response, AIHub reports whether the model loaded on **GPU**, **partial GPU**, or **CPU** (via Ollama's `/api/ps`).
+- Tool calls and their output are shown inline in the chat log.
 
 ### Hardware Scanner
 Automatically detects your system hardware and recommends models that fit:
@@ -106,11 +119,12 @@ You can also manually edit memory files directly:
 ```
 
 ### Tool-Calling Agentic System
-AIHub provides 6 built-in tools for agentic workflows:
-- **Terminal**: Execute shell commands (with safety warnings)
-- **File Operations**: Read, write, list files
-- **Web Search**: Search the web via DuckDuckGo (no API key needed)
-- **File Search**: Glob and grep search across directories
+AIHub provides 7 built-in tools for agentic workflows:
+- **`run_terminal`**: Execute shell commands (with safety warnings)
+- **`read_file` / `write_file` / `edit_file`**: Read, create, and edit files
+- **`list_files`**: List directory contents
+- **`search_web`**: Search the web via DuckDuckGo (no API key needed)
+- **`search_files`**: Glob and grep search across directories
 
 Tools work with Ollama models that support function calling (e.g., llama3.2:3b, qwen2.5:14b).
 
@@ -127,49 +141,25 @@ Tools work with Ollama models that support function calling (e.g., llama3.2:3b, 
 
 ---
 
-## Screenshots
+## The Interface
 
-### Main Menu
-The main entry point to AIHub with all available options.
+![AIHub TUI](screenshots/aihub-tui.png)
 
-![Main Menu](/screenshots/Main_menu.png)
+The screenshot above shows agent mode (`AGENT·BUILD`) running a system-spec check: the
+sidebar with single-key navigation, the model pill (`● lfm2.5:8b · CONNECTED · 16K CTX`),
+the live header (`28 tok/s · ctx 1.5k/16k · GPU`), inline tool output, the green
+`● Running on GPU (100%)` placement line, and the vim-style footer.
 
-### Model Browser
-Browse, filter, and manage available models with hardware compatibility.
+### Keyboard Shortcuts
 
-![Browse & Manage Models](/screenshots/Browse_and_manage_models.png)
-![Model Selection](/screenshots/Model_selection_menu.png)
-![Model Details](/screenshots/Model_chat_details.png)
-
-### Model Download
-Download new models directly from Ollama registry.
-
-![Model Download](/screenshots/model_download_pull.png)
-
-### Hardware Scanner
-Automatic hardware detection with model recommendations.
-
-![Hardware Diagnostics](/screenshots/Hardware_Diagnostics.png)
-
-### Memory System
-AI-powered memory system that allows models to remember information.
-
-![Memory Basic](/screenshots/memory_working_example.png)
-![Memory Feature](/screenshots/memory_feature_working_example.png)
-![Memory Auto-Extract](/screenshots/memory_add_auto_extraxt_working_example.png)
-![Memory Clear](/screenshots/memory_clear.png)
-![Memory Settings](/screenshots/Memory_managment_settings_menu.png)
-
-### Chat History
-Browse and resume past conversations.
-
-![History List](/screenshots/chat_history_current_model_list.png)
-![History View](/screenshots/model_chat_history_view.png)
-
-### Configuration
-View and edit AIHub settings.
-
-![Configuration](/screenshots/Confuguration_windows_menu.png)
+| Key | Action | Key | Action |
+|-----|--------|-----|--------|
+| `N` | New Chat | `W` | Hardware scan |
+| `A` | Agent mode | `S` | Settings |
+| `M` | Models browser | `P` / `⌘K` | Command palette |
+| `H` | History | `?` | Help |
+| `E` | Memory | `↵` / `⇧↵` | Send / newline |
+| | | `^R` | Rerun last message |
 
 ---
 
@@ -298,11 +288,14 @@ After installation, simply run:
 aihub
 ```
 
+With no arguments this launches the **full-screen TUI**. The subcommands below stay
+available for quick scripted/CLI use.
+
 ### Available Commands
 
 | Command | Description |
 |---------|-------------|
-| `aihub` | Launch main interactive menu |
+| `aihub` | Launch the full-screen TUI |
 | `aihub chat` | Start interactive chat session (shows model selector) |
 | `aihub chat <model>` | Start chat with specific model |
 | `aihub models-list` | List all available models with hardware compatibility |
@@ -311,15 +304,11 @@ aihub
 | `aihub history <model>` | Browse chat history for a specific model (required) |
 | `aihub config` | Show configuration file path and current settings |
 
-### Interactive Menu Options
-When running `aihub`, you'll see an interactive menu with:
-1. **Browse & Manage Models** - View, filter, and download models
-2. **Start Chat** - Begin a new chat session
-3. **Chat History** - Resume past conversations
-4. **Memory Management** - View/edit memory for models
-5. **Hardware Scan** - View system diagnostics
-6. **Configuration** - Edit settings
-7. **Exit** - Close the application
+### Inside the TUI
+Running `aihub` opens the chat screen. From there, use the single-key sidebar
+shortcuts (see [Keyboard Shortcuts](#keyboard-shortcuts)) to browse models (`M`),
+enter agent mode (`A`), open history (`H`), manage memory (`E`), run a hardware
+scan (`W`), or edit settings (`S`). Press `?` for in-app help.
 
 ---
 
@@ -330,20 +319,28 @@ AIHub stores config at `~/.aihub/config.yaml`:
 ```yaml
 # Model Settings
 ollama_api_url: http://localhost:11434
-default_chat_model: llama3.2:3b
-default_context_length: 2048
+default_chat_model: qwen:0.5b
+default_context_length: 2048      # default num_ctx; chat auto-fits to VRAM
+ollama_num_gpu: 0                 # 0 = auto · 999 = force all layers on GPU
 models_registry_path: /path/to/models_registry.json
+
+# Agent Mode
+agent_min_context: 16384          # min model context to allow agent mode
+agent_default_context: 32768      # context agent sessions request (capped to model max)
 
 # Tool Settings
 tools_enabled: true
 tool_timeout_seconds: 60
 
 # Memory Settings
-global_memory_enabled: false
+memory_enabled: true              # inject memory into chat sessions
 
 # History
 max_history_sessions: 50
 ```
+
+> Most settings are editable in-app via **Settings** (`S`) — including the
+> *Ollama GPU layers (num_gpu)* lever for forcing GPU usage.
 
 ### Data Directories
 
@@ -405,22 +402,23 @@ Skills can be invoked with commands like `/skill review` or `/skill test`.
 ## Future Features
 
 ### API Integration (In Development)
-- **OpenAI**: GPT-4o, GPT-4o-mini, GPT-4 Turbo
-- **Anthropic**: Claude 3.5 Sonnet, Claude 3 Haiku
-- **Google**: Gemini 1.5 Pro, Gemini 1.5 Flash
-- Unified model selection across all providers
+- **Anthropic**, **OpenAI**, and **Google** cloud models
+- Unified model selection across local + cloud providers
 
-### TUI Interface Alternative
-A full-screen Textual-based TUI interface with:
-- Rich panels and tables
-- Keyboard navigation
-- Mouse support
-- Smooth animations
-- Alternative to the CLI menu-based interface
+### llama.cpp Backend
+Optional `llama-server` (OpenAI-compatible) backend alongside Ollama — already
+scaffolded behind `llamacpp_enabled` in config.
 
 ---
 
-## Change Log: 0.0.1 (Alpha) → 0.1.4
+## Change Log
+
+**Current: 0.3.x — the chat-first TUI rebuild.** AIHub is now a full-screen Textual
+interface with agent mode (plan/build), single-key navigation, live tok/s + context +
+GPU/CPU readouts, VRAM-aware context fitting, GPU placement checks, and a `num_gpu`
+force lever. The table below covers the earlier CLI era (0.0.1 → 0.1.4).
+
+### 0.0.1 (Alpha) → 0.1.4
 
 | Feature | 0.0.1 (Alpha) | 0.1.4 |
 |---------|---------------|-------|
@@ -475,16 +473,22 @@ A full-screen Textual-based TUI interface with:
 ```
 aihub/
 ├── aihub/
-│   ├── cli.py          # Main CLI entrypoint
+│   ├── cli.py          # Entrypoint — launches the TUI; CLI subcommands
 │   ├── config.py       # Configuration loading
-│   ├── hardware.py     # Hardware detection
+│   ├── hardware.py     # Hardware detection + VRAM-fit context
+│   ├── fit.py          # llmfit-based hardware recommendations
 │   ├── memory.py       # Memory system
-│   ├── chat.py         # Chat session logic
-│   ├── tui.py          # Textual TUI (reserved for future)
+│   ├── chat.py         # Chat turn engine (streaming events)
+│   ├── agent.py        # Agent mode (plan/build) harness
 │   ├── ollama_client.py
-│   ├── hf_client.py
+│   ├── llamacpp_client.py
 │   ├── models.py       # Model registry utilities
 │   ├── history.py      # Session management
+│   ├── tui/            # Textual TUI
+│   │   ├── app.py
+│   │   ├── chat_screen.py
+│   │   ├── widgets/    # sidebar, status_bar, chat_log, …
+│   │   └── modals/     # settings, model_picker, hardware, …
 │   └── tools/          # Tool-calling system
 │       ├── terminal.py
 │       ├── file_ops.py

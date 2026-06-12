@@ -55,6 +55,9 @@ Thumbs.db
 *.gif
 aihub_output.*
 aihub_video.*
+# …but keep documentation screenshots
+!screenshots/*.png
+!screenshots/*.jpg
 
 # Ollama model cache (large binary files)
 *.gguf
