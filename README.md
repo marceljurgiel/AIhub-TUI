@@ -426,8 +426,8 @@ scaffolded behind `llamacpp_enabled` in config.
 
 ## Change Log
 
-The **0.2.x–0.3.x** line is the chat-first Textual TUI rebuild. The table further
-down covers the earlier menu-based CLI era (0.0.1 → 0.1.4).
+The **0.2.x–0.3.x** line is the chat-first Textual TUI rebuild. Full history,
+including the earlier menu-based CLI era, is in [CHANGELOG.md](CHANGELOG.md).
 
 ### 0.3.3 — 2026-06-12
 - **Fixed Web Search** — the public `duckduckgo.com/html/` endpoint started serving an
@@ -462,54 +462,6 @@ down covers the earlier menu-based CLI era (0.0.1 → 0.1.4).
   optional llama.cpp backend.
 - **Agent mode** (plan/build) ported from OpenCode, with an llmfit-based hardware-fit
   engine and the 7-tool calling system.
-
----
-
-### 0.0.1 (Alpha) → 0.1.4
-
-| Feature | 0.0.1 (Alpha) | 0.1.4 |
-|---------|---------------|-------|
-| **Model Registry** | ~15 models | **104 models** |
-| **Memory System** | Not implemented | **Full** (per-model + global + auto-extract) |
-| **Tool-Calling** | Not implemented | **6 tools** (terminal, file ops, web search, file search) |
-| **Chat History** | Basic | **Full** with session management and browsing |
-| **Hardware Scanner** | Basic GPU detection | **Full** (GPU, CPU, RAM, Disk, VRAM filtering, speed estimation) |
-| **Model Categories** | None | **Small/Medium/Large/XLarge** |
-| **Capability Badges** | None | **Tool Calling, Code, Reasoning, Multilingual** |
-| **Context Length** | Fixed at 2048 | **Configurable** per session |
-
-### What's New in 0.1.4
-
-#### Hardware Scanner
-- Complete hardware detection (GPU, CPU, RAM, Disk)
-- VRAM-based model filtering and sorting
-- Inference speed estimation
-- Model recommendations based on your hardware
-
-#### Memory System
-- Per-model memory files (`~/.aihub/memory/<model>.md`)
-- Global memory shared across models
-- AI-powered auto-extraction from conversations
-- Slash commands: `/memory`, `/memory save`, `/memory clear`
-
-#### Tool-Calling
-- 6 built-in tools for agentic workflows
-- Automatic tool execution based on model decisions
-- Safety warnings for dangerous commands
-- Tool timeout configuration
-
-#### Model Browser
-- 104 models in registry
-- Category filtering (Small/Medium/Large/XLarge)
-- Capability badges display
-- Hardware-aware sorting
-- Installed models highlighted
-
-#### Chat Improvements
-- Configurable context length
-- Temperature control
-- Streaming responses
-- Session persistence
 
 ---
 
