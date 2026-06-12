@@ -4,7 +4,7 @@
 
 **A chat-first terminal UI for your local AI models.**
 
-AIHub is a full-screen [Textual](https://textual.textualize.io/) TUI for running, managing, and chatting with local models through Ollama. It pairs a fast keyboard-driven chat with hardware-aware model selection, persistent memory, a tool-calling agent mode, and live GPU/throughput readouts — all in the terminal.
+AIHub is a full-screen [Textual](https://textual.textualize.io/) TUI for running, managing, and chatting with AI models — **local models through Ollama _and_ cloud API models** (Anthropic, OpenAI, Google) from the same interface. It pairs a fast keyboard-driven chat with hardware-aware model selection, persistent memory, a tool-calling agent mode, and live GPU/throughput readouts — all in the terminal.
 
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -42,6 +42,18 @@ Automatically detects your system hardware and recommends models that fit:
 - **Hardware-aware sorting**: Installed models first, then sorted by VRAM fit
 - **Capability badges**: Tool Calling, Code, Reasoning, Multilingual, etc.
 - **Category filters**: Small / Medium / Large / XLarge
+
+### Cloud API Models
+Beyond local Ollama models, AIHub chats with **cloud API models** through the same
+interface — local and cloud models sit side by side in the model picker:
+- **Anthropic** — Claude Opus 4.8, Sonnet 4.6, Haiku 4.5
+- **OpenAI** — GPT-4o, GPT-4o mini, GPT-4 Turbo, o1-mini
+- **Google** — Gemini 2.0 Flash, Gemini 1.5 Pro / Flash
+
+Responses stream just like local models, and memory, history, and agent mode all
+work with API models too. Add your keys in **Settings** (`S`) → *API keys*, or set
+`openai_api_key` / `anthropic_api_key` / `google_api_key` in the config file. No key
+is needed for local Ollama models.
 
 ### Interactive Chat
 - **CLI chat**: Quick chat sessions from command line
@@ -324,6 +336,11 @@ default_context_length: 2048      # default num_ctx; chat auto-fits to VRAM
 ollama_num_gpu: 0                 # 0 = auto · 999 = force all layers on GPU
 models_registry_path: /path/to/models_registry.json
 
+# Cloud API keys (optional — only needed for API models)
+openai_api_key: ""
+anthropic_api_key: ""
+google_api_key: ""
+
 # Agent Mode
 agent_min_context: 16384          # min model context to allow agent mode
 agent_default_context: 32768      # context agent sessions request (capped to model max)
@@ -400,10 +417,6 @@ Skills can be invoked with commands like `/skill review` or `/skill test`.
 ---
 
 ## Future Features
-
-### API Integration (In Development)
-- **Anthropic**, **OpenAI**, and **Google** cloud models
-- Unified model selection across local + cloud providers
 
 ### llama.cpp Backend
 Optional `llama-server` (OpenAI-compatible) backend alongside Ollama — already
