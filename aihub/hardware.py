@@ -3,10 +3,11 @@ AIHub - Hardware detection module.
 Collects full device specs: GPU, CPU, RAM, Disk, OS.
 Used to rank models by hardware compatibility and estimate inference speed.
 """
+import json
 import platform
 import shutil
 import subprocess
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import psutil
 
@@ -57,6 +58,42 @@ def get_disk_info() -> Dict[str, Any]:
         return {"total_gb": 0, "free_gb": 0, "percent_used": 0}
 
 
+def _rocm_smi_json(args: str) -> Optional[Dict[str, Any]]:
+    """Run `rocm-smi <args> --json` and return the parsed dict, or None.
+
+    stderr is always discarded — rocm-smi prints its full usage text on any
+    unrecognized flag, which would corrupt the Textual screen if it leaked
+    to the terminal.
+    """
+    try:
+        out = subprocess.check_output(
+            f"rocm-smi {args} --json",
+            shell=True, text=True, stderr=subprocess.DEVNULL,
+        )
+        data = json.loads(out[out.index("{"):])
+        return data if isinstance(data, dict) else None
+    except Exception:
+        return None
+
+
+def _rocm_first_card(data: Dict[str, Any]) -> Dict[str, Any]:
+    """First per-card dict from rocm-smi JSON ({'card0': {...}, ...})."""
+    for key, val in data.items():
+        if key.lower().startswith("card") and isinstance(val, dict):
+            return val
+    return {}
+
+
+def _rocm_find(card: Dict[str, Any], *needles: str) -> Optional[str]:
+    """Value of the first key containing all needles (case-insensitive).
+    rocm-smi key names vary across ROCm versions."""
+    for key, val in card.items():
+        low = key.lower()
+        if all(n.lower() in low for n in needles):
+            return str(val)
+    return None
+
+
 def get_gpu_info() -> Dict[str, Any]:
     """
     Detect GPU vendor, model, and VRAM.
@@ -83,7 +120,7 @@ def get_gpu_info() -> Dict[str, Any]:
         try:
             out = subprocess.check_output(
                 "nvidia-smi --query-gpu=name,memory.total,memory.free --format=csv,noheader",
-                shell=True, text=True
+                shell=True, text=True, stderr=subprocess.DEVNULL,
             ).strip().split("\n")
             if out and out[0]:
                 parts = [p.strip() for p in out[0].split(",")]
@@ -97,9 +134,35 @@ def get_gpu_info() -> Dict[str, Any]:
             pass
 
     # ── AMD (ROCm) ──────────────────────────────────────────────────────────
+    # Note: some rocm-smi versions don't have --showvram; --showmeminfo vram
+    # is the portable spelling, and --json keeps output parseable.
     if shutil.which("rocm-smi"):
+        data = (_rocm_smi_json("--showproductname --showmeminfo vram")
+                or _rocm_smi_json("--showmeminfo vram"))
+        if data:
+            card = _rocm_first_card(data)
+            model = (_rocm_find(card, "card series")
+                     or _rocm_find(card, "product name")
+                     or "AMD Radeon GPU (via rocm-smi)")
+            total_b = _rocm_find(card, "vram", "total memory")
+            used_b  = _rocm_find(card, "vram", "used memory")
+            try:
+                total_mb = int(int(total_b) / (1024 * 1024)) if total_b else 8192
+                used_mb  = int(int(used_b)  / (1024 * 1024)) if used_b else 0
+            except (TypeError, ValueError):
+                total_mb, used_mb = 8192, 0
+            return {
+                "vendor":       "AMD",
+                "model":        model,
+                "vram_total_mb": total_mb,
+                "vram_free_mb":  max(total_mb - used_mb, 0),
+            }
+        # rocm-smi exists but no parseable output — still an AMD box.
         try:
-            subprocess.check_output("rocm-smi --showid --showvram", shell=True, text=True)
+            subprocess.check_output(
+                "rocm-smi --showid", shell=True, text=True,
+                stderr=subprocess.DEVNULL,
+            )
             return {
                 "vendor":       "AMD",
                 "model":        "AMD Radeon GPU (via rocm-smi)",
@@ -135,7 +198,9 @@ def get_gpu_info() -> Dict[str, Any]:
     # ── lspci fallback (Linux) ───────────────────────────────────────────────
     if shutil.which("lspci"):
         try:
-            out = subprocess.check_output("lspci", shell=True, text=True).lower()
+            out = subprocess.check_output(
+                "lspci", shell=True, text=True, stderr=subprocess.DEVNULL,
+            ).lower()
             if "amd" in out or "radeon" in out:
                 return {"vendor": "AMD",    "model": "AMD Radeon (PCI)", "vram_total_mb": 8192, "vram_free_mb": 8192}
             if "nvidia" in out:
@@ -175,7 +240,25 @@ def get_gpu_usage() -> Dict[str, Any]:
                 }
         except Exception:
             pass
-    # AMD best-effort: utilization not reliably parseable; fall back to totals.
+    # AMD: rocm-smi --json exposes live use% + VRAM on ROCm 4+.
+    if shutil.which("rocm-smi"):
+        data = _rocm_smi_json("-u --showmeminfo vram") or _rocm_smi_json("--showmeminfo vram")
+        if data:
+            card = _rocm_first_card(data)
+            util    = _rocm_find(card, "gpu use")
+            total_b = _rocm_find(card, "vram", "total memory")
+            used_b  = _rocm_find(card, "vram", "used memory")
+            try:
+                if total_b:
+                    return {
+                        "util_percent":  float(util) if util not in (None, "N/A") else -1.0,
+                        "vram_used_mb":  float(int(used_b) / (1024 * 1024)) if used_b else 0.0,
+                        "vram_total_mb": float(int(total_b) / (1024 * 1024)),
+                    }
+            except (TypeError, ValueError):
+                pass
+
+    # Fallback: totals from static detection only.
     gpu = get_gpu_info()
     if gpu.get("vram_total_mb"):
         used = gpu["vram_total_mb"] - gpu.get("vram_free_mb", gpu["vram_total_mb"])

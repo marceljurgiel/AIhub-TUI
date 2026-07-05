@@ -429,6 +429,14 @@ scaffolded behind `llamacpp_enabled` in config.
 The **0.2.x–0.3.x** line is the chat-first Textual TUI rebuild. Full history,
 including the earlier menu-based CLI era, is in [CHANGELOG.md](CHANGELOG.md).
 
+### 0.3.4 — 2026-06-12
+- **Fixed AMD GPU detection** — `rocm-smi` was called with `--showvram`, which newer
+  ROCm versions don't support; its error/usage spew leaked onto the terminal and
+  corrupted the TUI. Now uses `--showmeminfo vram --json` (portable), parses **real**
+  VRAM size, model name, and live GPU use % (previously hardcoded 8 GB / unknown),
+  and all hardware subprocess calls silence stderr so tool output can never break
+  the screen again.
+
 ### 0.3.3 — 2026-06-12
 - **Fixed Web Search** — the public `duckduckgo.com/html/` endpoint started serving an
   empty stub page, so search silently returned no results. Switched to the working

@@ -3,6 +3,17 @@
 The 0.2.x–0.3.x line is the chat-first Textual TUI rebuild; 0.0.1–0.1.4 below is the
 earlier menu-based CLI.
 
+## [0.3.4] - 2026-06-12
+### Fixed
+- AMD GPU detection called `rocm-smi --showvram`, unsupported on newer ROCm; the
+  resulting error/usage output leaked to the terminal and corrupted the TUI.
+  Switched to `rocm-smi --showmeminfo vram --json` with version-tolerant key
+  matching, and silenced stderr on all hardware subprocess calls.
+### Added
+- Real AMD VRAM size, card model name, and live GPU utilization from rocm-smi
+  JSON (previously hardcoded 8 GB with unknown utilization) — feeds the header
+  GPU readout, VRAM-fit context, and hardware scan.
+
 ## [0.3.3] - 2026-06-12
 ### Fixed
 - Web search: `duckduckgo.com/html/` now returns an empty stub page, so queries
