@@ -349,25 +349,51 @@ ModalScreen Horizontal {
     margin: 0 0 1 0;
 }
 
-#set-scroll {
+#set-tabs {
     height: 1fr;
+}
+
+#set-tabs Tab {
+    color: $fg-2;
+}
+
+#set-tabs Tab.-active {
+    color: $accent;
+    text-style: bold;
+}
+
+#set-tabs Tab:hover {
+    color: $fg-0;
+}
+
+#set-tabs Underline > .underline--bar {
+    color: $accent;
+}
+
+.set-pane {
+    height: 1fr;
+    padding: 1 1 0 1;
     scrollbar-size: 1 1;
     scrollbar-background: $bg-1;
     scrollbar-color: $border;
     scrollbar-color-hover: $fg-2;
 }
 
-.set-section {
-    height: auto;
-    color: $accent;
-    margin: 1 0 0 0;
-    border-bottom: solid $border;
-}
-
 .set-label {
     height: auto;
     color: $fg-1;
     margin: 1 0 0 0;
+}
+
+.set-note {
+    height: auto;
+    color: $fg-2;
+    margin: 1 0 0 0;
+}
+
+#set-gpu-info {
+    height: auto;
+    margin: 0 0 1 0;
 }
 
 #set-buttons {

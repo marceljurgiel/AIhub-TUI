@@ -429,6 +429,14 @@ scaffolded behind `llamacpp_enabled` in config.
 The **0.2.x–0.3.x** line is the chat-first Textual TUI rebuild. Full history,
 including the earlier menu-based CLI era, is in [CHANGELOG.md](CHANGELOG.md).
 
+### 0.3.6 — 2026-07-09
+- **Device counter follows the model** — when the loaded model actually runs on CPU
+  (per Ollama's `/api/ps`), the header switches its GPU readout to a CPU counter;
+  it returns to GPU stats once the model is GPU-resident again.
+- **Settings redesigned** — one long scroll replaced by four tabs (General ·
+  Performance · Connections · API Keys), with a detected-GPU line and a CPU-spill
+  tip on the Performance tab. All settings and shortcuts unchanged.
+
 ### 0.3.5 — 2026-07-09
 - **Removed duplicate context counter** from the bottom footer — the top header
   already shows it. The footer's right side now reads just `tok/s · clock`.

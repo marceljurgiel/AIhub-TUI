@@ -3,6 +3,15 @@
 The 0.2.x–0.3.x line is the chat-first Textual TUI rebuild; 0.0.1–0.1.4 below is the
 earlier menu-based CLI.
 
+## [0.3.6] - 2026-07-09
+### Changed
+- Header device counter now follows where the model actually runs: shows a CPU
+  counter when Ollama reports the model is CPU-resident, GPU stats otherwise
+  (polled from /api/ps every 4 s alongside usage).
+- Settings modal redesigned into four tabs (General · Performance · Connections ·
+  API Keys) with a detected-GPU info line on the Performance tab. Widget ids and
+  save logic unchanged.
+
 ## [0.3.5] - 2026-07-09
 ### Changed
 - Removed the duplicate context counter from the bottom footer bar; the top

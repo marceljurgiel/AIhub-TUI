@@ -165,12 +165,27 @@ class ChatScreen(Screen):
         g = get_gpu_usage()
         cpu = get_cpu_usage()
 
+        # Where is the loaded model actually running? (Ollama /api/ps.)
+        # True = GPU, False = CPU, None = unknown — the bars switch their
+        # device counter to CPU when the model is confirmed CPU-resident.
+        on_gpu = None
+        model = self.current_model
+        if model and "://" not in model:
+            try:
+                from ..ollama_client import model_placement
+                p = model_placement(model)
+                if p and p.get("size"):
+                    on_gpu = p.get("gpu_fraction", 0.0) > 0.0
+            except Exception:
+                on_gpu = None
+
         def apply() -> None:
             self._sync_status(
                 gpu_util=g.get("util_percent", -1.0) if g else -1.0,
                 vram_used_gb=(g.get("vram_used_mb", 0) / 1024.0) if g else 0.0,
                 vram_total_gb=(g.get("vram_total_mb", 0) / 1024.0) if g else 0.0,
                 cpu_percent=cpu,
+                model_on_gpu=on_gpu,
             )
         try:
             self.app.call_from_thread(apply)

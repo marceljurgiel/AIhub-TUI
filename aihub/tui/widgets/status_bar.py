@@ -70,6 +70,9 @@ class _BarBase(Static):
         self.vram_used_gb = 0.0
         self.vram_total_gb = 0.0
         self.cpu_percent = 0.0
+        # Where the loaded model actually runs (from Ollama /api/ps):
+        # True = GPU (fully/partially), False = CPU, None = unknown/not loaded.
+        self.model_on_gpu = None
 
     def on_mount(self) -> None:
         self.refresh_status()
@@ -104,7 +107,9 @@ class _BarBase(Static):
         return f"[{col}]{self.tps:.0f} tok/s[/{col}]"
 
     def _device_markup(self) -> str:
-        if self.vram_total_gb > 0:
+        # Show the device actually doing the work: if the loaded model is
+        # confirmed to run on CPU, show the CPU counter even when a GPU exists.
+        if self.vram_total_gb > 0 and self.model_on_gpu is not False:
             util = (f"[{_usage_colour(self.gpu_util)}]{self.gpu_util:.0f}%[/]"
                     if self.gpu_util >= 0 else "[#6b6b73]–[/#6b6b73]")
             vcol = _usage_colour(self.vram_used_gb / self.vram_total_gb * 100)
