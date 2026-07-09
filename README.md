@@ -429,6 +429,10 @@ scaffolded behind `llamacpp_enabled` in config.
 The **0.2.x–0.3.x** line is the chat-first Textual TUI rebuild. Full history,
 including the earlier menu-based CLI era, is in [CHANGELOG.md](CHANGELOG.md).
 
+### 0.3.5 — 2026-07-09
+- **Removed duplicate context counter** from the bottom footer — the top header
+  already shows it. The footer's right side now reads just `tok/s · clock`.
+
 ### 0.3.4 — 2026-06-12
 - **Fixed AMD GPU detection** — `rocm-smi` was called with `--showvram`, which newer
   ROCm versions don't support; its error/usage spew leaked onto the terminal and

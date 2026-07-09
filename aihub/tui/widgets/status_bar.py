@@ -2,7 +2,7 @@
 
 `StatusBar`  — docked top: session title · status · message count  |  device ·
                context fill · model pill.
-`FooterBar`  — docked bottom: MODE · path · model · mem/tools/temp  |  ctx · clock.
+`FooterBar`  — docked bottom: MODE · path · model · mem/tools/temp  |  tok/s · clock.
 
 Both read the same flat set of attributes, pushed by ChatScreen._sync_status(),
 and render a single right-padded line via render() (Textual measures Rich Tables
@@ -163,7 +163,7 @@ class StatusBar(_BarBase):
 
 
 class FooterBar(_BarBase):
-    """Bottom vim-style line — MODE · path · model · flags  |  ctx · clock."""
+    """Bottom vim-style line — MODE · path · model · flags  |  tok/s · clock."""
 
     def render(self) -> Text:
         if self.agent_mode:
@@ -193,8 +193,9 @@ class FooterBar(_BarBase):
         sep = "[#2a2a30]·[/#2a2a30]"
         left = f"{mode_block} {path}  {sep} {model_seg}  {sep} {mem}  {tools}  {temp}"
 
+        # No ctx counter here — the top StatusBar already shows it.
         clock = f"[#6b6b73]{datetime.now().strftime('%H:%M')}[/#6b6b73]"
         tps = self._tps_markup()
         tps_seg = f"{tps}  {sep} " if tps else ""
-        right = f"{tps_seg}[#6b6b73]ctx[/#6b6b73] {self._ctx_markup()}  {clock}"
+        right = f"{tps_seg}{clock}"
         return self._split(left, right)

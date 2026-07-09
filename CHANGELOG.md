@@ -3,6 +3,11 @@
 The 0.2.x–0.3.x line is the chat-first Textual TUI rebuild; 0.0.1–0.1.4 below is the
 earlier menu-based CLI.
 
+## [0.3.5] - 2026-07-09
+### Changed
+- Removed the duplicate context counter from the bottom footer bar; the top
+  header already shows it. Footer right side is now `tok/s · clock`.
+
 ## [0.3.4] - 2026-06-12
 ### Fixed
 - AMD GPU detection called `rocm-smi --showvram`, unsupported on newer ROCm; the
