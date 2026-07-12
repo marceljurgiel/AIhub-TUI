@@ -429,6 +429,15 @@ scaffolded behind `llamacpp_enabled` in config.
 The **0.2.x–0.3.x** line is the chat-first Textual TUI rebuild. Full history,
 including the earlier menu-based CLI era, is in [CHANGELOG.md](CHANGELOG.md).
 
+### 0.3.7 — 2026-07-13
+- **Downloaded GGUFs are now visible and usable** — models downloaded via the
+  Recommended or HuggingFace tabs used to vanish (saved to `~/.aihub/models/`
+  but never listed). The Installed tab now shows every downloaded `.gguf`
+  (partial downloads flagged), and selecting one offers a one-click **import
+  into Ollama** so it becomes a regular installed model — no llama-server
+  needed. `X` deletes a downloaded file. After any GGUF download you're
+  offered the import immediately.
+
 ### 0.3.6 — 2026-07-09
 - **Device counter follows the model** — when the loaded model actually runs on CPU
   (per Ollama's `/api/ps`), the header switches its GPU readout to a CPU counter;

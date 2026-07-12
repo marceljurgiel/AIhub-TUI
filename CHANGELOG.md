@@ -3,6 +3,20 @@
 The 0.2.x–0.3.x line is the chat-first Textual TUI rebuild; 0.0.1–0.1.4 below is the
 earlier menu-based CLI.
 
+## [0.3.7] - 2026-07-13
+### Fixed
+- Models downloaded through the Recommended / HuggingFace GGUF tabs were
+  invisible afterwards: files landed in `models_download_dir` but the
+  Installed tab only listed Ollama models and the currently-loaded
+  llama-server model.
+### Added
+- Installed tab lists all downloaded `.gguf` files (size shown; suspected
+  partial downloads flagged red). Enter offers importing the file into
+  Ollama (`ollama_client.import_gguf_model`: sha256 blob upload +
+  /api/create, with legacy Modelfile fallback) so it becomes a regular
+  installed model; `X` deletes the file. Post-download flow routes into the
+  same import/use path.
+
 ## [0.3.6] - 2026-07-09
 ### Changed
 - Header device counter now follows where the model actually runs: shows a CPU

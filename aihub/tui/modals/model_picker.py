@@ -9,6 +9,9 @@ backend is "ollama" or "llamacpp".
 """
 from __future__ import annotations
 
+import glob
+import os
+import re
 from typing import Any, Dict, List, Optional, Tuple
 
 from textual import work
@@ -24,6 +27,33 @@ from ...models import get_capability_badges, get_speed_label
 from ...ollama_client import get_local_model_sizes, is_ollama_running
 from .context_config import ContextConfigModal
 from .download import DownloadModal
+
+
+def _ollama_safe_name(stem: str) -> str:
+    """A GGUF filename stem → a valid Ollama model name."""
+    name = re.sub(r"[^a-zA-Z0-9._-]+", "-", stem).strip("-.").lower()
+    return name or "imported-model"
+
+
+class _ConfirmModal(ModalScreen[bool]):
+    """Small yes/no confirmation. Dismisses True on confirm."""
+
+    def __init__(self, message: str, yes_label: str = "Yes",
+                 yes_variant: str = "success") -> None:
+        super().__init__()
+        self._msg = message
+        self._yes = yes_label
+        self._variant = yes_variant
+
+    def compose(self) -> ComposeResult:
+        with Container():
+            yield Static(self._msg)
+            with Horizontal():
+                yield Button(self._yes, id="yes", variant=self._variant)
+                yield Button("Cancel", id="no")
+
+    def on_button_pressed(self, e: Button.Pressed) -> None:
+        self.dismiss(e.button.id == "yes")
 
 
 def _delete_model(model_name: str) -> tuple:
@@ -67,6 +97,7 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
         self._ollama_options: list = []
         self._hf_options: list = []
         self._fit_by_name: Dict[str, Dict[str, Any]] = {}
+        self._gguf_paths: Dict[str, str] = {}   # stem → downloaded .gguf path
 
     def compose(self) -> ComposeResult:
         with Container():
@@ -246,8 +277,10 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
 
         def _after(result) -> None:
             if result:
-                model_stem, _dest = result
-                self._open_ctx(model_stem, backend="llamacpp")
+                model_stem, dest = result
+                self._gguf_paths[model_stem] = dest
+                self._refresh_installed()
+                self._use_downloaded_gguf(model_stem)
         self.app.push_screen(GGUFPickerModal(entry), _after)
 
     # ── Installed tab ────────────────────────────────────────────────────
@@ -338,6 +371,27 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
                 f"[#a855f7]● {name:<28}[/#a855f7]  [#6b6b73]local[/#6b6b73]{recent_tag}",
                 id=name,
             ))
+
+        # Downloaded GGUF files (Recommended / HF GGUF tabs) — always visible,
+        # even without a running llama-server. Enter imports/uses them.
+        self._gguf_paths = {}
+        try:
+            for path in sorted(glob.glob(
+                    os.path.join(config.models_download_dir, "*.gguf"))):
+                stem = os.path.splitext(os.path.basename(path))[0]
+                self._gguf_paths[stem] = path
+                size_gb = os.path.getsize(path) / 1024 ** 3
+                short = (stem[:27] + "…") if len(stem) > 28 else stem
+                if size_gb < 0.05:
+                    tag = "[#ff6e6e]gguf · incomplete download?[/#ff6e6e]"
+                else:
+                    tag = "[#6b6b73]gguf downloaded · Enter to import/use[/#6b6b73]"
+                opts.append(Option(
+                    f"[#a8a8b0]◆ {short:<28}[/#a8a8b0]  {size_gb:>5.1f}GB  {tag}",
+                    id=f"gguf-file:{stem}",
+                ))
+        except Exception:
+            pass
 
         if not opts:
             opts.append(Option(
@@ -542,6 +596,8 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
         elif opt_id.startswith("hf:"):
             model_id = opt_id[len("hf:"):]
             self._open_gguf_picker(model_id)
+        elif opt_id.startswith("gguf-file:"):
+            self._use_downloaded_gguf(opt_id[len("gguf-file:"):])
         else:
             # Installed tab (plain name)
             if opt_id not in self.local_names:
@@ -634,8 +690,74 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
         def _after(result) -> None:
             if result:
                 model_stem, dest_path = result
-                self._open_ctx(model_stem, backend="llamacpp")
+                self._gguf_paths[model_stem] = dest_path
+                self._refresh_installed()
+                self._use_downloaded_gguf(model_stem)
         self.app.push_screen(GGUFPickerModal(model_entry), _after)
+
+    # ── Downloaded GGUF files (Recommended / HF tabs land here) ──────────
+
+    def _use_downloaded_gguf(self, stem: str) -> None:
+        """Use a .gguf downloaded to models_download_dir. If a llama-server
+        already serves it, use that; otherwise offer to import it into
+        Ollama so it becomes a regular installed model."""
+        from ...config import config
+        path = self._gguf_paths.get(stem, "")
+
+        if config.llamacpp_enabled:
+            try:
+                from ...llamacpp_client import is_llamacpp_running, get_loaded_model
+                if is_llamacpp_running():
+                    loaded = os.path.splitext(os.path.basename(
+                        get_loaded_model() or ""))[0]
+                    if loaded and (loaded.lower() == stem.lower()):
+                        self._open_ctx(stem, backend="llamacpp")
+                        return
+            except Exception:
+                pass
+
+        if not path or not os.path.exists(path):
+            self.notify(f"File for {stem} not found — re-download it.",
+                        severity="warning")
+            return
+
+        if is_ollama_running():
+            name = _ollama_safe_name(stem)
+            msg = (f"[b]Import[/b] [#a855f7]{stem}[/#a855f7] into Ollama as "
+                   f"[#a855f7]{name}[/#a855f7]?\n\n"
+                   "[#6b6b73]Makes it a regular installed model you can chat "
+                   "with — no llama-server needed.[/#6b6b73]")
+
+            def _after(confirmed: Optional[bool]) -> None:
+                if confirmed:
+                    self.notify(f"Importing {stem}… (hashing + upload)",
+                                severity="information", timeout=8)
+                    self._import_gguf_worker(path, name)
+            self.app.push_screen(_ConfirmModal(msg, yes_label="Import"), _after)
+        else:
+            self.notify(
+                "Ollama is offline and no llama-server has this model.\n"
+                f"Start one with: llama-server --model {path} --port 8080",
+                severity="warning", timeout=12,
+            )
+
+    @work(thread=True, exclusive=True, group="gguf-import")
+    def _import_gguf_worker(self, path: str, name: str) -> None:
+        from ...ollama_client import import_gguf_model
+        ok, err = import_gguf_model(path, name)
+
+        def done() -> None:
+            if ok:
+                self.notify(f"Imported as {name} ✓", severity="information")
+                self._refresh_installed()
+                self._open_ctx(name, backend="ollama")
+            else:
+                self.notify(f"Import failed: {err}", severity="error",
+                            timeout=12)
+        try:
+            self.app.call_from_thread(done)
+        except Exception:
+            pass
 
     # ── Actions ───────────────────────────────────────────────────────────
 
@@ -657,6 +779,9 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
 
     def action_uninstall_selected(self) -> None:
         opt_id = self._highlighted_id()
+        if opt_id and opt_id.startswith("gguf-file:"):
+            self._confirm_delete_gguf(opt_id[len("gguf-file:"):])
+            return
         if not opt_id or opt_id == "__none__" or opt_id.startswith(("ollama:", "hf:", "llamacpp:")):
             self.notify("Select an installed model from the Installed tab.", severity="warning")
             return
@@ -693,6 +818,25 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
                 self.notify(f"Failed: {err}", severity="error")
 
         self.app.push_screen(Confirm(model_name), _after)
+
+    def _confirm_delete_gguf(self, stem: str) -> None:
+        path = self._gguf_paths.get(stem, "")
+        if not path:
+            return
+        msg = (f"[b]Delete[/b] [#a855f7]{stem}[/#a855f7]?\n\n"
+               f"[#6b6b73]Removes the downloaded file:\n{path}[/#6b6b73]")
+
+        def _after(confirmed: Optional[bool]) -> None:
+            if not confirmed:
+                return
+            try:
+                os.remove(path)
+                self.notify(f"Deleted {stem}.", severity="information")
+            except Exception as exc:
+                self.notify(f"Delete failed: {exc}", severity="error")
+            self._refresh_installed()
+        self.app.push_screen(
+            _ConfirmModal(msg, yes_label="Delete", yes_variant="error"), _after)
 
     def action_refresh_tab(self) -> None:
         tab = self._active_tab()

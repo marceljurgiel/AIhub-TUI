@@ -30,6 +30,65 @@ def get_local_models() -> list:
         return []
 
 
+def import_gguf_model(path: str, model_name: str) -> tuple:
+    """Import a local .gguf file into Ollama as `model_name`, making it a
+    regular installed model (shows up in /api/tags like any pulled model).
+
+    Modern servers: upload the file as a blob (sha256), then /api/create with
+    a files map. Older servers: fall back to a Modelfile 'FROM <path>' create
+    (works when the server runs on this machine). Returns (ok, error).
+    """
+    import hashlib
+    import os as _os
+    try:
+        # 1. Digest of the file (Ollama addresses blobs by sha256).
+        h = hashlib.sha256()
+        with open(path, "rb") as fh:
+            for chunk in iter(lambda: fh.read(1024 * 1024), b""):
+                h.update(chunk)
+        digest = f"sha256:{h.hexdigest()}"
+
+        # 2. Ensure the blob exists server-side (HEAD then upload).
+        blob_url = f"{config.ollama_api_url}/api/blobs/{digest}"
+        try:
+            have = requests.head(blob_url, timeout=10).status_code == 200
+        except Exception:
+            have = False
+        if not have:
+            with open(path, "rb") as fh:
+                up = requests.post(blob_url, data=fh, timeout=3600)
+            if up.status_code not in (200, 201):
+                return False, f"blob upload failed: HTTP {up.status_code}"
+
+        # 3. Create the model from the blob.
+        resp = requests.post(
+            f"{config.ollama_api_url}/api/create",
+            json={"model": model_name,
+                  "files": {_os.path.basename(path): digest},
+                  "stream": False},
+            timeout=600,
+        )
+        if resp.ok and '"error"' not in resp.text:
+            return True, ""
+
+        # 4. Legacy fallback (pre-0.6 servers; same-machine path).
+        legacy = requests.post(
+            f"{config.ollama_api_url}/api/create",
+            json={"name": model_name, "modelfile": f"FROM {path}",
+                  "stream": False},
+            timeout=600,
+        )
+        if legacy.ok and '"error"' not in legacy.text:
+            return True, ""
+        try:
+            reason = resp.json().get("error") or resp.text
+        except Exception:
+            reason = resp.text
+        return False, str(reason)[:300]
+    except Exception as exc:
+        return False, str(exc)
+
+
 def get_local_model_sizes() -> dict:
     """
     Return a dict mapping model name → size in GB for installed models.
