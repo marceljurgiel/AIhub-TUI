@@ -3,6 +3,15 @@
 The 0.2.x–0.3.x line is the chat-first Textual TUI rebuild; 0.0.1–0.1.4 below is the
 earlier menu-based CLI.
 
+## [0.3.9] - 2026-07-13
+### Fixed
+- HuggingFace GGUF tab showed `?GB` for every model and quantisation: the HF
+  search API returns no per-file sizes (and now often no file lists at all),
+  and the detail endpoint omits sizes without `?blobs=true`. Detail info is
+  now fetched with `blobs=true` concurrently (8 workers) for all search
+  results, size parsing falls back to `lfs.size`, and the quant picker
+  re-fetches when it was handed a sizeless file list.
+
 ## [0.3.8] - 2026-07-13
 ### Fixed
 - Sidebar clicks were dead: `NavItem.Pressed` had no handler anywhere, so

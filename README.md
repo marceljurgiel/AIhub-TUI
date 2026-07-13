@@ -429,6 +429,12 @@ scaffolded behind `llamacpp_enabled` in config.
 The **0.2.x–0.3.x** line is the chat-first Textual TUI rebuild. Full history,
 including the earlier menu-based CLI era, is in [CHANGELOG.md](CHANGELOG.md).
 
+### 0.3.9 — 2026-07-13
+- **Fixed missing sizes in the HuggingFace tab** — HF's search API stopped
+  returning file information, so every model and quant showed `?GB`. Model
+  details (with sizes) are now fetched concurrently for all results (~1 s),
+  and the quant picker re-fetches sizes when needed — real GB everywhere.
+
 ### 0.3.8 — 2026-07-13
 - **Fixed: New Chat kept old history** — sidebar clicks were never wired up, so
   clicking *New Chat* (or any sidebar entry) silently did nothing and the old

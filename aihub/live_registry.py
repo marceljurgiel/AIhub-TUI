@@ -145,18 +145,29 @@ def fetch_hf_gguf_models(
     except Exception as exc:
         return [{"live_error": str(exc)}]
 
+    # The search endpoint returns no per-file sizes (often no siblings at
+    # all), so detail-fetch every hit concurrently — that's where the file
+    # list AND sizes come from (?blobs=true).
+    ids = [m.get("modelId") or m.get("id", "") for m in raw]
+    files_by_id: Dict[str, List[Dict[str, Any]]] = {}
+    try:
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=8) as pool:
+            for mid, files in zip(ids, pool.map(
+                    lambda i: _fetch_gguf_files(i, headers) if i else [], ids)):
+                files_by_id[mid] = files
+    except Exception:
+        files_by_id = {}
+
     result: List[Dict[str, Any]] = []
-    for i, m in enumerate(raw):
+    for m in raw:
         model_id = m.get("modelId") or m.get("id", "")
         if not model_id:
             continue
         downloads = m.get("downloads", 0)
-        siblings  = m.get("siblings") or []
 
-        # Parse files from search response; detail-fetch only for first 5
-        gguf_files = _parse_gguf_siblings(model_id, siblings)
-        if not gguf_files and i < 5:
-            gguf_files = _fetch_gguf_files(model_id, headers)
+        gguf_files = files_by_id.get(model_id) or _parse_gguf_siblings(
+            model_id, m.get("siblings") or [])
 
         size_gb = _estimate_size(gguf_files)
         result.append({
@@ -189,7 +200,10 @@ def fetch_hf_gguf_files(model_id: str, token: Optional[str] = None) -> List[Dict
 
 def _fetch_gguf_files(model_id: str, headers: Dict[str, str]) -> List[Dict[str, Any]]:
     try:
-        r = requests.get(f"{_HF_API_BASE}/{model_id}", headers=headers, timeout=6)
+        # blobs=true is required for per-file sizes — without it the API
+        # returns filenames only (so every size would render as "?GB").
+        r = requests.get(f"{_HF_API_BASE}/{model_id}",
+                         headers=headers, params={"blobs": "true"}, timeout=6)
         if not r.ok:
             return []
         siblings = r.json().get("siblings") or []
@@ -217,7 +231,8 @@ def _parse_gguf_siblings(
         fname = s.get("rfilename", "")
         if not fname.lower().endswith(".gguf"):
             continue
-        size_bytes = s.get("size") or 0
+        # Size lives top-level with ?blobs=true; LFS entries also carry it.
+        size_bytes = s.get("size") or (s.get("lfs") or {}).get("size") or 0
         size_gb    = round(size_bytes / 1024 ** 3, 2) if size_bytes else 0.0
 
         m = _QUANT_RE.search(fname)

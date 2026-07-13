@@ -61,8 +61,10 @@ class GGUFPickerModal(ModalScreen[Optional[Tuple[str, str]]]):
             self.query_one("#gguf-bar", ProgressBar).display = False
         except Exception:
             pass
-        # If no files yet, fetch them lazily
-        if not self.gguf_files:
+        # Fetch lazily when we have no files — or when the list came from a
+        # search response without sizes (all 0 → would render "? GB").
+        if not self.gguf_files or not any(
+                f.get("size_gb") for f in self.gguf_files):
             self.query_one("#gguf-status", Static).update("[#6b6b73]Fetching file list…[/#6b6b73]")
             self._fetch_files_worker()
 
