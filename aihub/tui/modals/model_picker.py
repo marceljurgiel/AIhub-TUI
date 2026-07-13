@@ -98,6 +98,7 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
         self._hf_options: list = []
         self._fit_by_name: Dict[str, Dict[str, Any]] = {}
         self._gguf_paths: Dict[str, str] = {}   # stem → downloaded .gguf path
+        self._importing = False                 # a gguf→Ollama import is running
 
     def compose(self) -> ComposeResult:
         with Container():
@@ -382,10 +383,13 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
                 self._gguf_paths[stem] = path
                 size_gb = os.path.getsize(path) / 1024 ** 3
                 short = (stem[:27] + "…") if len(stem) > 28 else stem
+                imported = self._gguf_imported_name(stem)
                 if size_gb < 0.05:
                     tag = "[#ff6e6e]gguf · incomplete download?[/#ff6e6e]"
+                elif imported:
+                    tag = "[#22c55e]✓ imported · Enter to run[/#22c55e]"
                 else:
-                    tag = "[#6b6b73]gguf downloaded · Enter to import/use[/#6b6b73]"
+                    tag = "[#6b6b73]gguf · Enter to import & run[/#6b6b73]"
                 opts.append(Option(
                     f"[#a8a8b0]◆ {short:<28}[/#a8a8b0]  {size_gb:>5.1f}GB  {tag}",
                     id=f"gguf-file:{stem}",
@@ -697,13 +701,28 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
 
     # ── Downloaded GGUF files (Recommended / HF tabs land here) ──────────
 
+    def _gguf_imported_name(self, stem: str) -> str:
+        """Ollama model name if this downloaded gguf is already imported."""
+        name = _ollama_safe_name(stem)
+        if name in self.local_names or f"{name}:latest" in self.local_names:
+            return name
+        return ""
+
     def _use_downloaded_gguf(self, stem: str) -> None:
-        """Use a .gguf downloaded to models_download_dir. If a llama-server
-        already serves it, use that; otherwise offer to import it into
-        Ollama so it becomes a regular installed model."""
+        """Run a .gguf from models_download_dir — touchless: already
+        imported → straight to run; otherwise auto-import into Ollama
+        (one-time) and run. llama-server is only used if it already has
+        this exact model loaded."""
         from ...config import config
         path = self._gguf_paths.get(stem, "")
 
+        # Already imported into Ollama → just run it.
+        imported = self._gguf_imported_name(stem)
+        if imported:
+            self._open_ctx(imported, backend="ollama")
+            return
+
+        # An already-running llama-server serving this file also counts.
         if config.llamacpp_enabled:
             try:
                 from ...llamacpp_client import is_llamacpp_running, get_loaded_model
@@ -720,24 +739,33 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
             self.notify(f"File for {stem} not found — re-download it.",
                         severity="warning")
             return
+        if os.path.getsize(path) < 0.05 * 1024 ** 3:
+            self.notify(
+                f"{stem} looks like an incomplete download "
+                f"({os.path.getsize(path) / 1024**2:.0f} MB) — re-download it "
+                "before running.", severity="warning", timeout=10)
+            return
 
         if is_ollama_running():
+            if getattr(self, "_importing", False):
+                self.notify("An import is already running…", severity="warning")
+                return
             name = _ollama_safe_name(stem)
-            msg = (f"[b]Import[/b] [#a855f7]{stem}[/#a855f7] into Ollama as "
-                   f"[#a855f7]{name}[/#a855f7]?\n\n"
-                   "[#6b6b73]Makes it a regular installed model you can chat "
-                   "with — no llama-server needed.[/#6b6b73]")
-
-            def _after(confirmed: Optional[bool]) -> None:
-                if confirmed:
-                    self.notify(f"Importing {stem}… (hashing + upload)",
-                                severity="information", timeout=8)
-                    self._import_gguf_worker(path, name)
-            self.app.push_screen(_ConfirmModal(msg, yes_label="Import"), _after)
+            self._importing = True
+            self.notify(
+                f"Importing {stem} into Ollama — one-time setup, "
+                "usually 10–60 s…", severity="information", timeout=8)
+            try:
+                self.query_one("#mp-status", Static).update(
+                    f"[#a855f7]⏳ Importing {stem}… (hashing + upload)[/#a855f7]")
+            except Exception:
+                pass
+            self._import_gguf_worker(path, name)
         else:
             self.notify(
-                "Ollama is offline and no llama-server has this model.\n"
-                f"Start one with: llama-server --model {path} --port 8080",
+                "Ollama is offline — start it (`ollama serve`) and press "
+                "Enter on this model again.\nOr serve it directly with: "
+                f"llama-server --model {path} --port 8080",
                 severity="warning", timeout=12,
             )
 
@@ -747,17 +775,25 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
         ok, err = import_gguf_model(path, name)
 
         def done() -> None:
+            self._importing = False
             if ok:
-                self.notify(f"Imported as {name} ✓", severity="information")
+                self.notify(f"Imported as {name} ✓ — starting…",
+                            severity="information")
+                self.local_names.add(f"{name}:latest")
                 self._refresh_installed()
                 self._open_ctx(name, backend="ollama")
             else:
+                try:
+                    self.query_one("#mp-status", Static).update(
+                        f"[#ff6e6e]Import failed: {err}[/#ff6e6e]")
+                except Exception:
+                    pass
                 self.notify(f"Import failed: {err}", severity="error",
                             timeout=12)
         try:
             self.app.call_from_thread(done)
         except Exception:
-            pass
+            self._importing = False
 
     # ── Actions ───────────────────────────────────────────────────────────
 

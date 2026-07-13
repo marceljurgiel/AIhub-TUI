@@ -429,6 +429,14 @@ scaffolded behind `llamacpp_enabled` in config.
 The **0.2.x–0.3.x** line is the chat-first Textual TUI rebuild. Full history,
 including the earlier menu-based CLI era, is in [CHANGELOG.md](CHANGELOG.md).
 
+### 0.3.10 — 2026-07-13
+- **Touchless GGUF running** — pick a downloaded GGUF in Installed and it just
+  runs: first pick auto-imports it into Ollama (one-time, ~10–60 s, progress
+  shown), then opens straight into a chat; every later pick shows
+  `✓ imported · Enter to run` and starts instantly. Incomplete downloads are
+  blocked with a clear warning. No confirmation dialogs, no manual
+  llama-server.
+
 ### 0.3.9 — 2026-07-13
 - **Fixed missing sizes in the HuggingFace tab** — HF's search API stopped
   returning file information, so every model and quant showed `?GB`. Model

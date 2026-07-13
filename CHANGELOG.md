@@ -3,6 +3,15 @@
 The 0.2.x–0.3.x line is the chat-first Textual TUI rebuild; 0.0.1–0.1.4 below is the
 earlier menu-based CLI.
 
+## [0.3.10] - 2026-07-13
+### Changed
+- Downloaded GGUFs now run touchlessly: first pick auto-imports into Ollama
+  (no confirm dialog; progress in the status line; double-trigger guarded),
+  then opens the context modal to chat. Already-imported files are detected
+  (row shows "✓ imported · Enter to run") and start instantly without
+  re-importing. Incomplete downloads (<50 MB) are blocked with a warning
+  instead of failing mid-import.
+
 ## [0.3.9] - 2026-07-13
 ### Fixed
 - HuggingFace GGUF tab showed `?GB` for every model and quantisation: the HF
