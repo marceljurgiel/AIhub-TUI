@@ -73,26 +73,109 @@ def read_metadata(path: str, wanted: Set[str], max_kv: int = 1024) -> Dict[str, 
 # ── Chat-format detection ─────────────────────────────────────────────────────
 
 # family → (Ollama Go template, stop tokens)
+#
+# The chatml / llama3 / gemma templates include .Tools / .ToolCalls sections
+# (modelled on Ollama's official qwen2.5 / llama3.1 library templates) —
+# Ollama derives the "tools" capability from the template, so without these
+# an imported model is reported as not supporting tool calling at all.
+_CHATML_TOOLS = (
+    "{{- if or .System .Tools }}<|im_start|>system\n"
+    "{{- if .System }}\n{{ .System }}\n{{- end }}\n"
+    "{{- if .Tools }}\n"
+    "# Tools\n\n"
+    "You may call one or more functions to assist with the user query.\n\n"
+    "You are provided with function signatures within <tools></tools> "
+    "XML tags:\n<tools>\n"
+    "{{- range .Tools }}\n{\"type\": \"function\", \"function\": {{ .Function }}}\n"
+    "{{- end }}\n</tools>\n\n"
+    "For each function call, return a json object with function name and "
+    "arguments within <tool_call></tool_call> XML tags:\n"
+    "<tool_call>\n{\"name\": <function-name>, \"arguments\": <args-json-object>}\n"
+    "</tool_call>\n"
+    "{{- end }}<|im_end|>\n"
+    "{{ end }}"
+    "{{- range $i, $_ := .Messages }}"
+    "{{- $last := eq (len (slice $.Messages $i)) 1 -}}"
+    "{{- if eq .Role \"user\" }}<|im_start|>user\n"
+    "{{ .Content }}<|im_end|>\n"
+    "{{ else if eq .Role \"assistant\" }}<|im_start|>assistant\n"
+    "{{ if .Content }}{{ .Content }}"
+    "{{- else if .ToolCalls }}<tool_call>\n"
+    "{{ range .ToolCalls }}{\"name\": \"{{ .Function.Name }}\", "
+    "\"arguments\": {{ .Function.Arguments }}}\n{{ end }}</tool_call>"
+    "{{- end }}{{ if not $last }}<|im_end|>\n{{ end }}"
+    "{{- else if eq .Role \"tool\" }}<|im_start|>user\n"
+    "<tool_response>\n{{ .Content }}\n</tool_response><|im_end|>\n"
+    "{{ end }}"
+    "{{- if and (ne .Role \"assistant\") $last }}<|im_start|>assistant\n"
+    "{{ end }}"
+    "{{- end }}"
+)
+
+_LLAMA3_TOOLS = (
+    "{{- if or .System .Tools }}<|start_header_id|>system<|end_header_id|>\n"
+    "{{- if .System }}\n\n{{ .System }}\n{{- end }}\n"
+    "{{- if .Tools }}\n"
+    "You are a helpful assistant with tool calling capabilities. When you "
+    "receive a tool call response, use the output to format an answer to "
+    "the original user question.\n{{- end }}<|eot_id|>\n"
+    "{{- end }}"
+    "{{- range $i, $_ := .Messages }}"
+    "{{- $last := eq (len (slice $.Messages $i)) 1 }}"
+    "{{- if eq .Role \"user\" }}<|start_header_id|>user<|end_header_id|>\n"
+    "{{- if and $.Tools $last }}\n\n"
+    "Given the following functions, please respond with a JSON for a "
+    "function call with its proper arguments that best answers the given "
+    "prompt.\n\nRespond in the format "
+    "{\"name\": function name, \"parameters\": dictionary of argument name "
+    "and its value}. Do not use variables.\n\n"
+    "{{ range $.Tools }}{{- . }}\n{{ end }}\n{{ .Content }}<|eot_id|>"
+    "{{- else }}\n\n{{ .Content }}<|eot_id|>{{- end }}"
+    "{{ if $last }}<|start_header_id|>assistant<|end_header_id|>\n\n{{ end }}"
+    "{{- else if eq .Role \"assistant\" }}"
+    "<|start_header_id|>assistant<|end_header_id|>\n"
+    "{{- if .ToolCalls }}\n"
+    "{{ range .ToolCalls }}{\"name\": \"{{ .Function.Name }}\", "
+    "\"parameters\": {{ .Function.Arguments }}}{{ end }}"
+    "{{- else }}\n\n{{ .Content }}{{- end }}"
+    "{{ if not $last }}<|eot_id|>{{ end }}"
+    "{{- else if eq .Role \"tool\" }}<|start_header_id|>ipython<|end_header_id|>\n\n"
+    "{{ .Content }}<|eot_id|>"
+    "{{ if $last }}<|start_header_id|>assistant<|end_header_id|>\n\n{{ end }}"
+    "{{- end }}"
+    "{{- end }}"
+)
+
+_GEMMA_TOOLS = (
+    "{{- if .Tools }}<start_of_turn>user\n"
+    "You can call functions. To call one, reply ONLY with a JSON object "
+    "inside <tool_call></tool_call> tags:\n"
+    "<tool_call>{\"name\": <function-name>, \"arguments\": "
+    "<args-json-object>}</tool_call>\n\nAvailable functions:\n"
+    "{{- range .Tools }}\n{\"type\": \"function\", \"function\": {{ .Function }}}"
+    "{{- end }}<end_of_turn>\n{{ end }}"
+    "{{- range $i, $_ := .Messages }}"
+    "{{- $last := eq (len (slice $.Messages $i)) 1 }}"
+    "{{- if or (eq .Role \"user\") (eq .Role \"system\") }}<start_of_turn>user\n"
+    "{{ .Content }}<end_of_turn>\n"
+    "{{ if $last }}<start_of_turn>model\n{{ end }}"
+    "{{- else if eq .Role \"tool\" }}<start_of_turn>user\n"
+    "<tool_response>\n{{ .Content }}\n</tool_response><end_of_turn>\n"
+    "{{ if $last }}<start_of_turn>model\n{{ end }}"
+    "{{- else if eq .Role \"assistant\" }}<start_of_turn>model\n"
+    "{{- if .ToolCalls }}\n"
+    "{{ range .ToolCalls }}<tool_call>{\"name\": \"{{ .Function.Name }}\", "
+    "\"arguments\": {{ .Function.Arguments }}}</tool_call>{{ end }}"
+    "{{- else }}\n{{ .Content }}{{- end }}"
+    "{{ if not $last }}<end_of_turn>\n{{ end }}"
+    "{{- end }}"
+    "{{- end }}"
+)
+
 CHAT_TEMPLATES: Dict[str, Tuple[str, list]] = {
-    "chatml": (
-        "{{- range .Messages }}<|im_start|>{{ .Role }}\n"
-        "{{ .Content }}<|im_end|>\n"
-        "{{ end }}<|im_start|>assistant\n",
-        ["<|im_end|>"],
-    ),
-    "llama3": (
-        "{{- range .Messages }}<|start_header_id|>{{ .Role }}<|end_header_id|>\n\n"
-        "{{ .Content }}<|eot_id|>{{ end }}"
-        "<|start_header_id|>assistant<|end_header_id|>\n\n",
-        ["<|eot_id|>"],
-    ),
-    "gemma": (
-        "{{- range .Messages }}<start_of_turn>"
-        "{{ if eq .Role \"assistant\" }}model{{ else }}user{{ end }}\n"
-        "{{ .Content }}<end_of_turn>\n"
-        "{{ end }}<start_of_turn>model\n",
-        ["<end_of_turn>"],
-    ),
+    "chatml": (_CHATML_TOOLS, ["<|im_end|>"]),
+    "llama3": (_LLAMA3_TOOLS, ["<|eot_id|>"]),
+    "gemma":  (_GEMMA_TOOLS, ["<end_of_turn>"]),
     "mistral": (
         "{{- range .Messages }}"
         "{{ if eq .Role \"assistant\" }}{{ .Content }}</s>"

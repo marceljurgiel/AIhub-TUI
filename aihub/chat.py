@@ -23,6 +23,42 @@ from .memory import build_system_prompt
 from .tools import run_tool, wants_tools, TOOLS_SCHEMA
 
 
+def _extract_fallback_tool_calls(text: str, valid_names: set) -> List[Dict[str, Any]]:
+    """Recover tool calls the backend failed to parse.
+
+    Imported GGUFs often emit the call as plain text — bare JSON, ```json
+    fences, or <tool_call> tags — which Ollama's template-based parser only
+    extracts when it matches the template's exact prefix. Accept any JSON
+    object with a known tool name + dict arguments/parameters.
+    """
+    import re as _re
+
+    candidates: List[str] = [
+        m.group(1) for m in _re.finditer(
+            r"<tool_call>\s*(\{.*?\})\s*</tool_call>", text, _re.DOTALL)
+    ]
+    if not candidates:
+        candidates = _re.findall(r"```(?:json)?\s*(\{.*?\})\s*```", text, _re.DOTALL)
+    if not candidates:
+        t = text.strip()
+        if t.startswith("{") and t.endswith("}"):
+            candidates = [t]
+
+    calls: List[Dict[str, Any]] = []
+    for c in candidates:
+        try:
+            obj = json.loads(c)
+        except Exception:
+            continue
+        if not isinstance(obj, dict):
+            continue
+        name = obj.get("name")
+        args = obj.get("arguments", obj.get("parameters"))
+        if name in valid_names and isinstance(args, dict):
+            calls.append({"function": {"name": name, "arguments": args}})
+    return calls
+
+
 def _truncate(text: str, max_chars: int = 8000) -> str:
     """Cap a tool result so large outputs don't blow the context window."""
     if not text or len(text) <= max_chars:
@@ -297,6 +333,17 @@ def run_chat_turn(
                 round_index=round_index,
                 tps=round(tps, 1),
             )
+
+        # Backend didn't parse a tool call — but the model may have emitted
+        # one as plain text (common with imported GGUFs whose output doesn't
+        # match the template's exact tool prefix). Recover it client-side.
+        if tools_active and not pending_tool_calls and full_text:
+            valid_names = {t.get("function", {}).get("name")
+                           for t in (active_schema or [])}
+            fallback = _extract_fallback_tool_calls(full_text, valid_names)
+            if fallback:
+                pending_tool_calls = fallback
+                full_text = ""
 
         # ── No tool calls → final text, end turn ──────────────────────────
         if not pending_tool_calls:

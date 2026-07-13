@@ -3,6 +3,22 @@
 The 0.2.x–0.3.x line is the chat-first Textual TUI rebuild; 0.0.1–0.1.4 below is the
 earlier menu-based CLI.
 
+## [0.3.13] - 2026-07-14
+### Fixed
+- Imported GGUFs were flagged "does not support tool calling" (agent mode
+  blocked). aihub checks Ollama's `/api/show` capabilities — which Ollama
+  derives from the chat template — and the templates injected at import had
+  no tool sections. ChatML / Llama 3 / Gemma templates now carry
+  `.Tools`/`.ToolCalls` blocks (modelled on Ollama's official qwen2.5 /
+  llama3.1 library templates); imports now report `['completion','tools']`.
+- Existing imports self-heal: picking a model whose installed template
+  differs from the current one triggers a one-time re-import.
+### Added
+- Client-side fallback tool-call parser in the chat engine: recovers calls
+  emitted as bare JSON, ```json fences, or <tool_call> tags with a known
+  tool name (Ollama 0.20's template parser only extracts exact-prefix
+  matches). Unknown tool names are rejected.
+
 ## [0.3.12] - 2026-07-14
 ### Fixed
 - HuggingFace GGUF downloads returned 403 AccessDenied: HF's CAS bridge

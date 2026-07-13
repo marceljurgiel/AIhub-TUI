@@ -429,6 +429,16 @@ scaffolded behind `llamacpp_enabled` in config.
 The **0.2.x–0.3.x** line is the chat-first Textual TUI rebuild. Full history,
 including the earlier menu-based CLI era, is in [CHANGELOG.md](CHANGELOG.md).
 
+### 0.3.13 — 2026-07-14
+- **Fixed tool calling for imported GGUFs** — imported models (e.g. gemma 4)
+  were reported as "does not support tool calling". Cause: Ollama derives tool
+  support from the chat template, and imported templates had no tool sections.
+  The injected ChatML / Llama 3 / Gemma templates now include proper
+  `.Tools`/`.ToolCalls` handling (imports report the `tools` capability and
+  pass the agent gate), existing imports self-heal on next pick, and the chat
+  engine gains a **fallback tool-call parser** that recovers calls models emit
+  as plain/fenced/tagged JSON that Ollama's parser misses.
+
 ### 0.3.12 — 2026-07-14
 - **Fixed HuggingFace downloads failing (403)** — HF's plain-HTTP CDN bridge
   currently rejects large-file downloads (known infra issue). Downloads now go

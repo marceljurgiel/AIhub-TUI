@@ -721,14 +721,20 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
         # wrapping → gibberish replies) — re-import once to heal them.
         imported = self._gguf_imported_name(stem)
         if imported:
+            # Re-import when the installed template is outdated (raw
+            # '{{ .Prompt }}' from pre-0.3.11, or a pre-0.3.13 template
+            # without .Tools — Ollama derives tool support from it).
             healed = True
             if path and os.path.exists(path) and not getattr(self, "_importing", False):
                 try:
                     from ...ollama_client import model_template
-                    from ...gguf import detect_chat_format
-                    if (model_template(imported) == "{{ .Prompt }}"
-                            and detect_chat_format(path)):
-                        healed = False
+                    from ...gguf import CHAT_TEMPLATES, detect_chat_format
+                    fmt = detect_chat_format(path)
+                    if fmt:
+                        current = model_template(imported)
+                        wanted = CHAT_TEMPLATES[fmt][0].strip()
+                        if current != wanted:
+                            healed = False
                 except Exception:
                     healed = True
             if healed:
@@ -736,7 +742,7 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
             else:
                 self._importing = True
                 self.notify(
-                    f"Upgrading {imported} with a proper chat template "
+                    f"Upgrading {imported}'s chat template "
                     "(one-time fix)…", severity="information", timeout=8)
                 self._import_gguf_worker(path, imported)
             return
