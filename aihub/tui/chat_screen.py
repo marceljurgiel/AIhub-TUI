@@ -49,7 +49,7 @@ from ..agent import agent_capable, system_prompt as agent_system_prompt, permiss
 from ..tools import AGENT_TOOLS_SCHEMA
 from .state import SessionState
 from .widgets import ChatInput, ChatLog, FooterBar, SlashSuggest, StatusBar
-from .widgets.sidebar import Sidebar
+from .widgets.sidebar import NavItem, Sidebar
 from . import workers
 
 
@@ -591,6 +591,11 @@ class ChatScreen(Screen):
     def _on_palette_pick(self, action_id: str | None) -> None:
         if not action_id:
             return
+        self._dispatch_action(action_id)
+
+    def _dispatch_action(self, action_id: str) -> None:
+        """Shared action dispatch — used by the command palette AND the
+        sidebar nav items (NavItem.Pressed)."""
         mapping = {
             "model_picker":     self.action_model_picker,
             "clear_chat":       self.action_clear_chat,
@@ -603,12 +608,17 @@ class ChatScreen(Screen):
             "hardware":         self.action_hardware,
             "settings":         self.action_settings,
             "toggle_tools":     self.action_toggle_tools,
+            "command_palette":  self.action_command_palette,
             "help":             self.action_help,
             "quit":             self.action_quit,
         }
         fn = mapping.get(action_id)
         if fn:
             fn()
+
+    def on_nav_item_pressed(self, message: NavItem.Pressed) -> None:
+        """Sidebar clicks (nav entries + the model pill)."""
+        self._dispatch_action(message.action_name)
 
     def _palette_memoryadd(self) -> None:
         if self.current_model in ("(no model)", "", None):
@@ -784,6 +794,12 @@ class ChatScreen(Screen):
         # Rebuild messages with fresh memory injection
         self.state.messages = start_session(self.state.model_name or "")
         self.state.start_time = __import__("datetime").datetime.now()
+        # Fully fresh session: token counters and mode must not carry over.
+        self.state.session_tokens = 0
+        self.state.ctx_used = 0
+        self.state.mode = "chat"
+        self._sync_status(session_tokens=0, ctx_used=0, tps=0.0,
+                          agent_mode=False, streaming=False)
         has_memory = bool(config.memory_enabled)
         self.memory_enabled = has_memory
         log.clear_all()

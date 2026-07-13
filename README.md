@@ -429,6 +429,13 @@ scaffolded behind `llamacpp_enabled` in config.
 The **0.2.x–0.3.x** line is the chat-first Textual TUI rebuild. Full history,
 including the earlier menu-based CLI era, is in [CHANGELOG.md](CHANGELOG.md).
 
+### 0.3.8 — 2026-07-13
+- **Fixed: New Chat kept old history** — sidebar clicks were never wired up, so
+  clicking *New Chat* (or any sidebar entry) silently did nothing and the old
+  conversation kept feeding the model — small models then "talked nonsense" to a
+  simple *hi*. All sidebar entries and the model pill now dispatch properly, and
+  New Chat also resets token counters and agent mode.
+
 ### 0.3.7 — 2026-07-13
 - **Downloaded GGUFs are now visible and usable** — models downloaded via the
   Recommended or HuggingFace tabs used to vanish (saved to `~/.aihub/models/`

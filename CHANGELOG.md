@@ -3,6 +3,16 @@
 The 0.2.x–0.3.x line is the chat-first Textual TUI rebuild; 0.0.1–0.1.4 below is the
 earlier menu-based CLI.
 
+## [0.3.8] - 2026-07-13
+### Fixed
+- Sidebar clicks were dead: `NavItem.Pressed` had no handler anywhere, so
+  clicking New Chat (or Models, Settings, …) silently did nothing — the old
+  conversation kept feeding the model, which made small models answer "hi"
+  with off-topic nonsense. ChatScreen now routes sidebar clicks through the
+  same dispatcher as the command palette.
+- New Chat now also resets session token counters, ctx fill, tok/s, and
+  agent mode (previously carried over into the "fresh" session).
+
 ## [0.3.7] - 2026-07-13
 ### Fixed
 - Models downloaded through the Recommended / HuggingFace GGUF tabs were
