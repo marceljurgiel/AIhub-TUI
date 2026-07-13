@@ -429,7 +429,14 @@ scaffolded behind `llamacpp_enabled` in config.
 The **0.2.x–0.3.x** line is the chat-first Textual TUI rebuild. Full history,
 including the earlier menu-based CLI era, is in [CHANGELOG.md](CHANGELOG.md).
 
-### 0.3.11 — 2026-07-17
+### 0.3.12 — 2026-07-14
+- **Fixed HuggingFace downloads failing (403)** — HF's plain-HTTP CDN bridge
+  currently rejects large-file downloads (known infra issue). Downloads now go
+  through the official Xet-aware `huggingface_hub` client (with in-app
+  progress), which works — anonymously too. Raw HTTP stays as fallback, with a
+  clearer error message.
+
+### 0.3.11 — 2026-07-13
 - **Fixed gibberish replies from imported GGUFs** — imports got Ollama's raw
   `{{ .Prompt }}` template (no chat wrapping, no stop tokens), so models
   answered "hi" with random numbers/code. AIHub now reads the chat template

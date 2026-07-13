@@ -3,7 +3,21 @@
 The 0.2.x–0.3.x line is the chat-first Textual TUI rebuild; 0.0.1–0.1.4 below is the
 earlier menu-based CLI.
 
-## [0.3.11] - 2026-07-17
+## [0.3.12] - 2026-07-14
+### Fixed
+- HuggingFace GGUF downloads returned 403 AccessDenied: HF's CAS bridge
+  (plain `resolve/…` HTTP) rejects large files (huggingface/xet-core#592),
+  while small files still work. Downloads now use `huggingface_hub` (Xet
+  protocol) with a size-poller feeding the in-app progress bar; hf_hub's
+  own tqdm bars are disabled so they can't corrupt the TUI. Raw HTTP kept
+  as fallback with a friendlier 401/403 message (suggests adding a free HF
+  token in Settings).
+- Post-download dialog no longer shows stale llama-server instructions —
+  it now points at the auto-import-and-run flow.
+### Added
+- Dependency: `huggingface_hub[hf_xet]`.
+
+## [0.3.11] - 2026-07-13
 ### Fixed
 - GGUFs imported into Ollama replied with gibberish (raw numbers/code on
   "hi"): the import installed no chat template, leaving Ollama's raw

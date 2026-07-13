@@ -161,6 +161,24 @@ class GGUFPickerModal(ModalScreen[Optional[Tuple[str, str]]]):
 
     @work(thread=True, exclusive=False, group="gguf-download")
     def _download_worker(self, url: str, dest: str, filename: str) -> None:
+        # Primary: the official huggingface_hub client (Xet-aware). HF's
+        # plain-HTTP CAS bridge 403s on large files (xet-core#592), so raw
+        # `resolve/…` GETs fail — the Xet protocol is the reliable path.
+        try:
+            from huggingface_hub import hf_hub_download  # noqa: F401
+            have_hub = True
+        except ImportError:
+            have_hub = False
+        if have_hub:
+            try:
+                self._hub_download(dest, filename)
+                self.app.call_from_thread(self._download_done)
+            except Exception as exc:
+                self.app.call_from_thread(self._download_failed,
+                                          self._friendly_error(str(exc)))
+            return
+
+        # Fallback: raw streaming GET (huggingface_hub not installed).
         import requests
         headers = {}
         if config.hf_api_token:
@@ -183,7 +201,73 @@ class GGUFPickerModal(ModalScreen[Optional[Tuple[str, str]]]):
                             )
             self.app.call_from_thread(self._download_done)
         except Exception as exc:
-            self.app.call_from_thread(self._download_failed, str(exc))
+            self.app.call_from_thread(self._download_failed,
+                                      self._friendly_error(str(exc)))
+
+    def _hub_download(self, dest: str, filename: str) -> None:
+        """Blocking download via huggingface_hub, with a size-poller thread
+        feeding the progress bar (hf_hub has no progress callback)."""
+        import os as _os
+        import threading
+        from huggingface_hub import hf_hub_download
+        try:
+            # tqdm bars would print into the TUI — our poller feeds the
+            # in-app ProgressBar instead.
+            from huggingface_hub.utils import disable_progress_bars
+            disable_progress_bars()
+        except Exception:
+            pass
+
+        local_dir = _os.path.dirname(dest) or config.models_download_dir
+        total = next((f.get("size_bytes") or 0 for f in self.gguf_files
+                      if f.get("filename") == filename), 0)
+        stop = threading.Event()
+
+        def poll() -> None:
+            cache = _os.path.join(local_dir, ".cache", "huggingface")
+            while not stop.wait(0.5):
+                size = 0
+                try:
+                    for root, _dirs, names in _os.walk(cache):
+                        for n in names:
+                            if n.endswith(".incomplete"):
+                                size = max(size, _os.path.getsize(
+                                    _os.path.join(root, n)))
+                except Exception:
+                    pass
+                try:
+                    if _os.path.exists(dest):
+                        size = max(size, _os.path.getsize(dest))
+                except Exception:
+                    pass
+                pct = min(100, int(size / total * 100)) if total else 0
+                label = (f"{size // 1024**2} / {total // 1024**2} MB" if total
+                         else f"{size // 1024**2} MB")
+                try:
+                    self.app.call_from_thread(self._set_progress, pct, label)
+                except Exception:
+                    return
+
+        t = threading.Thread(target=poll, daemon=True)
+        t.start()
+        try:
+            hf_hub_download(
+                repo_id=self.model_id,
+                filename=filename,
+                local_dir=local_dir,
+                token=config.hf_api_token or None,
+            )
+        finally:
+            stop.set()
+            t.join(timeout=2)
+
+    @staticmethod
+    def _friendly_error(err: str) -> str:
+        if "403" in err or "401" in err:
+            return (f"{err[:160]}\n"
+                    "HF blocks some anonymous downloads — add a free "
+                    "HuggingFace token in Settings → API Keys and retry.")
+        return err[:300]
 
     def _set_progress(self, pct: int, label: str) -> None:
         try:
@@ -199,16 +283,14 @@ class GGUFPickerModal(ModalScreen[Optional[Tuple[str, str]]]):
 
     def _download_done(self) -> None:
         self._downloading = False
-        cmd = f"llama-server --model {self._dest_path} --port 8080"
         try:
             self.query_one("#gguf-bar", ProgressBar).progress = 100
         except Exception:
             pass
         self.query_one("#gguf-status", Static).update(
-            f"[#22c55e]✓ Downloaded![/#22c55e]\n\n"
-            f"[#a8a8b0]Run llama.cpp with:[/#a8a8b0]\n"
-            f"[#a855f7]{cmd}[/#a855f7]\n\n"
-            f"[#6b6b73]Then set the URL in Settings (Ctrl+,) and select this model.[/#6b6b73]"
+            "[#22c55e]✓ Downloaded![/#22c55e]\n\n"
+            "[#a8a8b0]Press [b]Done[/b] (or Esc) — it will be imported into "
+            "Ollama and started automatically.[/#a8a8b0]"
         )
         # Change the download button to "Done"
         try:
