@@ -429,6 +429,15 @@ scaffolded behind `llamacpp_enabled` in config.
 The **0.2.x–0.3.x** line is the chat-first Textual TUI rebuild. Full history,
 including the earlier menu-based CLI era, is in [CHANGELOG.md](CHANGELOG.md).
 
+### 0.3.11 — 2026-07-17
+- **Fixed gibberish replies from imported GGUFs** — imports got Ollama's raw
+  `{{ .Prompt }}` template (no chat wrapping, no stop tokens), so models
+  answered "hi" with random numbers/code. AIHub now reads the chat template
+  embedded in the GGUF file itself and installs the matching Ollama template
+  (ChatML, Llama 3, Gemma, Mistral, Phi) + stop tokens at import. Models
+  imported by older versions are **healed automatically** the next time you
+  pick them.
+
 ### 0.3.10 — 2026-07-13
 - **Touchless GGUF running** — pick a downloaded GGUF in Installed and it just
   runs: first pick auto-imports it into Ollama (one-time, ~10–60 s, progress

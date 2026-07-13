@@ -716,10 +716,29 @@ class ModelPickerModal(ModalScreen[Optional[Tuple[str, int, str]]]):
         from ...config import config
         path = self._gguf_paths.get(stem, "")
 
-        # Already imported into Ollama → just run it.
+        # Already imported into Ollama → just run it. Except: imports made
+        # before v0.3.11 got the raw '{{ .Prompt }}' template (no chat
+        # wrapping → gibberish replies) — re-import once to heal them.
         imported = self._gguf_imported_name(stem)
         if imported:
-            self._open_ctx(imported, backend="ollama")
+            healed = True
+            if path and os.path.exists(path) and not getattr(self, "_importing", False):
+                try:
+                    from ...ollama_client import model_template
+                    from ...gguf import detect_chat_format
+                    if (model_template(imported) == "{{ .Prompt }}"
+                            and detect_chat_format(path)):
+                        healed = False
+                except Exception:
+                    healed = True
+            if healed:
+                self._open_ctx(imported, backend="ollama")
+            else:
+                self._importing = True
+                self.notify(
+                    f"Upgrading {imported} with a proper chat template "
+                    "(one-time fix)…", severity="information", timeout=8)
+                self._import_gguf_worker(path, imported)
             return
 
         # An already-running llama-server serving this file also counts.

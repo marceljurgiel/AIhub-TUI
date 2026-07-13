@@ -41,6 +41,19 @@ def import_gguf_model(path: str, model_name: str) -> tuple:
     import hashlib
     import os as _os
     try:
+        # 0. Chat template: a bare import leaves Ollama's raw '{{ .Prompt }}'
+        # (no chat wrapping, no stop tokens) — models then answer 'hi' with
+        # gibberish. Detect the format from the GGUF's own metadata.
+        template = ""
+        stops: list = []
+        try:
+            from .gguf import CHAT_TEMPLATES, detect_chat_format
+            fmt = detect_chat_format(path)
+            if fmt:
+                template, stops = CHAT_TEMPLATES[fmt]
+        except Exception:
+            template, stops = "", []
+
         # 1. Digest of the file (Ollama addresses blobs by sha256).
         h = hashlib.sha256()
         with open(path, "rb") as fh:
@@ -61,20 +74,29 @@ def import_gguf_model(path: str, model_name: str) -> tuple:
                 return False, f"blob upload failed: HTTP {up.status_code}"
 
         # 3. Create the model from the blob.
+        payload: Dict[str, Any] = {
+            "model": model_name,
+            "files": {_os.path.basename(path): digest},
+            "stream": False,
+        }
+        if template:
+            payload["template"] = template
+            payload["parameters"] = {"stop": stops}
         resp = requests.post(
-            f"{config.ollama_api_url}/api/create",
-            json={"model": model_name,
-                  "files": {_os.path.basename(path): digest},
-                  "stream": False},
-            timeout=600,
+            f"{config.ollama_api_url}/api/create", json=payload, timeout=600,
         )
         if resp.ok and '"error"' not in resp.text:
             return True, ""
 
         # 4. Legacy fallback (pre-0.6 servers; same-machine path).
+        modelfile = f"FROM {path}"
+        if template:
+            modelfile += f'\nTEMPLATE """{template}"""'
+            for s in stops:
+                modelfile += f"\nPARAMETER stop {s}"
         legacy = requests.post(
             f"{config.ollama_api_url}/api/create",
-            json={"name": model_name, "modelfile": f"FROM {path}",
+            json={"name": model_name, "modelfile": modelfile,
                   "stream": False},
             timeout=600,
         )
@@ -87,6 +109,20 @@ def import_gguf_model(path: str, model_name: str) -> tuple:
         return False, str(reason)[:300]
     except Exception as exc:
         return False, str(exc)
+
+
+def model_template(model_name: str) -> str:
+    """The chat template of an installed model ('' when unavailable)."""
+    try:
+        resp = requests.post(
+            f"{config.ollama_api_url}/api/show",
+            json={"name": model_name}, timeout=5,
+        )
+        if resp.ok:
+            return (resp.json().get("template") or "").strip()
+    except Exception:
+        pass
+    return ""
 
 
 def get_local_model_sizes() -> dict:

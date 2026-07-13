@@ -3,6 +3,19 @@
 The 0.2.x–0.3.x line is the chat-first Textual TUI rebuild; 0.0.1–0.1.4 below is the
 earlier menu-based CLI.
 
+## [0.3.11] - 2026-07-17
+### Fixed
+- GGUFs imported into Ollama replied with gibberish (raw numbers/code on
+  "hi"): the import installed no chat template, leaving Ollama's raw
+  `{{ .Prompt }}` — no role wrapping, no stop tokens.
+### Added
+- `aihub/gguf.py`: minimal GGUF header reader (metadata only, never tensor
+  data) + chat-format detection from the embedded `tokenizer.chat_template`
+  / architecture. Import now sets the matching Ollama Go template and stop
+  tokens (ChatML, Llama 3, Gemma, Mistral, Phi families).
+- Self-heal: picking a previously-imported model that still has the raw
+  template triggers a one-time re-import with the proper template.
+
 ## [0.3.10] - 2026-07-13
 ### Changed
 - Downloaded GGUFs now run touchlessly: first pick auto-imports into Ollama
