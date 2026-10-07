@@ -598,6 +598,7 @@ _CONFIG_NORMALIZERS = {
     "project_dir": _normalize_project_dir,
     # Empty = the chat's Ollama server.
     "memory_ollama_url": lambda v: _normalize_ollama_url(v) if str(v).strip() else "",
+    "embed_ollama_url": lambda v: _normalize_ollama_url(v) if str(v).strip() else "",
 }
 
 
@@ -852,6 +853,80 @@ def _h_mcp_install(p):
     return install_item(str(p["id"]), p.get("values") or {})
 
 
+def _h_kb_list(p):
+    from .knowledge import list_bases
+    return {"bases": list_bases()}
+
+
+def _h_kb_status(p):
+    """Is the embedding model ready? (The Knowledge window offers the
+    download when it isn't.)"""
+    from .knowledge import embedder_status
+    return embedder_status()
+
+
+def _h_kb_create(p):
+    from .knowledge import create
+    return create(str(p.get("name", "")), str(p.get("description", "")))
+
+
+def _h_kb_delete(p):
+    from .knowledge import delete
+    return {"deleted": delete(str(p["name"]))}
+
+
+def _h_kb_remove_source(p):
+    from .knowledge import remove_source
+    return remove_source(str(p["name"]), str(p["source"]))
+
+
+def _h_kb_search(p):
+    from .knowledge import search
+    return {"hits": search([str(n) for n in (p.get("names") or [p.get("name")])], str(p.get("query", "")),
+                           int(p.get("k", 6)))}
+
+
+def _stream_kb_index(req_id, p, sync_only: bool) -> None:
+    """kb.add / kb.sync: scan → file {i,n,path,chunks} → embed → problem →
+    done {files, changed, chunks, added, removed, problems}. Cancellable."""
+    from . import knowledge as kb
+    cancel = threading.Event()
+    with _reg_lock:
+        _cancel_events[req_id] = cancel
+    emit = lambda e, d: _emit(req_id, e, d)  # noqa: E731
+    try:
+        if sync_only:
+            out = kb.sync(str(p["name"]), emit, cancel)
+        else:
+            out = kb.add(str(p["name"]), [str(x) for x in p.get("paths") or []], emit, cancel)
+    except kb.EmbedderMissing as exc:
+        _error(req_id, f"{exc} — download it first")
+        return
+    except Exception as exc:
+        _error(req_id, str(exc))
+        return
+    finally:
+        with _reg_lock:
+            _cancel_events.pop(req_id, None)
+    _done(req_id, out)
+
+
+def _stream_kb_pull(req_id, p) -> None:
+    from .knowledge import pull_embedder
+    cancel = threading.Event()
+    with _reg_lock:
+        _cancel_events[req_id] = cancel
+    try:
+        out = pull_embedder(lambda e, d: _emit(req_id, e, d), cancel)
+    except Exception as exc:
+        _error(req_id, str(exc))
+        return
+    finally:
+        with _reg_lock:
+            _cancel_events.pop(req_id, None)
+    _done(req_id, out)
+
+
 def _h_google_status(p):
     from .google_login import status
     return status()
@@ -959,6 +1034,12 @@ _ONESHOT: Dict[str, Callable[[Dict[str, Any]], Dict[str, Any]]] = {
     "mcp.gmail_setup": _h_mcp_gmail_setup,
     "mcp.catalog": _h_mcp_catalog,
     "mcp.install": _h_mcp_install,
+    "kb.list": _h_kb_list,
+    "kb.status": _h_kb_status,
+    "kb.create": _h_kb_create,
+    "kb.delete": _h_kb_delete,
+    "kb.remove_source": _h_kb_remove_source,
+    "kb.search": _h_kb_search,
     "google.status": _h_google_status,
     "google.disconnect": _h_google_disconnect,
     "google.import_client": _h_google_import_client,
@@ -1110,6 +1191,25 @@ def _stream_chat_turn(req_id, p) -> None:
         from .tools import TOOLS_SCHEMA
         have = {t["function"]["name"] for t in (tools_schema or TOOLS_SCHEMA)}
         tools_schema = list(tools_schema or TOOLS_SCHEMA) + [t for t in mcp_schemas if t["function"]["name"] not in have]
+    # Knowledge bases: the agent's kb:<name> entries plus /kb for this chat.
+    # The best fragments go into the system prompt (below); search_knowledge
+    # digs deeper. In plain chat only that tool is added unless the message
+    # asks for tools anyway, so small models don't start calling others.
+    from . import knowledge as kb
+    from .agents import knowledge_of
+    try:
+        existing = set(kb.names())
+    except Exception:
+        existing = set()
+    kb_names = [n for n in dict.fromkeys(knowledge_of(profile) + [str(x) for x in (p.get("knowledge") or [])])
+                if n in existing]
+    kb.set_allowed(kb_names)   # this thread runs the turn's tools
+    if kb_names and p.get("tools_enabled", True):
+        from .tools import TOOLS_SCHEMA, wants_tools
+        if tools_schema is None:
+            tools_schema = list(TOOLS_SCHEMA) if wants_tools(messages) else []
+        tools_schema = ([t for t in tools_schema if t["function"]["name"] != "search_knowledge"]
+                        + [kb.tool_schema(kb_names)])
     # Plain chat asks before mutating tools too (see agent.permission_for);
     # an agent asks per its profile, and always in Plan.
     policy = permission_policy(profile, submode) if profile else "chat"
@@ -1161,8 +1261,23 @@ def _stream_chat_turn(req_id, p) -> None:
                 if hits:
                     fresh += ("\n\nThis request matches the skill " + " / ".join(hits)
                               + ": call use_skill with it first, then follow its steps.")
+    if kb_names:
+        from .agents import tool_result_budget
+        question = next((str(m.get("content") or "") for m in reversed(messages) if m.get("role") == "user"), "")
+        try:
+            hits = kb.search(kb_names, question, 5) if question.strip() else []
+            block = kb.format_context(kb_names, hits, tool_result_budget(p.get("context_length")))
+            if block:
+                fresh += "\n\n" + block
+            _emit(req_id, "knowledge", {"bases": kb_names, "hits": len(hits),
+                                        "sources": list(dict.fromkeys(h["source"] for h in hits))})
+        except kb.EmbedderMissing as exc:
+            _emit(req_id, "knowledge", {"bases": kb_names, "hits": 0, "error": f"{exc} — open Knowledge to download it"})
+        except Exception as exc:
+            log.info("knowledge search failed", exc_info=True)
+            _emit(req_id, "knowledge", {"bases": kb_names, "hits": 0, "error": str(exc)})
     if messages and messages[0].get("role") == "system":
-        if agent:
+        if agent or kb_names:
             original_system = messages[0]["content"]
         messages[0]["content"] = fresh
     else:
@@ -1293,6 +1408,9 @@ def _stream_google_connect(req_id, p) -> None:
 
 _STREAMING: Dict[str, Callable[[Any, Dict[str, Any]], None]] = {
     "google.connect": _stream_google_connect,
+    "kb.add": lambda req_id, p: _stream_kb_index(req_id, p, False),
+    "kb.sync": lambda req_id, p: _stream_kb_index(req_id, p, True),
+    "kb.pull": _stream_kb_pull,
     "chat.turn": _stream_chat_turn,
     "download.ollama": _stream_download_ollama,
     "download.gguf": _stream_download_gguf,

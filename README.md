@@ -59,11 +59,12 @@ settings in `~/.aihub` are kept.
 curl -fsSL https://raw.githubusercontent.com/marceljurgiel/AIhub-TUI/main/install.sh \
   | bash -s -- --yes --ollama http://192.0.2.10:11434 --model none
 #   --ollama local | skip | <server url>     --model <name> | none     --dir <path>
+#   --knowledge   also download the embedding model for knowledge bases
 ```
 
 ```powershell
 # Windows
-$env:AIHUB_YES = "1"; $env:AIHUB_OLLAMA = "local"; $env:AIHUB_MODEL = "llama3.2:3b"
+$env:AIHUB_YES = "1"; $env:AIHUB_OLLAMA = "local"; $env:AIHUB_MODEL = "llama3.2:3b"; $env:AIHUB_KNOWLEDGE = "1"
 irm https://raw.githubusercontent.com/marceljurgiel/AIhub-TUI/main/install.ps1 | iex
 ```
 
@@ -92,6 +93,16 @@ Uninstalling leaves `~/.aihub` in place.
   link, and you can read and edit the whole memory.
 
 <p align="center"><img src="docs/media/memory.gif" alt="AIhub learns from a remark in the chat, shows it in Memory, and knows it in a new chat" width="820"></p>
+- **Knowledge** (`B`) is search over your own documents. Make a knowledge
+  base from folders or files (notes, manuals, code, PDF, Word). AIhub finds
+  the passages that match a question and the model answers from them,
+  citing them as [1], [2]. Everything stays on your machine, with embeddings
+  by [EmbeddingGemma](https://ollama.com/library/embeddinggemma) in your
+  Ollama.
+  - Give a base to an agent: Agents → `k`.
+  - Use one in any chat: `/kb <name>`.
+  - The embedding model (about 620 MB) downloads on first use, or right
+    away with the installer's `--knowledge` option.
 - **Tools that ask first.** The model can read and edit files, run terminal
   commands (PowerShell on Windows) and search the web. Anything that changes
   your system waits for your OK. **Agent mode** (`A`) plans and builds

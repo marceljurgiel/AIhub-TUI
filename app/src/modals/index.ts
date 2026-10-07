@@ -12,3 +12,4 @@ export { TemperatureModal } from "./TemperatureModal.tsx";
 export { SkillsModal, type SkillInfo } from "./SkillsModal.tsx";
 export { AgentModal, type AgentChoice, type AgentProfile } from "./AgentModal.tsx";
 export { ThemeModal } from "./ThemeModal.tsx";
+export { KnowledgeModal, type KnowledgeBase } from "./KnowledgeModal.tsx";

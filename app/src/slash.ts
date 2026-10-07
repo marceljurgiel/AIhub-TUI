@@ -17,7 +17,9 @@ export const SLASH_COMMANDS: SlashCommand[] = [
   { cmd: "/agent", desc: "Pick or create an agent (^G)" },
   { cmd: "/skills", desc: "Browse, create & install skills (F4)" },
   { cmd: "/skill", desc: "Use a skill → /skill <name> <task>" },
-  { cmd: "/mcp", desc: "Connected services: Gmail and other MCP servers (F5)" },
+  { cmd: "/mcp", desc: "Connections: Google, GitHub and other services (F5)" },
+  { cmd: "/knowledge", desc: "Knowledge bases: search your own documents (F6)" },
+  { cmd: "/kb", desc: "Use a knowledge base in this chat → /kb <name>, /kb off" },
   { cmd: "/tools", desc: "List available agentic tools" },
   { cmd: "/clear", desc: "Clear chat context (keep system)" },
   { cmd: "/websearch", desc: "Test web search → /websearch <query>" },
@@ -45,6 +47,8 @@ export interface SlashResult {
     | "agent"
     | "skills"
     | "mcp"
+    | "knowledge"
+    | "kb"
     | "skill"
     | "history"
     | "memory_show"
@@ -76,7 +80,9 @@ export function parseSlash(raw: string): SlashResult {
   if (lower === "/model") return { kind: "model" };
   if (lower === "/agent" || lower === "/agents") return { kind: "agent" };
   if (lower === "/skills" || lower === "/skill") return { kind: "skills" };
-  if (lower === "/mcp") return { kind: "mcp" };
+  if (lower === "/mcp" || lower === "/connections") return { kind: "mcp" };
+  if (lower === "/knowledge") return { kind: "knowledge" };
+  if (lower === "/kb" || lower.startsWith("/kb ")) return { kind: "kb", payload: { value: text.slice(3).trim() } };
   if (lower.startsWith("/skill ")) {
     const rest = text.slice("/skill ".length).trim();
     const sp = rest.indexOf(" ");

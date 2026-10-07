@@ -11,6 +11,7 @@
 #   $env:AIHUB_YES    = "1"                    don't ask; use the defaults
 #   $env:AIHUB_OLLAMA = "local" | "skip" | "<server url>"
 #   $env:AIHUB_MODEL  = "<name>" | "none"      starter model to download
+#   $env:AIHUB_KNOWLEDGE = "1"                 add knowledge bases (embeddinggemma, ~620 MB)
 #   $env:AIHUB_HOME   = "<dir>"                default: %LOCALAPPDATA%\AIhub
 #   $env:AIHUB_SOURCE = "<zip url or path>"    install from somewhere else
 
@@ -200,6 +201,22 @@ function Install-AIhub {
                 Step "Downloading $model"
                 Helper pull $ollamaUrl $model
                 if ($LASTEXITCODE -ne 0) { Warn "could not download $model" }
+            }
+        }
+    }
+
+    # Knowledge bases need an embedding model on the Ollama server.
+    if ($ollamaOk) {
+        $embedder = "embeddinggemma"
+        if (Run $Py -m aihub.installer has $ollamaUrl $embedder) {
+            Ok "knowledge bases ready ($embedder)"
+        } else {
+            $k = $env:AIHUB_KNOWLEDGE
+            if (-not $k) { $k = Ask "Add knowledge bases - search your own documents? Downloads $embedder (~620 MB) [y/N]" "n" }
+            if ($k -match "^(y|yes|1|true)$") {
+                Step "Knowledge bases ($embedder)"
+                Helper pull $ollamaUrl $embedder
+                if ($LASTEXITCODE -ne 0) { Warn "could not download $embedder - AIhub offers it again in Knowledge (F6)" }
             }
         }
     }

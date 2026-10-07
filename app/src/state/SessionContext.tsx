@@ -21,6 +21,8 @@ export interface SessionState {
   agentSubmode: "plan" | "build";
   /** The active agent profile's name (meaningful in agent mode). */
   agentName: string;
+  /** Knowledge bases switched on for this chat with /kb (agents add theirs). */
+  knowledge: string[];
   sessionTokens: number;
   ctxUsed: number;
   ctxMax: number;
@@ -55,6 +57,7 @@ export function initialSession(): SessionState {
     mode: "chat",
     agentSubmode: "build",
     agentName: "coder",
+    knowledge: [],
     sessionTokens: 0,
     ctxUsed: 0,
     ctxMax: 2048,
@@ -98,6 +101,7 @@ function reducer(state: SessionState, action: Action): SessionState {
         tps: 0,
         mode: "chat",
         agentSubmode: "build",
+        knowledge: [],
         streaming: false,
         startTime: new Date().toISOString(),
       };

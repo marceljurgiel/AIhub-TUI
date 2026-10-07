@@ -205,12 +205,17 @@ def validate(p: AgentProfile) -> AgentProfile:
         raise ValueError(f"bad agent name {p.name!r}: use a-z, 0-9, - or _ (max 32)")
     if isinstance(p.tools, str):
         p.tools = ALL_TOOLS if p.tools.strip() in ("all", "*") else [t.strip() for t in p.tools.split(",")]
-    unknown = [t for t in p.tools if t not in ALL_TOOLS and not str(t).startswith("mcp:")]
+    unknown = [t for t in p.tools if t not in ALL_TOOLS and not str(t).startswith(("mcp:", "kb:"))]
     if unknown:
         raise ValueError(f"unknown tools: {', '.join(unknown)} (known: {', '.join(ALL_TOOLS)}, "
-                         "or mcp:<server> / mcp:<server>/<tool>)")
+                         "mcp:<server> / mcp:<server>/<tool>, or kb:<knowledge base>)")
     mcp = [t for t in dict.fromkeys(p.tools) if str(t).startswith("mcp:")]
-    p.tools = [t for t in ALL_TOOLS if t in p.tools] + mcp      # canonical order, no dupes
+    # Knowledge bases by name; one deleted later is skipped at run time.
+    kb = [t for t in dict.fromkeys(p.tools) if str(t).startswith("kb:")]
+    bad = [t for t in kb if not re.match(r"^kb:[a-z0-9][a-z0-9_-]{0,31}$", t)]
+    if bad:
+        raise ValueError(f"bad knowledge base name: {', '.join(bad)}")
+    p.tools = [t for t in ALL_TOOLS if t in p.tools] + mcp + kb   # canonical order, no dupes
     if p.permission not in ("auto", "ask"):
         raise ValueError("permission must be 'auto' or 'ask'")
     if not p.prompt.strip():
@@ -282,6 +287,11 @@ def delete_agent(name: str) -> bool:
 
 # ── Turn setup ───────────────────────────────────────────────────────────────
 
+def knowledge_of(p: Optional[AgentProfile]) -> List[str]:
+    """The knowledge bases an agent uses: its kb:<name> entries."""
+    return [t[3:] for t in (p.tools if p else []) if str(t).startswith("kb:")]
+
+
 def system_prompt_for(p: AgentProfile, submode: str) -> str:
     return p.prompt + ("\n\n" + PLAN_ADDENDUM if submode == "plan" else "")
 
@@ -291,8 +301,11 @@ def tools_schema_for(p: AgentProfile) -> List[Dict[str, Any]]:
     is dropped again when there are none)."""
     from .mcp_client import schemas_for_agent
     from .tools import TOOLS_SCHEMA
-    return ([t for t in TOOLS_SCHEMA if t["function"]["name"] in p.tools + ["use_skill"]]
-            + schemas_for_agent([t for t in p.tools if t.startswith("mcp:")]))
+    schema = ([t for t in TOOLS_SCHEMA if t["function"]["name"] in p.tools + ["use_skill"]]
+              + schemas_for_agent([t for t in p.tools if t.startswith("mcp:")]))
+    from .knowledge import names, tool_schema
+    bases = [b for b in knowledge_of(p) if b in names()]
+    return schema + ([tool_schema(bases)] if bases else [])
 
 
 def permission_policy(p: AgentProfile, submode: str) -> str:

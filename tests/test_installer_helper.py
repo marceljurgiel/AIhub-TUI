@@ -32,3 +32,13 @@ def test_check_is_false_when_nothing_answers(monkeypatch):
     monkeypatch.setattr(installer.requests, "get", down)
     assert installer.check("http://192.0.2.10:11434") is False
     assert installer.models("http://192.0.2.10:11434") == 0
+
+
+def test_has_finds_a_model_with_or_without_latest(monkeypatch):
+    class R:
+        def json(self):
+            return {"models": [{"name": "embeddinggemma:latest"}, {"name": "llama3.2:3b"}]}
+    monkeypatch.setattr(installer.requests, "get", lambda *a, **k: R())
+    assert installer.has("http://192.0.2.10:11434", "embeddinggemma")
+    assert installer.has("http://192.0.2.10:11434", "llama3.2:3b")
+    assert not installer.has("http://192.0.2.10:11434", "qwen3:8b")

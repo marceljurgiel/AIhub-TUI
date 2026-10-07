@@ -19,6 +19,11 @@ def use_skill(skill: str) -> str:
     from ..skills import use_skill as _use
     return _use(skill)
 
+
+def search_knowledge(query: str, base: str = "") -> str:
+    from ..knowledge import search_knowledge as _search
+    return _search(query, base)
+
 # ── Tool registry: name → Python callable ────────────────────────────────────
 TOOLS_REGISTRY = {
     "run_terminal":  run_terminal,
@@ -30,6 +35,9 @@ TOOLS_REGISTRY = {
     "search_files":  search_files,
     "remember":      remember,
     "use_skill":     use_skill,
+    # Offered only when a knowledge base is attached (agent kb:<name>, /kb);
+    # its schema is built per turn by knowledge.tool_schema.
+    "search_knowledge": search_knowledge,
 }
 
 # ── Tool schema (Ollama / OpenAI function-calling format) ─────────────────────

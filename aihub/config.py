@@ -51,6 +51,8 @@ class AppConfig(BaseModel):
     memory_auto:    bool = Field(default=True, description="Learn durable facts about the user from chats automatically")
     skills_disabled: list = Field(default_factory=list, description="Skill names turned off (not offered to the model)")
     temperature:    float = Field(default=0.7, description="Sampling temperature for chats (0 = precise … 2 = very random)")
+    embed_model:    str   = Field(default="embeddinggemma", description="Ollama model that turns documents into vectors for knowledge bases")
+    embed_ollama_url: str = Field(default="", description="Ollama server for embeddings (empty = the chat server)")
     theme:          str   = Field(default="aihub", description="Colour theme of the terminal app (aihub, nord, dracula, …)")
     accent:         str   = Field(default="", description="Accent colour over the theme (purple, blue, …); empty = the theme's own")
     # Picked with scripts/memory_eval.py: best of the small models tested

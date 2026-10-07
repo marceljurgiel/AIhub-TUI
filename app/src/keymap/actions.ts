@@ -14,6 +14,7 @@ export type ActionId =
   | "model_picker"
   | "history"
   | "memory"
+  | "knowledge"
   | "hardware"
   | "settings"
   | "command_palette"
@@ -55,6 +56,7 @@ export const ACTIONS: readonly ActionSpec[] = [
   { id: "model_picker", label: "Models", key: "ctrl+o", nav: "m", sidebar: true, group: "models", icon: "◆" },
   { id: "history", label: "History", key: "ctrl+r", nav: "h", sidebar: true, group: "models", icon: "↺" },
   { id: "memory", label: "Memory", key: "ctrl+e", nav: "e", sidebar: true, group: "models", icon: "◉" },
+  { id: "knowledge", label: "Knowledge", key: "f6", nav: "b", sidebar: true, group: "models", icon: "¶" },
   { id: "mcp", label: "Connections", key: "f5", nav: "c", sidebar: true, group: "system", icon: "⇄" },
   { id: "hardware", label: "Hardware", key: "ctrl+b", nav: "w", sidebar: true, group: "system", icon: "▣" },
   // Ctrl+, cannot be encoded by a normal terminal — the byte it produces is

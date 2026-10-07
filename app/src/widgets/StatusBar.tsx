@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { theme, usageColor, tpsColor, utilColor, humanTokens } from "../theme.ts";
+import { theme, usageColor, tpsColor, utilColor, humanTokens, fit } from "../theme.ts";
 import { Dot, Spinner } from "../ui/primitives.tsx";
 import type { SessionState } from "../state/SessionContext.tsx";
 
@@ -112,6 +112,13 @@ export function Footer({
       <text onMouseDown={onTemperature}>
         <span fg={theme.fg1}>{`T ${state.temperature.toFixed(1)}`}</span>
       </text>
+      {state.knowledge.length ? (
+        <>
+          <text fg={theme.borderStrong}>{"  ·  "}</text>
+          {/* Knowledge bases on in this chat (/kb). */}
+          <text fg={theme.accentSoft}>{fit(`¶ ${state.knowledge.join(",")}`, 9)}</text>
+        </>
+      ) : null}
     </box>
   );
 }

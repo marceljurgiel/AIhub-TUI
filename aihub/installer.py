@@ -7,6 +7,7 @@ platforms share one implementation:
     python -m aihub.installer check URL         exit 0 when Ollama answers there
     python -m aihub.installer start             start a local, installed Ollama
     python -m aihub.installer models URL        number of models on that server
+    python -m aihub.installer has URL MODEL     exit 0 when MODEL is on that server
     python -m aihub.installer pull URL MODEL    download MODEL there, with progress
 """
 from __future__ import annotations
@@ -39,6 +40,14 @@ def models(url: str) -> int:
         return len(requests.get(f"{url}/api/tags", timeout=6).json().get("models") or [])
     except Exception:
         return 0
+
+
+def has(url: str, name: str) -> bool:
+    try:
+        names = [m["name"] for m in requests.get(f"{url}/api/tags", timeout=6).json().get("models") or []]
+    except Exception:
+        return False
+    return name in names or f"{name}:latest" in names
 
 
 def pull(url: str, name: str) -> None:
@@ -79,6 +88,8 @@ def main(argv: list[str]) -> int:
         return 0 if start_local_ollama() else 1
     elif cmd == "models":
         print(models(normalize(args[0])))
+    elif cmd == "has":
+        return 0 if has(normalize(args[0]), args[1]) else 1
     elif cmd == "pull":
         pull(normalize(args[0]), args[1])
     else:

@@ -13,6 +13,8 @@
 #   --ollama local|skip|<url>
 #                         install Ollama here, skip it, or use the server at <url>
 #   --model <name>|none   pull this model (default: one sized for this machine)
+#   --knowledge           add knowledge bases: download the embedding model
+#                         (embeddinggemma, ~620 MB) for searching your documents
 #   --dir <path>          install directory (default: ~/.local/share/aihub)
 #
 # Environment: AIHUB_SOURCE  tarball URL or local .tar.gz to install from
@@ -28,6 +30,7 @@ BIN_DIR="$HOME/.local/bin"
 YES=0
 OLLAMA_CHOICE=""
 MODEL=""
+KNOWLEDGE="${AIHUB_KNOWLEDGE:-}"
 
 if [ -t 1 ]; then
   B=$'\033[1m'; DIM=$'\033[2m'; G=$'\033[32m'; Y=$'\033[33m'; R=$'\033[31m'; C=$'\033[36m'; N=$'\033[0m'
@@ -70,6 +73,7 @@ parse_args() {
       --ollama=*) OLLAMA_CHOICE="${1#*=}" ;;
       --model) MODEL="${2:-}"; shift ;;
       --model=*) MODEL="${1#*=}" ;;
+      --knowledge) KNOWLEDGE=1 ;;
       --dir) AIHUB_HOME="${2:-}"; shift ;;
       --dir=*) AIHUB_HOME="${1#*=}" ;;
       -h|--help) sed -n '2,20p' "$0" 2>/dev/null | sed 's/^# \{0,1\}//'; exit 0 ;;
@@ -259,6 +263,18 @@ setup_model() {
   fi
 }
 
+# Knowledge bases need an embedding model on the Ollama server.
+setup_knowledge() {
+  local model="embeddinggemma" ans="$KNOWLEDGE"
+  PY_HELPER has "$OLLAMA_URL" "$model" && { ok "knowledge bases ready ($model)"; return 0; }
+  if [ -z "$ans" ]; then
+    ans="$(ask "Add knowledge bases — search your own documents? Downloads $model (~620 MB) [y/N]:" n)"
+  fi
+  case "$ans" in y|Y|yes|1|true) ;; *) return 0 ;; esac
+  step "Knowledge bases ($model)"
+  PY_HELPER pull "$OLLAMA_URL" "$model" || warn "could not download $model — AIhub offers it again in Knowledge (F6)"
+}
+
 # ── 5. Launcher ──────────────────────────────────────────────────────────────
 install_launcher() {
   step "Launcher"
@@ -318,7 +334,7 @@ main() {
   install_engine
   install_app
   PATH_HINT=0
-  if setup_ollama; then setup_model; fi
+  if setup_ollama; then setup_model; setup_knowledge; fi
   install_launcher
 
   printf '\n%s✓ AIhub %s is installed.%s\n' "$G$B" "$(version_of)" "$N"

@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.3.0] - 2026-10-07
+### Added
+- **Knowledge bases**: search your own documents by meaning (local RAG).
+  - **Knowledge (`B`, `F6`):**
+    - make a base, add folders or files: text and code, PDF via pypdf,
+      Word .docx;
+    - watch the indexing (and any file that couldn't be read);
+    - test a search, sync (only changed files are re-read), delete.
+  - **Embeddings:** EmbeddingGemma through Ollama, with its query/document
+    task prompts. They run on the chat server by default, or on
+    `embed_ollama_url`. The model downloads from the window when it's
+    missing.
+  - **Storage:** `~/.aihub/knowledge/<name>/`, holding meta.json,
+    chunks.jsonl and normalized vectors (numpy). Search is cosine, plus a
+    small boost for exact words.
+  - **Agents:** `kb:<name>` in a profile; Agents → `k` picks the bases. The
+    best passages go with every question (cited as [1]), and the
+    `search_knowledge` tool digs deeper. It is read-only and never asks.
+  - **Plain chat:** `/kb <name>` uses a base for the session (`/kb off`,
+    `/kb` lists them). The footer shows the active base, and the chat notes
+    which documents were used.
+  - **Installer:** `--knowledge` / `AIHUB_KNOWLEDGE=1`, or answer "y", and
+    the embedding model downloads during setup.
+
 ## [1.2.0] - 2026-10-07
 ### Added
 - **Connect Google in one sign-in.** Connections → Google → the browser

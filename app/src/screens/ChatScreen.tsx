@@ -27,6 +27,7 @@ import {
   type SkillInfo,
   TemperatureModal,
   ThemeModal,
+  KnowledgeModal,
   McpModal,
 } from "../modals/index.ts";
 import { toolsLabel } from "../modals/AgentModal.tsx";
@@ -317,9 +318,21 @@ export function ChatScreen({
       .then((d) => setSkillList(d.skills || []))
       .catch(reportBackground("Listing skills"));
   }, []);
-  const skillCommands = skillList
-    .filter((s) => s.enabled)
-    .map((s) => ({ cmd: `/skill ${s.name}`, desc: s.description }));
+  // Knowledge bases → "/kb <name>" suggestions; refreshed when the
+  // Knowledge window closes.
+  const [kbList, setKbList] = useState<Array<{ name: string; description: string }>>([]);
+  const refreshKb = () =>
+    bridge
+      .request("kb.list")
+      .then((d) => setKbList(d.bases || []))
+      .catch(reportBackground("Listing knowledge bases"));
+  useEffect(() => {
+    void refreshKb();
+  }, []);
+  const skillCommands = [
+    ...skillList.filter((s) => s.enabled).map((s) => ({ cmd: `/skill ${s.name}`, desc: s.description })),
+    ...kbList.map((b) => ({ cmd: `/kb ${b.name}`, desc: `Use in this chat: ${b.description || b.name}` })),
+  ];
   const [prefill, setPrefill] = useState<{ text: string; seq: number } | undefined>(undefined);
 
   // ── image attachments ──
@@ -411,6 +424,7 @@ export function ChatScreen({
         agent: s.mode === "agent",
         agent_name: s.agentName,
         submode: s.agentSubmode,
+        knowledge: s.knowledge,
       },
       {
         onEvent: (event, data) => {
@@ -495,6 +509,18 @@ export function ChatScreen({
             case "chat_error":
               addSystem(data.message, data.fatal);
               break;
+            case "knowledge": {
+              // Which documents the answer can draw on — or why it can't.
+              const kb = (data?.bases || []).join(", ");
+              if (data?.error) addSystem(`Knowledge (${kb}): ${data.error}`, true);
+              else if (data?.hits)
+                addSystem(
+                  `¶ ${kb}: ${data.hits} excerpt${data.hits === 1 ? "" : "s"} from ${(data.sources || []).slice(0, 3).join(", ")}` +
+                    ((data.sources || []).length > 3 ? "…" : ""),
+                );
+              else addSystem(`¶ ${kb}: nothing relevant found.`);
+              break;
+            }
           }
         },
       },
@@ -651,6 +677,8 @@ export function ChatScreen({
       case "agent": return openAgents();
       case "skills": return openSkills();
       case "mcp": return openMcp();
+      case "knowledge": return openKnowledge();
+      case "kb": return applyKb((r.payload?.value ?? "").trim());
       case "skill": {
         const s = stateRef.current;
         if (!s.modelName) return addSystem("Select a model first (^O).", true);
@@ -799,6 +827,37 @@ export function ChatScreen({
       .request("config.set", { patch: { temperature: v } })
       .then(() => addSystem(`Temperature → ${v.toFixed(1)}.`))
       .catch(reportFailure("Saving the temperature"));
+  };
+
+  const openKnowledge = () => {
+    modals
+      .push<void>((close) => <KnowledgeModal onClose={close} />)
+      .catch(() => {})
+      .finally(() => void refreshKb());
+  };
+
+  /** /kb: list bases, /kb <name> switches one on for this chat, /kb off. */
+  const applyKb = (arg: string) => {
+    const s = stateRef.current;
+    const on = s.knowledge;
+    if (!arg) {
+      if (!kbList.length) return addSystem("No knowledge bases yet — /knowledge (F6) makes one from your documents.");
+      return addSystem(
+        "Knowledge bases: " +
+          kbList.map((b) => `${on.includes(b.name) ? "● " : ""}${b.name}${b.description ? ` (${b.description})` : ""}`).join(" · ") +
+          (on.length ? `\nActive here: ${on.join(", ")} — /kb off to stop.` : "\nUse one here: /kb <name>."),
+      );
+    }
+    if (arg === "off") {
+      dispatch({ type: "patch", patch: { knowledge: [] } });
+      return addSystem("Knowledge off for this chat.");
+    }
+    const names = arg.split(/[\s,]+/).filter(Boolean);
+    const unknown = names.filter((n) => !kbList.some((b) => b.name === n));
+    if (unknown.length) return addSystem(`No knowledge base called ${unknown.join(", ")} — /kb lists them.`, true);
+    const next = [...new Set([...on, ...names])];
+    dispatch({ type: "patch", patch: { knowledge: next } });
+    addSystem(`¶ Using ${next.join(", ")} in this chat — answers draw on those documents and cite them [1]. /kb off stops.`);
   };
 
   const openMcp = () => {
@@ -980,6 +1039,8 @@ export function ChatScreen({
       case "help": return openHelp();
       case "temperature":
         return openTemperature();
+      case "knowledge":
+        return openKnowledge();
       case "theme":
         return openTheme();
       case "toggle_tools":

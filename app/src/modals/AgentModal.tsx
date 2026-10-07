@@ -35,7 +35,10 @@ const TOOL_LABEL: Record<string, string> = {
   run_terminal: "shell",
 };
 
-export const toolsLabel = (tools: string[]) => tools.map((t) => TOOL_LABEL[t] ?? t).join(" ");
+export const toolsLabel = (tools: string[]) =>
+  tools.filter((t) => !t.startsWith("kb:")).map((t) => TOOL_LABEL[t] ?? t).join(" ");
+/** The knowledge bases an agent uses (its kb:<name> entries). */
+export const knowledgeOf = (tools: string[]) => tools.filter((t) => t.startsWith("kb:")).map((t) => t.slice(3));
 
 const VIEWPORT = 8;
 
@@ -66,7 +69,10 @@ export function AgentModal({
   const [loading, setLoading] = useState(true);
   const [note, setNote] = useState("");
   const [armed, setArmed] = useState<string | null>(null);
-  const [view, setView] = useState<"list" | "new" | "review">("list");
+  const [view, setView] = useState<"list" | "new" | "review" | "kb">("list");
+  // k: which knowledge bases the selected agent uses.
+  const [kbBases, setKbBases] = useState<Array<{ name: string; description: string; files: number }>>([]);
+  const [kbPicked, setKbPicked] = useState<string[]>([]);
   const [drafting, setDrafting] = useState(false);
   const [draft, setDraft] = useState<AgentProfile | null>(null);
   const descEl = useRef<any>(null);
@@ -157,6 +163,40 @@ export function AgentModal({
       .catch((e) => setNote(`Not saved: ${(e as Error).message || e}`));
   };
 
+  const kbList = useWindowedList(kbBases.length, VIEWPORT);
+  const openKb = () => {
+    if (!selected) return setNote("Pick an agent first (not plain chat).");
+    setNote("");
+    setKbPicked(knowledgeOf(selected.tools));
+    kbList.setIndex(0);
+    setView("kb");
+    bridge
+      .request("kb.list")
+      .then((d) => setKbBases(d.bases || []))
+      .catch((e) => setNote(String((e as Error).message || e)));
+  };
+  const toggleKb = () => {
+    const b = kbBases[kbList.index];
+    if (!b) return;
+    setKbPicked((p) => (p.includes(b.name) ? p.filter((x) => x !== b.name) : [...p, b.name]));
+  };
+  const saveKb = () => {
+    if (!selected) return;
+    const tools = [...selected.tools.filter((t) => !t.startsWith("kb:")), ...kbPicked.map((n) => `kb:${n}`)];
+    bridge
+      .request("agents.save", { agent: { ...selected, tools } })
+      .then((d) => {
+        setNote(
+          kbPicked.length
+            ? `${d.agent.name} now answers from ${kbPicked.join(", ")} (and can search them).`
+            : `${d.agent.name} uses no knowledge base.`,
+        );
+        setView("list");
+        void refresh(d.agent.name);
+      })
+      .catch((e) => setNote(`Not saved: ${(e as Error).message || e}`));
+  };
+
   const toggleDraftPermission = () =>
     setDraft((d) => (d ? { ...d, permission: d.permission === "auto" ? "ask" : "auto" } : d));
 
@@ -169,11 +209,12 @@ export function AgentModal({
 
   useModalKeys([
     { key: "escape", run: back },
-    { key: "up", run: () => view === "list" && list.up() },
-    { key: "down", run: () => view === "list" && list.down() },
+    { key: "up", run: () => (view === "list" ? list.up() : view === "kb" ? kbList.up() : undefined) },
+    { key: "down", run: () => (view === "list" ? list.down() : view === "kb" ? kbList.down() : undefined) },
     {
       key: "return",
-      run: () => (view === "list" ? choose("build") : view === "review" ? saveDraft() : runDraft()),
+      run: () =>
+        view === "list" ? choose("build") : view === "review" ? saveDraft() : view === "kb" ? saveKb() : runDraft(),
     },
   ]);
   // Letter keys only outside the description field.
@@ -183,6 +224,8 @@ export function AgentModal({
       { key: "n", run: () => (view === "list" ? startNew() : undefined) },
       { key: "d", run: () => (view === "list" ? del() : undefined) },
       { key: "a", run: () => (view === "review" ? toggleDraftPermission() : undefined) },
+      { key: "k", run: () => (view === "list" ? openKb() : undefined) },
+      { key: "t", run: () => (view === "kb" ? toggleKb() : undefined) },
     ],
     { enabled: () => view !== "new" },
   );
@@ -191,7 +234,9 @@ export function AgentModal({
   const width = Math.max(60, Math.min(84, term.width - 4));
   const hints: Array<[string, string]> =
     view === "list"
-      ? [["enter", "use"], ["p", "plan mode"], ["n", "new agent"], ["d", "delete"]]
+      ? [["enter", "use"], ["p", "plan mode"], ["k", "knowledge"], ["n", "new agent"], ["d", "delete"]]
+      : view === "kb"
+        ? [["↑↓", "select"], ["t", "on/off"], ["enter", "save"], ["esc", "back"]]
       : view === "new"
         ? [["enter", "draft"], ["esc", "back"]]
         : [["enter", "save"], ["a", "auto/ask"], ["esc", "discard"]];
@@ -225,12 +270,18 @@ export function AgentModal({
               })
             )}
           </box>
-          <box flexDirection="column" flexShrink={0} marginTop={1} height={4}>
+          <box flexDirection="column" flexShrink={0} marginTop={1} height={5}>
             {selected ? (
               <>
                 <text>
                   <span fg={theme.fg2}>{"  tools  "}</span>
                   <span fg={theme.fg1}>{fit(toolsLabel(selected.tools) || "none", width - 14)}</span>
+                </text>
+                <text>
+                  <span fg={theme.fg2}>{"  knows  "}</span>
+                  <span fg={knowledgeOf(selected.tools).length ? theme.accentSoft : theme.fg2}>
+                    {fit(knowledgeOf(selected.tools).join(", ") || "no knowledge base — k adds one", width - 14)}
+                  </span>
                 </text>
                 <text>
                   <span fg={theme.fg2}>{"  edits  "}</span>
@@ -257,6 +308,31 @@ export function AgentModal({
               <text fg={theme.fg2}>
                 {fit(`  Your agents live in ${dir || "~/.aihub/agents"} — n creates one.`, width - 4)}
               </text>
+            )}
+          </box>
+        </box>
+      ) : view === "kb" && selected ? (
+        <box key="kb" flexDirection="column" flexGrow={1} paddingTop={1}>
+          <text fg={theme.fg1} wrapMode="word">
+            {`  What should ${selected.name} know? Its knowledge bases are searched before every answer, and it can search them itself.`}
+          </text>
+          <box flexDirection="column" height={VIEWPORT} flexShrink={0} marginTop={1}>
+            {kbBases.length === 0 ? (
+              <text fg={theme.fg2}>{"  No knowledge bases yet — make one in Knowledge (F6)."}</text>
+            ) : (
+              kbBases.slice(kbList.start, kbList.end).map((b, i) => {
+                const idx = kbList.start + i;
+                const on = kbPicked.includes(b.name);
+                return (
+                  <ListRow key={b.name} selected={idx === kbList.index} onSelect={() => kbList.setIndex(idx)}>
+                    <text>
+                      <span fg={on ? theme.success : theme.fg2}>{on ? " [✓] " : " [ ] "}</span>
+                      <span fg={idx === kbList.index ? theme.fg0 : theme.fg1}>{fit(b.name, 18).padEnd(19)}</span>
+                      <span fg={theme.fg2}>{fit(`${b.files} files · ${b.description}`, width - 34)}</span>
+                    </text>
+                  </ListRow>
+                );
+              })
             )}
           </box>
         </box>
