@@ -10,7 +10,7 @@
 
 </div>
 
-<p align="center"><img src="docs/media/chat.gif" alt="AIhub: a question, an answer that uses what AIhub remembers about you, live tok/s and context" width="900"></p>
+<p align="center"><img src="docs/media/hero.gif" alt="AIhub in twelve colour combinations: themes and accent colours" width="900"></p>
 
 AIhub is a keyboard-driven terminal app for the models you run yourself with
 [Ollama](https://ollama.com), on this computer or on a GPU box elsewhere on your
@@ -85,6 +85,8 @@ Uninstalling leaves `~/.aihub` in place.
 
 - **Chat** with streaming answers. It shows context fill and tokens/s, and
   whether the model runs on the GPU or the CPU. Answers render as Markdown.
+
+<p align="center"><img src="docs/media/chat.gif" alt="A question, an answer that uses what AIhub remembers about you, live tok/s and context" width="820"></p>
 - **Memory** (`E`). AIhub learns facts you mention while you chat and
   uses them in later chats. Every change shows up in the chat with an undo
   link, and you can read and edit the whole memory.

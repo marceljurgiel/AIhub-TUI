@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.2] - 2026-10-07
+### Changed
+- Trying themes one after another keeps a single "Theme → …" note in the
+  chat, updated in place, instead of one per change.
+- The README opens with AIhub in twelve colour combinations (`hero.gif`).
+
 ## [1.1.1] - 2026-10-07
 ### Fixed
 - Light theme: the logo gradient faded to near-white and disappeared; on a

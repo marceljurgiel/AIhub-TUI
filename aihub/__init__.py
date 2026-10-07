@@ -1,6 +1,6 @@
 import logging
 
-__version__ = "1.1.1"
+__version__ = "1.1.2"
 
 # Library default: engine modules log to "aihub.*" and stay silent unless a
 # front-end installs a handler (the bridge sends them to stderr, which the

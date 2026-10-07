@@ -4,7 +4,7 @@
 #   OLLAMA_SERVER=<address of an Ollama server> docs/media/record.sh [tape …]
 #
 # Needs podman. The server is reached as "gpu-box.lan" inside the recording,
-# so its real address never shows. Tapes: install chat agent models mcp skills memory theme.
+# so its real address never shows. Tapes: hero install chat agent models mcp skills memory theme.
 # MODEL=<name> picks the chat model (default nemotron-3-ultra:cloud).
 set -euo pipefail
 : "${OLLAMA_SERVER:?set OLLAMA_SERVER to your Ollama server, e.g. OLLAMA_SERVER=192.0.2.10}"
@@ -21,7 +21,7 @@ podman build -q -t aihub-vhs-demo --build-arg "MODEL=${MODEL:-nemotron-3-ultra:c
   -f "$work/Containerfile.demo" "$work" >/dev/null
 
 cp -r "$here/tapes" "$work/tapes"
-for tape in "${@:-install chat agent models mcp skills memory theme}"; do
+for tape in "${@:-hero install chat agent models mcp skills memory theme}"; do
   for t in $tape; do
     image=aihub-vhs-demo; [ "$t" = install ] && image=aihub-vhs-base
     echo "recording $t"
@@ -30,5 +30,16 @@ for tape in "${@:-install chat agent models mcp skills memory theme}"; do
       -v "$work/tapes:/vhs:Z" -v "$work/out:/vhs/out:Z" "$image" "/vhs/$t.tape"
   done
 done
+# hero.tape leaves one screenshot per colour combination: one looping GIF.
+if [ -e "$work/out/hero-00.png" ]; then
+  frames=$(cd "$work/out" && ls hero-[0-9][0-9].png | sort)
+  { for f in $frames; do printf "file '/out/%s'\nduration 0.9\n" "$f"; done
+    printf "file '/out/%s'\n" "$(echo "$frames" | tail -1)"; } > "$work/out/hero.txt"
+  podman run --rm -v "$work/out:/out:Z" --entrypoint ffmpeg aihub-vhs-base -v error -y \
+    -f concat -safe 0 -i /out/hero.txt -loop 0 \
+    -vf "scale=1200:-1:flags=lanczos,split[a][b];[a]palettegen=stats_mode=single[p];[b][p]paletteuse=new=1:dither=none" \
+    /out/hero.gif
+  rm -f "$work/out"/hero-[0-9][0-9].png "$work/out/hero-raw.gif" "$work/out/hero.txt"
+fi
 cp "$work/out/"* "$here/"
 echo "done — check the frames before committing (no real names, paths or addresses)"

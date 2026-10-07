@@ -12,6 +12,8 @@ OLLAMA_SERVER=192.0.2.10 docs/media/record.sh chat agent # some
 ```
 
 - The Ollama server appears as `gpu-box.lan` in the recordings.
+- `hero.tape` takes one screenshot per colour combination; `record.sh`
+  joins them into `hero.gif`, the README's top image.
 - `install.tape` serves `install.sh` and the release from your checkout,
   so it works before a release exists. It speeds through the downloads
   with a cut.

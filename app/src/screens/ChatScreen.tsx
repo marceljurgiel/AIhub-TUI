@@ -813,9 +813,16 @@ export function ChatScreen({
           onSave={(name, accent) =>
             bridge
               .request("config.set", { patch: { theme: name, accent } })
-              .then(() =>
-                addSystem(`Theme → ${THEMES[name]?.label ?? name}${accent ? `, ${ACCENTS[accent]?.label} accent` : ""}.`),
-              )
+              .then(() => {
+                // Trying several themes in a row: one note, updated, not a list.
+                const text = `Theme → ${THEMES[name]?.label ?? name}${accent ? `, ${ACCENTS[accent]?.label} accent` : ""}.`;
+                setLogItems((prev) => {
+                  const last = prev[prev.length - 1];
+                  return last?.kind === "system" && last.text.startsWith("Theme → ")
+                    ? [...prev.slice(0, -1), { kind: "system", text }]
+                    : [...prev, { kind: "system", text }];
+                });
+              })
               .catch(reportFailure("Saving the theme"))
           }
         />

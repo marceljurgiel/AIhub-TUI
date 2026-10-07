@@ -82,4 +82,13 @@ test("F2 opens the picker: arrows preview live, Esc restores, Enter saves", asyn
   setup.mockInput.pressEnter();
   await until((f) => f.includes("Theme → Catppuccin"), 40, "saved");
   expect(bridge.calls).toContainEqual(["config.set", { patch: { theme: "catppuccin", accent: "" } }]);
+
+  // Another change right after replaces the note instead of adding one.
+  setup.mockInput.pressKey("F2");
+  await until((f) => f.includes("Tokyo Night"));
+  setup.mockInput.pressArrow("down");
+  await until(() => activeTheme.name === "dracula");
+  setup.mockInput.pressEnter();
+  const f = await until((x) => x.includes("Theme → Dracula"), 40, "dracula");
+  expect(f).not.toContain("Theme → Catppuccin");
 });
