@@ -28,3 +28,7 @@ desktop.ini
 # Logs and local state — user data lives in ~/.aihub, never in the repo
 *.log
 .env
+
+# A developer's own Claude Code notes and agent memory (never published)
+CLAUDE.local.md
+.claude/

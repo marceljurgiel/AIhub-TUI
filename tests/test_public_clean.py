@@ -29,6 +29,20 @@ PLACEHOLDER_EMAILS = {"me@gmail.com", "you@gmail.com"}
 
 
 def _files():
+    """What can be published: tracked files plus untracked ones git wouldn't
+    ignore (a developer's ignored local notes are not the repo's content)."""
+    import subprocess
+    try:
+        out = subprocess.run(["git", "-C", ROOT, "ls-files", "--cached", "--others", "--exclude-standard"],
+                             capture_output=True, text=True, check=True).stdout.split("\n")
+    except (OSError, subprocess.CalledProcessError):
+        out = None
+    if out is not None:
+        for rel in filter(None, out):
+            if os.path.splitext(rel)[1] in TEXT_EXT and os.path.basename(rel) not in SKIP_FILES \
+                    and os.path.exists(os.path.join(ROOT, rel)):
+                yield os.path.join(ROOT, rel)
+        return
     for dirpath, dirs, files in os.walk(ROOT):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS and not d.endswith(".egg-info")]
         for f in files:
