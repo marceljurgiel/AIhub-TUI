@@ -1,0 +1,2892 @@
+[
+  {
+    "name": "llama3.2:1b",
+    "type": "chat",
+    "url": "llama3.2:1b",
+    "size_gb": 1.3,
+    "vram_required": 2,
+    "speed_category": "very fast",
+    "context_window": 131072,
+    "capabilities": [
+      "instruction following",
+      "multilingual"
+    ],
+    "use_cases": [
+      "quick Q&A",
+      "simple chat",
+      "low-resource environments"
+    ],
+    "tags": [
+      "General",
+      "Multilingual",
+      "Lightweight"
+    ],
+    "category": "small",
+    "description": "Tiny 1B Llama 3.2 \u2014 ultra-fast with 128k context. Best for simple tasks on constrained hardware.",
+    "source": "registry"
+  },
+  {
+    "name": "llama3.2:3b",
+    "type": "chat",
+    "url": "llama3.2:3b",
+    "size_gb": 2.0,
+    "vram_required": 4,
+    "speed_category": "very fast",
+    "context_window": 131072,
+    "capabilities": [
+      "instruction following",
+      "multilingual",
+      "tool calling"
+    ],
+    "use_cases": [
+      "general chat",
+      "quick answers",
+      "agent workflows"
+    ],
+    "tags": [
+      "General",
+      "Agentic",
+      "Tool Calling",
+      "Multilingual"
+    ],
+    "category": "small",
+    "description": "Compact 3B Llama 3.2 with native tool-calling and 128k context. Excellent speed-to-quality ratio.",
+    "source": "registry"
+  },
+  {
+    "name": "llama3.1:8b",
+    "type": "chat",
+    "url": "llama3.1:8b",
+    "size_gb": 4.7,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 131072,
+    "capabilities": [
+      "instruction following",
+      "tool calling",
+      "code",
+      "multilingual",
+      "agents"
+    ],
+    "use_cases": [
+      "general chat",
+      "coding assistant",
+      "agent workflows",
+      "summarization"
+    ],
+    "tags": [
+      "General",
+      "Agentic",
+      "Tool Calling",
+      "Code",
+      "Multilingual"
+    ],
+    "category": "medium",
+    "description": "Meta's Llama 3.1 8B \u2014 powerful general-purpose model with 128k context and excellent tool use.",
+    "source": "registry"
+  },
+  {
+    "name": "llama3.1:70b",
+    "type": "chat",
+    "url": "llama3.1:70b",
+    "size_gb": 40.0,
+    "vram_required": 48,
+    "speed_category": "slow",
+    "context_window": 131072,
+    "capabilities": [
+      "instruction following",
+      "tool calling",
+      "code",
+      "multilingual",
+      "agents",
+      "reasoning"
+    ],
+    "use_cases": [
+      "complex reasoning",
+      "advanced coding",
+      "research",
+      "long-form writing"
+    ],
+    "tags": [
+      "General",
+      "Agentic",
+      "Tool Calling",
+      "Code",
+      "Reasoning"
+    ],
+    "category": "xlarge",
+    "description": "Llama 3.1 70B \u2014 near-frontier quality for complex reasoning and coding. Requires significant VRAM.",
+    "source": "registry"
+  },
+  {
+    "name": "llama3.3:70b",
+    "type": "chat",
+    "url": "llama3.3:70b",
+    "size_gb": 43.0,
+    "vram_required": 48,
+    "speed_category": "slow",
+    "context_window": 131072,
+    "capabilities": [
+      "instruction following",
+      "tool calling",
+      "code",
+      "multilingual",
+      "agents",
+      "reasoning"
+    ],
+    "use_cases": [
+      "complex reasoning",
+      "advanced coding",
+      "research",
+      "enterprise chat"
+    ],
+    "tags": [
+      "General",
+      "Agentic",
+      "Tool Calling",
+      "Code",
+      "Reasoning",
+      "Multilingual"
+    ],
+    "category": "xlarge",
+    "description": "Llama 3.3 70B \u2014 improved quality over 3.1 70B with stronger instruction following and tool use.",
+    "source": "registry"
+  },
+  {
+    "name": "mistral:7b",
+    "type": "chat",
+    "url": "mistral:7b",
+    "size_gb": 4.1,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 32768,
+    "capabilities": [
+      "instruction following",
+      "code",
+      "multilingual"
+    ],
+    "use_cases": [
+      "general chat",
+      "coding assistant",
+      "summarization"
+    ],
+    "tags": [
+      "General",
+      "Code",
+      "Multilingual"
+    ],
+    "category": "medium",
+    "description": "Mistral 7B v0.3 \u2014 fast, highly capable 7B model with strong reasoning and code abilities.",
+    "source": "registry"
+  },
+  {
+    "name": "mistral-nemo:12b",
+    "type": "chat",
+    "url": "mistral-nemo:12b",
+    "size_gb": 7.1,
+    "vram_required": 10,
+    "speed_category": "medium",
+    "context_window": 131072,
+    "capabilities": [
+      "instruction following",
+      "tool calling",
+      "code",
+      "multilingual",
+      "function calling"
+    ],
+    "use_cases": [
+      "general chat",
+      "agent workflows",
+      "coding assistant",
+      "API integration"
+    ],
+    "tags": [
+      "General",
+      "Agentic",
+      "Tool Calling",
+      "Code",
+      "Multilingual"
+    ],
+    "category": "large",
+    "description": "Mistral Nemo 12B \u2014 128k context with native tool/function calling. Great for agentic tasks.",
+    "source": "registry"
+  },
+  {
+    "name": "mistral-small:22b",
+    "type": "chat",
+    "url": "mistral-small:22b",
+    "size_gb": 13.0,
+    "vram_required": 16,
+    "speed_category": "medium",
+    "context_window": 32768,
+    "capabilities": [
+      "instruction following",
+      "tool calling",
+      "code",
+      "multilingual",
+      "reasoning"
+    ],
+    "use_cases": [
+      "complex reasoning",
+      "coding assistant",
+      "enterprise chat",
+      "analysis"
+    ],
+    "tags": [
+      "General",
+      "Agentic",
+      "Tool Calling",
+      "Code",
+      "Reasoning"
+    ],
+    "category": "large",
+    "description": "Mistral Small 22B \u2014 strong mid-tier model with excellent instruction following and tool use.",
+    "source": "registry"
+  },
+  {
+    "name": "mixtral:8x7b",
+    "type": "chat",
+    "url": "mixtral:8x7b",
+    "size_gb": 26.0,
+    "vram_required": 32,
+    "speed_category": "medium",
+    "context_window": 32768,
+    "capabilities": [
+      "instruction following",
+      "code",
+      "multilingual",
+      "function calling"
+    ],
+    "use_cases": [
+      "general chat",
+      "coding assistant",
+      "multilingual tasks"
+    ],
+    "tags": [
+      "General",
+      "Code",
+      "Multilingual",
+      "MoE"
+    ],
+    "category": "xlarge",
+    "description": "Mistral MoE 8x7B \u2014 Mixture-of-Experts architecture, high quality with efficient inference.",
+    "source": "registry"
+  },
+  {
+    "name": "gemma2:2b",
+    "type": "chat",
+    "url": "gemma2:2b",
+    "size_gb": 1.6,
+    "vram_required": 3,
+    "speed_category": "very fast",
+    "context_window": 8192,
+    "capabilities": [
+      "instruction following",
+      "code"
+    ],
+    "use_cases": [
+      "simple chat",
+      "quick tasks",
+      "embedded devices"
+    ],
+    "tags": [
+      "General",
+      "Code",
+      "Lightweight"
+    ],
+    "category": "small",
+    "description": "Google Gemma 2 2B \u2014 ultra-lightweight and fast, excellent for resource-constrained deployments.",
+    "source": "registry"
+  },
+  {
+    "name": "gemma2:9b",
+    "type": "chat",
+    "url": "gemma2:9b",
+    "size_gb": 5.4,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 8192,
+    "capabilities": [
+      "instruction following",
+      "code",
+      "reasoning"
+    ],
+    "use_cases": [
+      "general chat",
+      "coding assistant",
+      "analysis"
+    ],
+    "tags": [
+      "General",
+      "Code",
+      "Reasoning"
+    ],
+    "category": "medium",
+    "description": "Google Gemma 2 9B \u2014 strong general-purpose model with excellent benchmark scores.",
+    "source": "registry"
+  },
+  {
+    "name": "gemma2:27b",
+    "type": "chat",
+    "url": "gemma2:27b",
+    "size_gb": 16.0,
+    "vram_required": 20,
+    "speed_category": "medium",
+    "context_window": 8192,
+    "capabilities": [
+      "instruction following",
+      "code",
+      "reasoning",
+      "multilingual"
+    ],
+    "use_cases": [
+      "complex reasoning",
+      "research",
+      "coding assistant",
+      "enterprise"
+    ],
+    "tags": [
+      "General",
+      "Code",
+      "Reasoning",
+      "Multilingual"
+    ],
+    "category": "xlarge",
+    "description": "Google Gemma 2 27B \u2014 largest Gemma 2, highly competitive with much larger models.",
+    "source": "registry"
+  },
+  {
+    "name": "phi3:mini",
+    "type": "chat",
+    "url": "phi3:mini",
+    "size_gb": 2.2,
+    "vram_required": 4,
+    "speed_category": "very fast",
+    "context_window": 128000,
+    "capabilities": [
+      "instruction following",
+      "code",
+      "reasoning"
+    ],
+    "use_cases": [
+      "quick coding",
+      "simple reasoning",
+      "edge deployments"
+    ],
+    "tags": [
+      "Code",
+      "Reasoning",
+      "Lightweight"
+    ],
+    "category": "small",
+    "description": "Microsoft Phi-3 Mini (3.8B) \u2014 128k context, surprisingly capable for its tiny size.",
+    "source": "registry"
+  },
+  {
+    "name": "phi3:medium",
+    "type": "chat",
+    "url": "phi3:medium",
+    "size_gb": 7.9,
+    "vram_required": 10,
+    "speed_category": "fast",
+    "context_window": 128000,
+    "capabilities": [
+      "instruction following",
+      "code",
+      "reasoning"
+    ],
+    "use_cases": [
+      "coding assistant",
+      "reasoning tasks",
+      "analysis"
+    ],
+    "tags": [
+      "Code",
+      "Reasoning"
+    ],
+    "category": "large",
+    "description": "Microsoft Phi-3 Medium (14B) \u2014 exceptional code and reasoning at compact size.",
+    "source": "registry"
+  },
+  {
+    "name": "phi4:14b",
+    "type": "chat",
+    "url": "phi4",
+    "size_gb": 9.1,
+    "vram_required": 10,
+    "speed_category": "medium",
+    "context_window": 16384,
+    "capabilities": [
+      "instruction following",
+      "code",
+      "reasoning",
+      "multilingual"
+    ],
+    "use_cases": [
+      "coding assistant",
+      "reasoning",
+      "research",
+      "general chat"
+    ],
+    "tags": [
+      "General",
+      "Code",
+      "Reasoning",
+      "Multilingual"
+    ],
+    "category": "large",
+    "description": "Microsoft Phi-4 (14B) \u2014 punches far above its weight class in reasoning and coding benchmarks.",
+    "source": "registry"
+  },
+  {
+    "name": "phi4-mini:3.8b",
+    "type": "chat",
+    "url": "phi4-mini",
+    "size_gb": 2.5,
+    "vram_required": 4,
+    "speed_category": "very fast",
+    "context_window": 16384,
+    "capabilities": [
+      "instruction following",
+      "code",
+      "reasoning",
+      "tool calling"
+    ],
+    "use_cases": [
+      "quick coding",
+      "agentic tasks",
+      "fast reasoning"
+    ],
+    "tags": [
+      "Code",
+      "Reasoning",
+      "Tool Calling",
+      "Lightweight"
+    ],
+    "category": "small",
+    "description": "Microsoft Phi-4 Mini (3.8B) \u2014 compact Phi-4 with tool calling. Excellent speed-to-quality.",
+    "source": "registry"
+  },
+  {
+    "name": "qwen2.5:0.5b",
+    "type": "chat",
+    "url": "qwen2.5:0.5b",
+    "size_gb": 0.4,
+    "vram_required": 1,
+    "speed_category": "very fast",
+    "context_window": 32768,
+    "capabilities": [
+      "instruction following",
+      "multilingual"
+    ],
+    "use_cases": [
+      "ultra-lightweight tasks",
+      "embedded AI",
+      "quick demos"
+    ],
+    "tags": [
+      "General",
+      "Multilingual",
+      "Lightweight"
+    ],
+    "category": "small",
+    "description": "Qwen 2.5 0.5B \u2014 the tiniest capable chat model. Ideal for resource-constrained environments.",
+    "source": "registry"
+  },
+  {
+    "name": "qwen2.5:1.5b",
+    "type": "chat",
+    "url": "qwen2.5:1.5b",
+    "size_gb": 1.0,
+    "vram_required": 2,
+    "speed_category": "very fast",
+    "context_window": 32768,
+    "capabilities": [
+      "instruction following",
+      "multilingual",
+      "code"
+    ],
+    "use_cases": [
+      "simple chat",
+      "quick Q&A",
+      "low-resource devices"
+    ],
+    "tags": [
+      "General",
+      "Code",
+      "Multilingual",
+      "Lightweight"
+    ],
+    "category": "small",
+    "description": "Qwen 2.5 1.5B \u2014 excellent small model for multilingual chat with code awareness.",
+    "source": "registry"
+  },
+  {
+    "name": "qwen2.5:3b",
+    "type": "chat",
+    "url": "qwen2.5:3b",
+    "size_gb": 2.0,
+    "vram_required": 4,
+    "speed_category": "very fast",
+    "context_window": 32768,
+    "capabilities": [
+      "instruction following",
+      "multilingual",
+      "code",
+      "tool calling"
+    ],
+    "use_cases": [
+      "general chat",
+      "coding help",
+      "multilingual assistant"
+    ],
+    "tags": [
+      "General",
+      "Code",
+      "Multilingual",
+      "Tool Calling"
+    ],
+    "category": "small",
+    "description": "Qwen 2.5 3B \u2014 strong small model with tool calling. Great multilingual support.",
+    "source": "registry"
+  },
+  {
+    "name": "qwen2.5:7b",
+    "type": "chat",
+    "url": "qwen2.5:7b",
+    "size_gb": 4.7,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 32768,
+    "capabilities": [
+      "instruction following",
+      "multilingual",
+      "code",
+      "tool calling",
+      "agents"
+    ],
+    "use_cases": [
+      "general chat",
+      "coding assistant",
+      "agent workflows",
+      "analysis"
+    ],
+    "tags": [
+      "General",
+      "Agentic",
+      "Tool Calling",
+      "Code",
+      "Multilingual"
+    ],
+    "category": "medium",
+    "description": "Qwen 2.5 7B \u2014 excellent all-rounder with strong Chinese/English bilingual ability and tool use.",
+    "source": "registry"
+  },
+  {
+    "name": "qwen2.5:14b",
+    "type": "chat",
+    "url": "qwen2.5:14b",
+    "size_gb": 9.0,
+    "vram_required": 12,
+    "speed_category": "medium",
+    "context_window": 32768,
+    "capabilities": [
+      "instruction following",
+      "multilingual",
+      "code",
+      "tool calling",
+      "agents",
+      "reasoning"
+    ],
+    "use_cases": [
+      "complex reasoning",
+      "coding assistant",
+      "enterprise chat",
+      "research"
+    ],
+    "tags": [
+      "General",
+      "Agentic",
+      "Tool Calling",
+      "Code",
+      "Reasoning",
+      "Multilingual"
+    ],
+    "category": "large",
+    "description": "Qwen 2.5 14B \u2014 near-frontier quality at a manageable size. Exceptional multilingual + tool support.",
+    "source": "registry"
+  },
+  {
+    "name": "qwen2.5:32b",
+    "type": "chat",
+    "url": "qwen2.5:32b",
+    "size_gb": 20.0,
+    "vram_required": 24,
+    "speed_category": "slow",
+    "context_window": 32768,
+    "capabilities": [
+      "instruction following",
+      "multilingual",
+      "code",
+      "tool calling",
+      "agents",
+      "reasoning"
+    ],
+    "use_cases": [
+      "advanced reasoning",
+      "long-form writing",
+      "enterprise AI",
+      "research"
+    ],
+    "tags": [
+      "General",
+      "Agentic",
+      "Tool Calling",
+      "Code",
+      "Reasoning",
+      "Multilingual"
+    ],
+    "category": "xlarge",
+    "description": "Qwen 2.5 32B \u2014 top-tier open model with superb instruction following and tool use.",
+    "source": "registry"
+  },
+  {
+    "name": "qwen2.5:72b",
+    "type": "chat",
+    "url": "qwen2.5:72b",
+    "size_gb": 47.0,
+    "vram_required": 56,
+    "speed_category": "slow",
+    "context_window": 32768,
+    "capabilities": [
+      "instruction following",
+      "multilingual",
+      "code",
+      "tool calling",
+      "agents",
+      "reasoning"
+    ],
+    "use_cases": [
+      "frontier-class reasoning",
+      "complex agents",
+      "research"
+    ],
+    "tags": [
+      "General",
+      "Agentic",
+      "Tool Calling",
+      "Code",
+      "Reasoning",
+      "Multilingual"
+    ],
+    "category": "xlarge",
+    "description": "Qwen 2.5 72B \u2014 frontier-class open model, among the best available for local deployment.",
+    "source": "registry"
+  },
+  {
+    "name": "qwen2.5-coder:1.5b",
+    "type": "chat",
+    "url": "qwen2.5-coder:1.5b",
+    "size_gb": 1.0,
+    "vram_required": 2,
+    "speed_category": "very fast",
+    "context_window": 32768,
+    "capabilities": [
+      "code",
+      "instruction following"
+    ],
+    "use_cases": [
+      "code completion",
+      "inline coding help"
+    ],
+    "tags": [
+      "Code",
+      "Lightweight"
+    ],
+    "category": "small",
+    "description": "Qwen 2.5 Coder 1.5B \u2014 elite tiny coding model, excellent autocomplete and code generation.",
+    "source": "registry"
+  },
+  {
+    "name": "qwen2.5-coder:7b",
+    "type": "chat",
+    "url": "qwen2.5-coder:7b",
+    "size_gb": 4.7,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 32768,
+    "capabilities": [
+      "code",
+      "instruction following",
+      "tool calling",
+      "function calling",
+      "agents"
+    ],
+    "use_cases": [
+      "coding assistant",
+      "code review",
+      "debugging",
+      "agent workflows"
+    ],
+    "tags": [
+      "Code",
+      "Agentic",
+      "Tool Calling"
+    ],
+    "category": "medium",
+    "description": "Qwen 2.5 Coder 7B \u2014 state-of-the-art coding model with native tool/function calling.",
+    "source": "registry"
+  },
+  {
+    "name": "qwen2.5-coder:14b",
+    "type": "chat",
+    "url": "qwen2.5-coder:14b",
+    "size_gb": 9.0,
+    "vram_required": 12,
+    "speed_category": "medium",
+    "context_window": 32768,
+    "capabilities": [
+      "code",
+      "instruction following",
+      "tool calling",
+      "function calling",
+      "agents",
+      "reasoning"
+    ],
+    "use_cases": [
+      "advanced coding",
+      "architecture design",
+      "debugging",
+      "code review"
+    ],
+    "tags": [
+      "Code",
+      "Agentic",
+      "Tool Calling",
+      "Reasoning"
+    ],
+    "category": "large",
+    "description": "Qwen 2.5 Coder 14B \u2014 top-tier coding model for complex programming tasks and agent use.",
+    "source": "registry"
+  },
+  {
+    "name": "qwen2.5-coder:32b",
+    "type": "chat",
+    "url": "qwen2.5-coder:32b",
+    "size_gb": 20.0,
+    "vram_required": 24,
+    "speed_category": "slow",
+    "context_window": 32768,
+    "capabilities": [
+      "code",
+      "instruction following",
+      "tool calling",
+      "function calling",
+      "agents",
+      "reasoning"
+    ],
+    "use_cases": [
+      "enterprise coding",
+      "complex system design",
+      "full-stack development"
+    ],
+    "tags": [
+      "Code",
+      "Agentic",
+      "Tool Calling",
+      "Reasoning"
+    ],
+    "category": "xlarge",
+    "description": "Qwen 2.5 Coder 32B \u2014 best-in-class local coding model, competitive with frontier models.",
+    "source": "registry"
+  },
+  {
+    "name": "deepseek-r1:1.5b",
+    "type": "chat",
+    "url": "deepseek-r1:1.5b",
+    "size_gb": 1.1,
+    "vram_required": 2,
+    "speed_category": "very fast",
+    "context_window": 65536,
+    "capabilities": [
+      "reasoning",
+      "code",
+      "instruction following"
+    ],
+    "use_cases": [
+      "chain-of-thought reasoning",
+      "math problems",
+      "quick analysis"
+    ],
+    "tags": [
+      "Reasoning",
+      "Code",
+      "Lightweight"
+    ],
+    "category": "small",
+    "description": "DeepSeek R1 1.5B distill \u2014 compact reasoning model with chain-of-thought capabilities.",
+    "source": "registry"
+  },
+  {
+    "name": "deepseek-r1:7b",
+    "type": "chat",
+    "url": "deepseek-r1:7b",
+    "size_gb": 4.7,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 65536,
+    "capabilities": [
+      "reasoning",
+      "code",
+      "instruction following",
+      "agents"
+    ],
+    "use_cases": [
+      "complex problem solving",
+      "coding with reasoning",
+      "research",
+      "math"
+    ],
+    "tags": [
+      "Reasoning",
+      "Code",
+      "Agentic"
+    ],
+    "category": "medium",
+    "description": "DeepSeek R1 7B distill \u2014 strong reasoning model that thinks step-by-step before answering.",
+    "source": "registry"
+  },
+  {
+    "name": "deepseek-r1:14b",
+    "type": "chat",
+    "url": "deepseek-r1:14b",
+    "size_gb": 9.0,
+    "vram_required": 12,
+    "speed_category": "medium",
+    "context_window": 65536,
+    "capabilities": [
+      "reasoning",
+      "code",
+      "instruction following",
+      "agents"
+    ],
+    "use_cases": [
+      "advanced reasoning",
+      "complex coding",
+      "research",
+      "math proofs"
+    ],
+    "tags": [
+      "Reasoning",
+      "Code",
+      "Agentic"
+    ],
+    "category": "large",
+    "description": "DeepSeek R1 14B distill \u2014 excellent reasoning at manageable size. Beats many larger models.",
+    "source": "registry"
+  },
+  {
+    "name": "deepseek-r1:32b",
+    "type": "chat",
+    "url": "deepseek-r1:32b",
+    "size_gb": 20.0,
+    "vram_required": 24,
+    "speed_category": "slow",
+    "context_window": 65536,
+    "capabilities": [
+      "reasoning",
+      "code",
+      "instruction following",
+      "agents"
+    ],
+    "use_cases": [
+      "frontier reasoning",
+      "complex problem solving",
+      "research"
+    ],
+    "tags": [
+      "Reasoning",
+      "Code",
+      "Agentic"
+    ],
+    "category": "xlarge",
+    "description": "DeepSeek R1 32B \u2014 near-frontier reasoning, competitive with o1-class models at key tasks.",
+    "source": "registry"
+  },
+  {
+    "name": "deepseek-r1:70b",
+    "type": "chat",
+    "url": "deepseek-r1:70b",
+    "size_gb": 44.0,
+    "vram_required": 48,
+    "speed_category": "slow",
+    "context_window": 65536,
+    "capabilities": [
+      "reasoning",
+      "code",
+      "instruction following",
+      "agents"
+    ],
+    "use_cases": [
+      "frontier reasoning",
+      "scientific research",
+      "advanced mathematics"
+    ],
+    "tags": [
+      "Reasoning",
+      "Code",
+      "Agentic"
+    ],
+    "category": "xlarge",
+    "description": "DeepSeek R1 70B \u2014 top-tier open reasoning model, competitive with the best closed models.",
+    "source": "registry"
+  },
+  {
+    "name": "deepseek-coder-v2:16b",
+    "type": "chat",
+    "url": "deepseek-coder-v2:16b",
+    "size_gb": 8.9,
+    "vram_required": 12,
+    "speed_category": "medium",
+    "context_window": 32768,
+    "capabilities": [
+      "code",
+      "instruction following",
+      "reasoning"
+    ],
+    "use_cases": [
+      "coding assistant",
+      "code review",
+      "algorithm design"
+    ],
+    "tags": [
+      "Code",
+      "Reasoning"
+    ],
+    "category": "large",
+    "description": "DeepSeek Coder V2 16B MoE \u2014 MoE coding model with strong multilingual code support.",
+    "source": "registry"
+  },
+  {
+    "name": "command-r:35b",
+    "type": "chat",
+    "url": "command-r:35b",
+    "size_gb": 20.0,
+    "vram_required": 24,
+    "speed_category": "slow",
+    "context_window": 131072,
+    "capabilities": [
+      "instruction following",
+      "tool calling",
+      "agents",
+      "rag",
+      "multilingual",
+      "function calling"
+    ],
+    "use_cases": [
+      "enterprise chat",
+      "RAG pipelines",
+      "agent workflows",
+      "document analysis"
+    ],
+    "tags": [
+      "General",
+      "Agentic",
+      "Tool Calling",
+      "RAG",
+      "Multilingual",
+      "Long Context"
+    ],
+    "category": "xlarge",
+    "description": "Cohere Command R 35B \u2014 optimized for RAG and agentic tasks with 128k context.",
+    "source": "registry"
+  },
+  {
+    "name": "command-r-plus:104b",
+    "type": "chat",
+    "url": "command-r-plus:104b",
+    "size_gb": 59.0,
+    "vram_required": 64,
+    "speed_category": "slow",
+    "context_window": 131072,
+    "capabilities": [
+      "instruction following",
+      "tool calling",
+      "agents",
+      "rag",
+      "multilingual",
+      "function calling",
+      "reasoning"
+    ],
+    "use_cases": [
+      "enterprise AI",
+      "complex RAG",
+      "advanced agent orchestration"
+    ],
+    "tags": [
+      "General",
+      "Agentic",
+      "Tool Calling",
+      "RAG",
+      "Reasoning",
+      "Long Context"
+    ],
+    "category": "xlarge",
+    "description": "Cohere Command R+ 104B \u2014 enterprise-grade model with best-in-class tool use and RAG.",
+    "source": "registry"
+  },
+  {
+    "name": "hermes3:8b",
+    "type": "chat",
+    "url": "hermes3:8b",
+    "size_gb": 4.9,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 131072,
+    "capabilities": [
+      "instruction following",
+      "tool calling",
+      "function calling",
+      "agents",
+      "code"
+    ],
+    "use_cases": [
+      "agent workflows",
+      "tool use",
+      "function calling",
+      "complex chat"
+    ],
+    "tags": [
+      "Agentic",
+      "Tool Calling",
+      "Code",
+      "Function Calling"
+    ],
+    "category": "medium",
+    "description": "Nous Hermes 3 8B (Llama 3.1 based) \u2014 excellent for agentic tasks and function calling.",
+    "source": "registry"
+  },
+  {
+    "name": "hermes3:70b",
+    "type": "chat",
+    "url": "hermes3:70b",
+    "size_gb": 43.0,
+    "vram_required": 48,
+    "speed_category": "slow",
+    "context_window": 131072,
+    "capabilities": [
+      "instruction following",
+      "tool calling",
+      "function calling",
+      "agents",
+      "code",
+      "reasoning"
+    ],
+    "use_cases": [
+      "complex agent orchestration",
+      "advanced function calling",
+      "research"
+    ],
+    "tags": [
+      "Agentic",
+      "Tool Calling",
+      "Code",
+      "Reasoning",
+      "Function Calling"
+    ],
+    "category": "xlarge",
+    "description": "Nous Hermes 3 70B \u2014 top-tier agentic model with exceptional function/tool calling.",
+    "source": "registry"
+  },
+  {
+    "name": "openhermes2.5:7b",
+    "type": "chat",
+    "url": "openhermes2.5:mistral-7b",
+    "size_gb": 4.1,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 32768,
+    "capabilities": [
+      "instruction following",
+      "code",
+      "agents"
+    ],
+    "use_cases": [
+      "general chat",
+      "coding help",
+      "roleplay",
+      "creative writing"
+    ],
+    "tags": [
+      "General",
+      "Code",
+      "Agentic"
+    ],
+    "category": "medium",
+    "description": "OpenHermes 2.5 (Mistral 7B) \u2014 fine-tuned for instruction following and creative tasks.",
+    "source": "registry"
+  },
+  {
+    "name": "codellama:7b",
+    "type": "chat",
+    "url": "codellama:7b",
+    "size_gb": 3.8,
+    "vram_required": 6,
+    "speed_category": "fast",
+    "context_window": 16384,
+    "capabilities": [
+      "code",
+      "instruction following"
+    ],
+    "use_cases": [
+      "coding assistant",
+      "code completion",
+      "code explanation"
+    ],
+    "tags": [
+      "Code"
+    ],
+    "category": "medium",
+    "description": "Meta CodeLlama 7B \u2014 specialized code generation and completion model.",
+    "source": "registry"
+  },
+  {
+    "name": "codellama:13b",
+    "type": "chat",
+    "url": "codellama:13b",
+    "size_gb": 7.4,
+    "vram_required": 10,
+    "speed_category": "medium",
+    "context_window": 16384,
+    "capabilities": [
+      "code",
+      "instruction following"
+    ],
+    "use_cases": [
+      "advanced coding",
+      "code review",
+      "documentation generation"
+    ],
+    "tags": [
+      "Code"
+    ],
+    "category": "large",
+    "description": "Meta CodeLlama 13B \u2014 stronger code model for complex programming tasks.",
+    "source": "registry"
+  },
+  {
+    "name": "codellama:34b",
+    "type": "chat",
+    "url": "codellama:34b",
+    "size_gb": 19.0,
+    "vram_required": 24,
+    "speed_category": "slow",
+    "context_window": 16384,
+    "capabilities": [
+      "code",
+      "instruction following",
+      "reasoning"
+    ],
+    "use_cases": [
+      "enterprise coding",
+      "complex algorithm design",
+      "refactoring"
+    ],
+    "tags": [
+      "Code",
+      "Reasoning"
+    ],
+    "category": "xlarge",
+    "description": "Meta CodeLlama 34B \u2014 powerful code model with strong reasoning for complex engineering.",
+    "source": "registry"
+  },
+  {
+    "name": "starcoder2:3b",
+    "type": "chat",
+    "url": "starcoder2:3b",
+    "size_gb": 1.7,
+    "vram_required": 3,
+    "speed_category": "very fast",
+    "context_window": 16384,
+    "capabilities": [
+      "code",
+      "instruction following"
+    ],
+    "use_cases": [
+      "code completion",
+      "lightweight coding AI",
+      "IDE integration"
+    ],
+    "tags": [
+      "Code",
+      "Lightweight"
+    ],
+    "category": "small",
+    "description": "StarCoder2 3B \u2014 fast, compact coding model supporting 600+ programming languages.",
+    "source": "registry"
+  },
+  {
+    "name": "starcoder2:7b",
+    "type": "chat",
+    "url": "starcoder2:7b",
+    "size_gb": 4.0,
+    "vram_required": 6,
+    "speed_category": "fast",
+    "context_window": 16384,
+    "capabilities": [
+      "code",
+      "instruction following"
+    ],
+    "use_cases": [
+      "code assistant",
+      "code generation",
+      "multilingual code"
+    ],
+    "tags": [
+      "Code"
+    ],
+    "category": "medium",
+    "description": "StarCoder2 7B \u2014 strong code model supporting a huge range of programming languages.",
+    "source": "registry"
+  },
+  {
+    "name": "bielik:7b",
+    "type": "chat",
+    "url": "bielik",
+    "size_gb": 4.7,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 4096,
+    "capabilities": [
+      "instruction following",
+      "multilingual"
+    ],
+    "use_cases": [
+      "Polish-language chat",
+      "documentation",
+      "translation"
+    ],
+    "tags": [
+      "Multilingual",
+      "Polish",
+      "General"
+    ],
+    "category": "medium",
+    "description": "Bielik 7B \u2014 Polish-optimized LLM, best-in-class for Polish-language tasks.",
+    "source": "registry"
+  },
+  {
+    "name": "solar:10.7b",
+    "type": "chat",
+    "url": "solar",
+    "size_gb": 6.1,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 4096,
+    "capabilities": [
+      "instruction following",
+      "code"
+    ],
+    "use_cases": [
+      "general chat",
+      "instruction following",
+      "analysis"
+    ],
+    "tags": [
+      "General",
+      "Code"
+    ],
+    "category": "medium",
+    "description": "Upstage Solar 10.7B \u2014 strong 10B class model using depth up-scaling architecture.",
+    "source": "registry"
+  },
+  {
+    "name": "orca-mini:3b",
+    "type": "chat",
+    "url": "orca-mini:3b",
+    "size_gb": 1.9,
+    "vram_required": 3,
+    "speed_category": "very fast",
+    "context_window": 4096,
+    "capabilities": [
+      "instruction following",
+      "reasoning"
+    ],
+    "use_cases": [
+      "quick Q&A",
+      "tutoring",
+      "concise answers"
+    ],
+    "tags": [
+      "General",
+      "Reasoning",
+      "Lightweight"
+    ],
+    "category": "small",
+    "description": "Orca Mini 3B \u2014 small model trained with explanation data for improved reasoning.",
+    "source": "registry"
+  },
+  {
+    "name": "falcon:7b",
+    "type": "chat",
+    "url": "falcon:7b",
+    "size_gb": 4.2,
+    "vram_required": 6,
+    "speed_category": "fast",
+    "context_window": 2048,
+    "capabilities": [
+      "instruction following",
+      "multilingual"
+    ],
+    "use_cases": [
+      "general chat",
+      "text generation"
+    ],
+    "tags": [
+      "General",
+      "Multilingual"
+    ],
+    "category": "medium",
+    "description": "TII Falcon 7B \u2014 Apache-licensed open model from Technology Innovation Institute.",
+    "source": "registry"
+  },
+  {
+    "name": "yi:6b",
+    "type": "chat",
+    "url": "yi:6b",
+    "size_gb": 3.5,
+    "vram_required": 6,
+    "speed_category": "fast",
+    "context_window": 4096,
+    "capabilities": [
+      "instruction following",
+      "multilingual",
+      "code"
+    ],
+    "use_cases": [
+      "Chinese/English bilingual chat",
+      "general tasks"
+    ],
+    "tags": [
+      "General",
+      "Code",
+      "Multilingual"
+    ],
+    "category": "medium",
+    "description": "01.AI Yi 6B \u2014 strong bilingual (Chinese/English) model with good instruction following.",
+    "source": "registry"
+  },
+  {
+    "name": "yi:34b",
+    "type": "chat",
+    "url": "yi:34b",
+    "size_gb": 19.0,
+    "vram_required": 24,
+    "speed_category": "slow",
+    "context_window": 4096,
+    "capabilities": [
+      "instruction following",
+      "multilingual",
+      "code",
+      "reasoning"
+    ],
+    "use_cases": [
+      "advanced bilingual tasks",
+      "complex reasoning",
+      "research"
+    ],
+    "tags": [
+      "General",
+      "Code",
+      "Reasoning",
+      "Multilingual"
+    ],
+    "category": "xlarge",
+    "description": "01.AI Yi 34B \u2014 large-scale bilingual model with excellent reasoning capabilities.",
+    "source": "registry"
+  },
+  {
+    "name": "llava:7b",
+    "type": "chat",
+    "url": "llava:7b",
+    "size_gb": 4.7,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 4096,
+    "capabilities": [
+      "instruction following",
+      "code"
+    ],
+    "use_cases": [
+      "general chat",
+      "instruction following"
+    ],
+    "tags": [
+      "General",
+      "Code"
+    ],
+    "category": "medium",
+    "description": "LLaVA 7B \u2014 instruction-tuned multimodal, strong text-only chat capability.",
+    "source": "registry"
+  },
+  {
+    "name": "neural-chat:7b",
+    "type": "chat",
+    "url": "neural-chat:7b",
+    "size_gb": 4.1,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 4096,
+    "capabilities": [
+      "instruction following",
+      "multilingual"
+    ],
+    "use_cases": [
+      "conversational AI",
+      "customer support simulation",
+      "general chat"
+    ],
+    "tags": [
+      "General",
+      "Multilingual"
+    ],
+    "category": "medium",
+    "description": "Intel Neural Chat 7B \u2014 optimized for conversational use, fine-tuned on diverse chat data.",
+    "source": "registry"
+  },
+  {
+    "name": "vicuna:7b",
+    "type": "chat",
+    "url": "vicuna:7b",
+    "size_gb": 3.8,
+    "vram_required": 6,
+    "speed_category": "fast",
+    "context_window": 4096,
+    "capabilities": [
+      "instruction following",
+      "code"
+    ],
+    "use_cases": [
+      "general chat",
+      "instruction following",
+      "language tasks"
+    ],
+    "tags": [
+      "General",
+      "Code"
+    ],
+    "category": "medium",
+    "description": "Vicuna 7B \u2014 fine-tuned LLaMA with strong conversational ability via ShareGPT data.",
+    "source": "registry"
+  },
+  {
+    "name": "wizardlm2:7b",
+    "type": "chat",
+    "url": "wizardlm2:7b",
+    "size_gb": 4.2,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 32768,
+    "capabilities": [
+      "instruction following",
+      "code",
+      "reasoning"
+    ],
+    "use_cases": [
+      "complex instructions",
+      "coding",
+      "analysis"
+    ],
+    "tags": [
+      "General",
+      "Code",
+      "Reasoning"
+    ],
+    "category": "medium",
+    "description": "WizardLM 2 7B \u2014 trained with Evol-Instruct for outstanding instruction following.",
+    "source": "registry"
+  },
+  {
+    "name": "stablelm2:1.6b",
+    "type": "chat",
+    "url": "stablelm2:1.6b",
+    "size_gb": 1.0,
+    "vram_required": 2,
+    "speed_category": "very fast",
+    "context_window": 4096,
+    "capabilities": [
+      "instruction following",
+      "multilingual"
+    ],
+    "use_cases": [
+      "edge AI",
+      "very low-resource chat",
+      "quick prototyping"
+    ],
+    "tags": [
+      "General",
+      "Multilingual",
+      "Lightweight"
+    ],
+    "category": "small",
+    "description": "StableLM 2 1.6B \u2014 fast, multilingual (7 language) tiny model from Stability AI.",
+    "source": "registry"
+  },
+  {
+    "name": "tinyllama:1b",
+    "type": "chat",
+    "url": "tinyllama",
+    "size_gb": 0.6,
+    "vram_required": 1,
+    "speed_category": "very fast",
+    "context_window": 2048,
+    "capabilities": [
+      "instruction following"
+    ],
+    "use_cases": [
+      "ultra-lightweight experiments",
+      "benchmarking",
+      "IoT/edge"
+    ],
+    "tags": [
+      "Lightweight"
+    ],
+    "category": "small",
+    "description": "TinyLlama 1B \u2014 minimal footprint, good for experiments where size matters most.",
+    "source": "registry"
+  },
+  {
+    "name": "gpt-4o",
+    "type": "chat",
+    "url": "api://openai/gpt-4o",
+    "size_gb": 0,
+    "vram_required": 0,
+    "speed_category": "fast",
+    "context_window": 128000,
+    "capabilities": [
+      "instruction following",
+      "tool calling",
+      "function calling",
+      "code",
+      "reasoning",
+      "multilingual",
+      "agents",
+      "long context"
+    ],
+    "use_cases": [
+      "frontier AI",
+      "complex coding",
+      "enterprise chat",
+      "agent orchestration"
+    ],
+    "tags": [
+      "General",
+      "API",
+      "Agentic",
+      "Tool Calling",
+      "Code",
+      "Reasoning"
+    ],
+    "category": "small",
+    "description": "OpenAI GPT-4o via cloud API. No local VRAM required. Frontier-class performance.",
+    "source": "registry"
+  },
+  {
+    "name": "claude-3-5-sonnet",
+    "type": "chat",
+    "url": "api://anthropic/claude-3.5-sonnet",
+    "size_gb": 0,
+    "vram_required": 0,
+    "speed_category": "fast",
+    "context_window": 200000,
+    "capabilities": [
+      "instruction following",
+      "tool calling",
+      "function calling",
+      "code",
+      "reasoning",
+      "multilingual",
+      "agents",
+      "long context"
+    ],
+    "use_cases": [
+      "advanced coding",
+      "research",
+      "document analysis",
+      "enterprise AI"
+    ],
+    "tags": [
+      "Code",
+      "API",
+      "Agentic",
+      "Tool Calling",
+      "Reasoning",
+      "Long Context"
+    ],
+    "category": "small",
+    "description": "Anthropic Claude 3.5 Sonnet via cloud API. Best-in-class for coding. 200k context.",
+    "source": "registry"
+  },
+  {
+    "name": "llama3.1:405b",
+    "type": "chat",
+    "url": "llama3.1:405b",
+    "size_gb": 230.0,
+    "vram_required": 240,
+    "speed_category": "slow",
+    "context_window": 131072,
+    "capabilities": [
+      "instruction following",
+      "tool calling",
+      "code",
+      "multilingual",
+      "reasoning",
+      "agents"
+    ],
+    "use_cases": [
+      "frontier reasoning",
+      "advanced research",
+      "complex coding",
+      "scientific analysis"
+    ],
+    "tags": [
+      "General",
+      "Reasoning",
+      "Code",
+      "Tool Calling",
+      "Multilingual"
+    ],
+    "category": "xlarge",
+    "description": "Meta Llama 3.1 405B \u2014 the ultimate open-weights model, beating GPT-4o on many benchmarks.",
+    "source": "registry"
+  },
+  {
+    "name": "llama3:8b",
+    "type": "chat",
+    "url": "llama3:8b",
+    "size_gb": 4.7,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 8192,
+    "capabilities": [
+      "instruction following",
+      "code",
+      "multilingual"
+    ],
+    "use_cases": [
+      "general chat",
+      "daily tasks",
+      "coding assistant"
+    ],
+    "tags": [
+      "General",
+      "Code",
+      "Multilingual"
+    ],
+    "category": "medium",
+    "description": "Original Meta Llama 3 8B \u2014 fast and efficient for diverse tasks.",
+    "source": "registry"
+  },
+  {
+    "name": "llama3:70b",
+    "type": "chat",
+    "url": "llama3:70b",
+    "size_gb": 40.0,
+    "vram_required": 48,
+    "speed_category": "slow",
+    "context_window": 8192,
+    "capabilities": [
+      "instruction following",
+      "code",
+      "multilingual",
+      "reasoning"
+    ],
+    "use_cases": [
+      "complex reasoning",
+      "creative writing",
+      "advanced analysis"
+    ],
+    "tags": [
+      "General",
+      "Code",
+      "Reasoning"
+    ],
+    "category": "xlarge",
+    "description": "Original Meta Llama 3 70B \u2014 highly capable reasoning model for large-scale tasks.",
+    "source": "registry"
+  },
+  {
+    "name": "codestral:22b",
+    "type": "chat",
+    "url": "codestral",
+    "size_gb": 13.0,
+    "vram_required": 24,
+    "speed_category": "medium",
+    "context_window": 32768,
+    "capabilities": [
+      "code",
+      "instruction following",
+      "reasoning"
+    ],
+    "use_cases": [
+      "advanced coding",
+      "software engineering",
+      "algorithm optimization"
+    ],
+    "tags": [
+      "Code",
+      "Reasoning"
+    ],
+    "category": "large",
+    "description": "Mistral Codestral 22B \u2014 state-of-the-art coding model with strong logic.",
+    "source": "registry"
+  },
+  {
+    "name": "mistral-large:123b",
+    "type": "chat",
+    "url": "mistral-large",
+    "size_gb": 70.0,
+    "vram_required": 80,
+    "speed_category": "slow",
+    "context_window": 128000,
+    "capabilities": [
+      "instruction following",
+      "reasoning",
+      "multilingual",
+      "tool calling"
+    ],
+    "use_cases": [
+      "complex reasoning",
+      "enterprise chat",
+      "accurate translation"
+    ],
+    "tags": [
+      "General",
+      "Reasoning",
+      "Multilingual",
+      "Tool Calling"
+    ],
+    "category": "xlarge",
+    "description": "Mistral Large 2 (123B) \u2014 frontier-class performance for complex enterprise tasks.",
+    "source": "registry"
+  },
+  {
+    "name": "smollm:135m",
+    "type": "chat",
+    "url": "smollm:135m",
+    "size_gb": 0.1,
+    "vram_required": 1,
+    "speed_category": "very fast",
+    "context_window": 2048,
+    "capabilities": [
+      "instruction following"
+    ],
+    "use_cases": [
+      "educational use",
+      "extreme low-resource devices",
+      "mobile demos"
+    ],
+    "tags": [
+      "Lightweight",
+      "General"
+    ],
+    "category": "small",
+    "description": "Hugging Face SmolLM 135M \u2014 ultra-fast tiny model for edge devices.",
+    "source": "registry"
+  },
+  {
+    "name": "smollm:360m",
+    "type": "chat",
+    "url": "smollm:360m",
+    "size_gb": 0.2,
+    "vram_required": 1,
+    "speed_category": "very fast",
+    "context_window": 2048,
+    "capabilities": [
+      "instruction following"
+    ],
+    "use_cases": [
+      "embedded AI",
+      "fast demos",
+      "lightweight automation"
+    ],
+    "tags": [
+      "Lightweight",
+      "General"
+    ],
+    "category": "small",
+    "description": "SmolLM 360M \u2014 balanced tiny model for basic conversational tasks.",
+    "source": "registry"
+  },
+  {
+    "name": "smollm:1.7b",
+    "type": "chat",
+    "url": "smollm:1.7b",
+    "size_gb": 1.1,
+    "vram_required": 2,
+    "speed_category": "very fast",
+    "context_window": 2048,
+    "capabilities": [
+      "instruction following",
+      "code"
+    ],
+    "use_cases": [
+      "on-device chat assistant",
+      "quick Q&A",
+      "simple coding"
+    ],
+    "tags": [
+      "Lightweight",
+      "General",
+      "Code"
+    ],
+    "category": "small",
+    "description": "SmolLM 1.7B \u2014 surprisingly capable for its size, handles basic logic and code well.",
+    "source": "registry"
+  },
+  {
+    "name": "granite3-dense:2b",
+    "type": "chat",
+    "url": "granite3-dense:2b",
+    "size_gb": 1.4,
+    "vram_required": 3,
+    "speed_category": "very fast",
+    "context_window": 128000,
+    "capabilities": [
+      "instruction following",
+      "tool calling",
+      "code",
+      "multilingual"
+    ],
+    "use_cases": [
+      "enterprise chat",
+      "RAG pipelines",
+      "agentic automation"
+    ],
+    "tags": [
+      "Enterprise",
+      "General",
+      "Tool Calling"
+    ],
+    "category": "small",
+    "description": "IBM Granite 3.0 2B \u2014 enterprise-hardened and safe, optimized for tool use.",
+    "source": "registry"
+  },
+  {
+    "name": "granite3-dense:8b",
+    "type": "chat",
+    "url": "granite3-dense:8b",
+    "size_gb": 5.2,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 128000,
+    "capabilities": [
+      "instruction following",
+      "tool calling",
+      "code",
+      "reasoning"
+    ],
+    "use_cases": [
+      "business analysis",
+      "complex RAG",
+      "enterprise coding assistant"
+    ],
+    "tags": [
+      "Enterprise",
+      "General",
+      "Code",
+      "Tool Calling"
+    ],
+    "category": "medium",
+    "description": "IBM Granite 3.0 8B \u2014 powerful business-oriented model with strong logic and tool integration.",
+    "source": "registry"
+  },
+  {
+    "name": "granite3-moe:1b",
+    "type": "chat",
+    "url": "granite3-moe:1b",
+    "size_gb": 0.8,
+    "vram_required": 2,
+    "speed_category": "very fast",
+    "context_window": 128000,
+    "capabilities": [
+      "instruction following",
+      "tool calling",
+      "code"
+    ],
+    "use_cases": [
+      "ultra-efficient RAG",
+      "embedded agents",
+      "mobile enterprise AI"
+    ],
+    "tags": [
+      "Enterprise",
+      "MoE",
+      "Lightweight"
+    ],
+    "category": "small",
+    "description": "IBM Granite 3.0 MoE 1B \u2014 Mixture-of-Experts efficiency at a tiny scale.",
+    "source": "registry"
+  },
+  {
+    "name": "granite3-moe:3b",
+    "type": "chat",
+    "url": "granite3-moe:3b",
+    "size_gb": 2.2,
+    "vram_required": 4,
+    "speed_category": "very fast",
+    "context_window": 128000,
+    "capabilities": [
+      "instruction following",
+      "tool calling",
+      "code"
+    ],
+    "use_cases": [
+      "fast enterprise search",
+      "reliable agents",
+      "low-latency chat"
+    ],
+    "tags": [
+      "Enterprise",
+      "MoE",
+      "General"
+    ],
+    "category": "small",
+    "description": "IBM Granite 3.0 MoE 3B \u2014 extreme efficiency with solid capability for business tasks.",
+    "source": "registry"
+  },
+  {
+    "name": "aya:8b",
+    "type": "chat",
+    "url": "aya:8b",
+    "size_gb": 4.8,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 8192,
+    "capabilities": [
+      "multilingual",
+      "instruction following",
+      "translation"
+    ],
+    "use_cases": [
+      "multilingual chat",
+      "complex translation",
+      "cultural context tasks"
+    ],
+    "tags": [
+      "Multilingual",
+      "General"
+    ],
+    "category": "medium",
+    "description": "Cohere Aya 8B \u2014 state-of-the-art multilingual model supporting 23+ languages.",
+    "source": "registry"
+  },
+  {
+    "name": "aya:35b",
+    "type": "chat",
+    "url": "aya:35b",
+    "size_gb": 20.0,
+    "vram_required": 24,
+    "speed_category": "slow",
+    "context_window": 8192,
+    "capabilities": [
+      "multilingual",
+      "instruction following",
+      "reasoning",
+      "translation"
+    ],
+    "use_cases": [
+      "frontier multilingual AI",
+      "global enterprise support",
+      "literature translation"
+    ],
+    "tags": [
+      "Multilingual",
+      "Reasoning",
+      "General"
+    ],
+    "category": "xlarge",
+    "description": "Cohere Aya 35B \u2014 massive multilingual capability with strong analytical reasoning.",
+    "source": "registry"
+  },
+  {
+    "name": "opencoder:1.5b",
+    "type": "chat",
+    "url": "opencoder:1.5b",
+    "size_gb": 1.0,
+    "vram_required": 2,
+    "speed_category": "very fast",
+    "context_window": 8192,
+    "capabilities": [
+      "code",
+      "instruction following"
+    ],
+    "use_cases": [
+      "inline autocomplete",
+      "quick scripts",
+      "low-resource coding AI"
+    ],
+    "tags": [
+      "Code",
+      "Lightweight"
+    ],
+    "category": "small",
+    "description": "OpenCoder 1.5B \u2014 transparent, open-weights coding model for lightweight use.",
+    "source": "registry"
+  },
+  {
+    "name": "opencoder:8b",
+    "type": "chat",
+    "url": "opencoder:8b",
+    "size_gb": 5.1,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 8192,
+    "capabilities": [
+      "code",
+      "instruction following",
+      "reasoning"
+    ],
+    "use_cases": [
+      "software development",
+      "code review",
+      "debugging assistant"
+    ],
+    "tags": [
+      "Code",
+      "Reasoning"
+    ],
+    "category": "medium",
+    "description": "OpenCoder 8B \u2014 high-quality open coding model with strong performance on engineering tasks.",
+    "source": "registry"
+  },
+  {
+    "name": "starcoder2:15b",
+    "type": "chat",
+    "url": "starcoder2:15b",
+    "size_gb": 9.0,
+    "vram_required": 16,
+    "speed_category": "medium",
+    "context_window": 16384,
+    "capabilities": [
+      "code",
+      "instruction following"
+    ],
+    "use_cases": [
+      "advanced coding",
+      "supporting dozens of languages",
+      "enterprise SWE"
+    ],
+    "tags": [
+      "Code"
+    ],
+    "category": "large",
+    "description": "StarCoder2 15B \u2014 massive training on source code, supporting a vast array of programming languages.",
+    "source": "registry"
+  },
+  {
+    "name": "codegeex4:9b",
+    "type": "chat",
+    "url": "codegeex4",
+    "size_gb": 5.5,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 128000,
+    "capabilities": [
+      "code",
+      "translation",
+      "instruction following"
+    ],
+    "use_cases": [
+      "bilingual coding (CN/EN)",
+      "API generation",
+      "multilingual code assistance"
+    ],
+    "tags": [
+      "Code",
+      "Multilingual"
+    ],
+    "category": "medium",
+    "description": "CodeGeeX4 9B \u2014 elite coding model with 128k context and excellent multilingual support.",
+    "source": "registry"
+  },
+  {
+    "name": "deepseek-v3",
+    "type": "chat",
+    "url": "api://deepseek/deepseek-chat",
+    "size_gb": 0,
+    "vram_required": 0,
+    "speed_category": "fast",
+    "context_window": 64000,
+    "capabilities": [
+      "instruction following",
+      "code",
+      "reasoning",
+      "tool calling",
+      "agents"
+    ],
+    "use_cases": [
+      "frontier chat",
+      "advanced coding",
+      "complex project design"
+    ],
+    "tags": [
+      "API",
+      "General",
+      "Code",
+      "Reasoning",
+      "Agentic"
+    ],
+    "category": "small",
+    "description": "DeepSeek V3 \u2014 frontier-class model via API, ultra-capable and efficient.",
+    "source": "registry"
+  },
+  {
+    "name": "deepseek-coder:33b",
+    "type": "chat",
+    "url": "deepseek-coder:33b",
+    "size_gb": 19.0,
+    "vram_required": 24,
+    "speed_category": "slow",
+    "context_window": 16384,
+    "capabilities": [
+      "code",
+      "instruction following",
+      "reasoning"
+    ],
+    "use_cases": [
+      "enterprise coding assistant",
+      "complex algorithm design",
+      "full-stack development"
+    ],
+    "tags": [
+      "Code",
+      "Reasoning"
+    ],
+    "category": "xlarge",
+    "description": "DeepSeek Coder 33B \u2014 heavy-duty coding model known for reaching GPT-4 level logic in programming.",
+    "source": "registry"
+  },
+  {
+    "name": "reflection:70b",
+    "type": "chat",
+    "url": "reflection",
+    "size_gb": 42.0,
+    "vram_required": 48,
+    "speed_category": "slow",
+    "context_window": 128000,
+    "capabilities": [
+      "reasoning",
+      "instruction following",
+      "self-correction"
+    ],
+    "use_cases": [
+      "extremely complex logic",
+      "fact checking",
+      "logical evaluation"
+    ],
+    "tags": [
+      "Reasoning",
+      "Logic",
+      "General"
+    ],
+    "category": "xlarge",
+    "description": "Reflection 70B \u2014 Llama 3 based model with a specialized strategy for self-correction and reasoning.",
+    "source": "registry"
+  },
+  {
+    "name": "nemotron:70b",
+    "type": "chat",
+    "url": "nemotron",
+    "size_gb": 42.0,
+    "vram_required": 48,
+    "speed_category": "slow",
+    "context_window": 131072,
+    "capabilities": [
+      "instruction following",
+      "reasoning",
+      "social help"
+    ],
+    "use_cases": [
+      "natural chat",
+      "roleplay",
+      "advanced reasoning",
+      "creative tasks"
+    ],
+    "tags": [
+      "General",
+      "Reasoning",
+      "NVIDIA"
+    ],
+    "category": "xlarge",
+    "description": "NVIDIA Llama-3.1 Nemotron 70B \u2014 optimized for helpfulness and natural conversation.",
+    "source": "registry"
+  },
+  {
+    "name": "dolphin-llama3:8b",
+    "type": "chat",
+    "url": "dolphin-llama3",
+    "size_gb": 4.7,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 8192,
+    "capabilities": [
+      "instruction following",
+      "code",
+      "uncensored"
+    ],
+    "use_cases": [
+      "unfiltered chat",
+      "creative roleplay",
+      "general instructions"
+    ],
+    "tags": [
+      "Uncensored",
+      "General"
+    ],
+    "category": "medium",
+    "description": "Dolphin Llama 3 8B \u2014 uncensored and highly helpful fine-tune of Llama 3.",
+    "source": "registry"
+  },
+  {
+    "name": "dolphin-mixtral:8x7b",
+    "type": "chat",
+    "url": "dolphin-mixtral",
+    "size_gb": 26.0,
+    "vram_required": 32,
+    "speed_category": "medium",
+    "context_window": 32768,
+    "capabilities": [
+      "instruction following",
+      "code",
+      "uncensored",
+      "multilingual"
+    ],
+    "use_cases": [
+      "complex unfiltered tasks",
+      "roleplay",
+      "diverse analytical tasks"
+    ],
+    "tags": [
+      "Uncensored",
+      "MoE",
+      "General"
+    ],
+    "category": "xlarge",
+    "description": "Dolphin Mixtral 8x7B \u2014 uncensored Mixture-of-Experts model for general-purpose use.",
+    "source": "registry"
+  },
+  {
+    "name": "starling-lm:7b",
+    "type": "chat",
+    "url": "starling-lm:7b",
+    "size_gb": 4.1,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 8192,
+    "capabilities": [
+      "instruction following",
+      "chat",
+      "balanced"
+    ],
+    "use_cases": [
+      "high-quality chat",
+      "general instructions",
+      "RLHF optimized tasks"
+    ],
+    "tags": [
+      "General",
+      "Chat",
+      "RLHF"
+    ],
+    "category": "medium",
+    "description": "Starling LM 7B \u2014 highly ranked open model optimized via human feedback (RLHF).",
+    "source": "registry"
+  },
+  {
+    "name": "tinyllama:1.1b",
+    "type": "chat",
+    "url": "tinyllama",
+    "size_gb": 0.6,
+    "vram_required": 1,
+    "speed_category": "very fast",
+    "context_window": 2048,
+    "capabilities": [
+      "instruction following"
+    ],
+    "use_cases": [
+      "edge computing",
+      "mobile demos",
+      "educational tools"
+    ],
+    "tags": [
+      "Lightweight",
+      "General"
+    ],
+    "category": "small",
+    "description": "TinyLlama 1.1B \u2014 surprisingly fast and capable for its miniature footprint.",
+    "source": "registry"
+  },
+  {
+    "name": "gemma:2b",
+    "type": "chat",
+    "url": "gemma:2b",
+    "size_gb": 1.6,
+    "vram_required": 3,
+    "speed_category": "very fast",
+    "context_window": 8192,
+    "capabilities": [
+      "instruction following",
+      "code"
+    ],
+    "use_cases": [
+      "simple chat",
+      "lightweight automation"
+    ],
+    "tags": [
+      "General",
+      "Google"
+    ],
+    "category": "small",
+    "description": "Original Google Gemma 1.0 2B \u2014 versatile lightweight model.",
+    "source": "registry"
+  },
+  {
+    "name": "gemma:7b",
+    "type": "chat",
+    "url": "gemma:7b",
+    "size_gb": 5.0,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 8192,
+    "capabilities": [
+      "instruction following",
+      "code",
+      "reasoning"
+    ],
+    "use_cases": [
+      "general assistant",
+      "analytical tasks",
+      "coding help"
+    ],
+    "tags": [
+      "General",
+      "Code",
+      "Google"
+    ],
+    "category": "medium",
+    "description": "Original Google Gemma 1.0 7B \u2014 strong general-purpose model.",
+    "source": "registry"
+  },
+  {
+    "name": "phi:2.7b",
+    "type": "chat",
+    "url": "phi",
+    "size_gb": 1.6,
+    "vram_required": 3,
+    "speed_category": "very fast",
+    "context_window": 2048,
+    "capabilities": [
+      "instruction following",
+      "reasoning",
+      "code"
+    ],
+    "use_cases": [
+      "quick Q&A",
+      "logical puzzles",
+      "minor code tasks"
+    ],
+    "tags": [
+      "General",
+      "Reasoning",
+      "Microsoft"
+    ],
+    "category": "small",
+    "description": "Microsoft Phi-2 (2.7B) \u2014 punched above its weight in logic and reasoning benchmarks during its launch.",
+    "source": "registry"
+  },
+  {
+    "name": "stable-lm2-zephyr:1.6b",
+    "type": "chat",
+    "url": "stable-lm2:1.6b",
+    "size_gb": 1.0,
+    "vram_required": 2,
+    "speed_category": "very fast",
+    "context_window": 4096,
+    "capabilities": [
+      "instruction following",
+      "chat"
+    ],
+    "use_cases": [
+      "fast mobile agents",
+      "edge chat",
+      "quick automation"
+    ],
+    "tags": [
+      "General",
+      "Lightweight"
+    ],
+    "category": "small",
+    "description": "Stability AI StableLM-2 1.6B \u2014 optimized for speed and on-device use.",
+    "source": "registry"
+  },
+  {
+    "name": "stable-beluga:7b",
+    "type": "chat",
+    "url": "stable-beluga:7b",
+    "size_gb": 3.8,
+    "vram_required": 6,
+    "speed_category": "fast",
+    "context_window": 4096,
+    "capabilities": [
+      "instruction following",
+      "creative"
+    ],
+    "use_cases": [
+      "general chat",
+      "writing assist"
+    ],
+    "tags": [
+      "General",
+      "Creative"
+    ],
+    "category": "medium",
+    "description": "Stable Beluga 7B \u2014 Llama 2 based fine-tune with a focus on instruction following.",
+    "source": "registry"
+  },
+  {
+    "name": "stable-beluga:13b",
+    "type": "chat",
+    "url": "stable-beluga:13b",
+    "size_gb": 7.3,
+    "vram_required": 12,
+    "speed_category": "medium",
+    "context_window": 4096,
+    "capabilities": [
+      "instruction following",
+      "reasoning",
+      "creative"
+    ],
+    "use_cases": [
+      "advanced writing",
+      "analytical tasks",
+      "complex chat"
+    ],
+    "tags": [
+      "General",
+      "Reasoning",
+      "Creative"
+    ],
+    "category": "large",
+    "description": "Stable Beluga 13B \u2014 larger Beluga model with refined instruction following.",
+    "source": "registry"
+  },
+  {
+    "name": "nexusraven:13b",
+    "type": "chat",
+    "url": "nexusraven",
+    "size_gb": 7.4,
+    "vram_required": 12,
+    "speed_category": "medium",
+    "context_window": 4096,
+    "capabilities": [
+      "tool calling",
+      "function calling",
+      "instruction following"
+    ],
+    "use_cases": [
+      "agent workflows",
+      "API integration",
+      "complex tool orchestration"
+    ],
+    "tags": [
+      "Tool Calling",
+      "Agentic",
+      "General"
+    ],
+    "category": "large",
+    "description": "NexusRaven V2 13B \u2014 specialized in zero-shot tool use and API calls.",
+    "source": "registry"
+  },
+  {
+    "name": "snorkellm:7b",
+    "type": "chat",
+    "url": "snorkellm",
+    "size_gb": 4.1,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 32768,
+    "capabilities": [
+      "instruction following",
+      "analysis"
+    ],
+    "use_cases": [
+      "data analysis",
+      "instruction Following",
+      "summarization"
+    ],
+    "tags": [
+      "General",
+      "Data"
+    ],
+    "category": "medium",
+    "description": "Snorkel Mistral PairRM-DPO \u2014 fine-tuned for high precision on diverse instruction sets.",
+    "source": "registry"
+  },
+  {
+    "name": "open-orca:7b",
+    "type": "chat",
+    "url": "open-orca:mistral-7b",
+    "size_gb": 4.1,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 32768,
+    "capabilities": [
+      "instruction following",
+      "reasoning"
+    ],
+    "use_cases": [
+      "general chat",
+      "logical tasks",
+      "tutoring"
+    ],
+    "tags": [
+      "General",
+      "Reasoning"
+    ],
+    "category": "medium",
+    "description": "OpenOrca Mistral 7B \u2014 high-quality fine-tune focusing on explanation data.",
+    "source": "registry"
+  },
+  {
+    "name": "yarn-mistral:7b",
+    "type": "chat",
+    "url": "yarn-mistral:7b-128k",
+    "size_gb": 4.1,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 131072,
+    "capabilities": [
+      "instruction following",
+      "long context"
+    ],
+    "use_cases": [
+      "document analysis",
+      "large-scale retrieval",
+      "context-heavy chat"
+    ],
+    "tags": [
+      "Long Context",
+      "General"
+    ],
+    "category": "medium",
+    "description": "YaRN Mistral 7B \u2014 extended 128k context model for large document analysis.",
+    "source": "registry"
+  },
+  {
+    "name": "moondream:latest",
+    "type": "chat",
+    "url": "moondream",
+    "size_gb": 0.8,
+    "vram_required": 2,
+    "speed_category": "very fast",
+    "context_window": 2048,
+    "capabilities": [
+      "multimodal",
+      "on-device"
+    ],
+    "use_cases": [
+      "efficient image analysis",
+      "visual assistants",
+      "quick captioning"
+    ],
+    "tags": [
+      "Lightweight",
+      "Multimodal"
+    ],
+    "category": "small",
+    "description": "Moondream 2 \u2014 ultra-lightweight vision model, excellent for embedding visual AI.",
+    "source": "registry"
+  },
+  {
+    "name": "vicuna:13b",
+    "type": "chat",
+    "url": "vicuna:13b",
+    "size_gb": 7.4,
+    "vram_required": 12,
+    "speed_category": "medium",
+    "context_window": 4096,
+    "capabilities": [
+      "instruction following",
+      "creative"
+    ],
+    "use_cases": [
+      "general chat",
+      "writing assist",
+      "education"
+    ],
+    "tags": [
+      "General",
+      "Legacy"
+    ],
+    "category": "large",
+    "description": "Vicuna 13B \u2014 classic Llama 2 based fine-tune with good conversational flow.",
+    "source": "registry"
+  },
+  {
+    "name": "orca2:7b",
+    "type": "chat",
+    "url": "orca2:7b",
+    "size_gb": 4.1,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 4096,
+    "capabilities": [
+      "reasoning",
+      "instruction following"
+    ],
+    "use_cases": [
+      "math help",
+      "logical analysis",
+      "detailed explanations"
+    ],
+    "tags": [
+      "Reasoning",
+      "General"
+    ],
+    "category": "medium",
+    "description": "Microsoft Orca 2 \u2014 focused on reasoning and multi-step tasks.",
+    "source": "registry"
+  },
+  {
+    "name": "phi3.5:mini",
+    "type": "chat",
+    "url": "phi3.5:mini",
+    "size_gb": 2.2,
+    "vram_required": 4,
+    "speed_category": "very fast",
+    "context_window": 128000,
+    "capabilities": [
+      "instruction following",
+      "code",
+      "reasoning"
+    ],
+    "use_cases": [
+      "modern lightweight AI",
+      "large context analysis",
+      "fast coding help"
+    ],
+    "tags": [
+      "General",
+      "Code",
+      "Reasoning",
+      "Microsoft"
+    ],
+    "category": "small",
+    "description": "Microsoft Phi-3.5 Mini \u2014 updated Phi architecture with 128k context and improved reasoning.",
+    "source": "registry"
+  },
+  {
+    "name": "phi3.5:moe",
+    "type": "chat",
+    "url": "phi3.5:moe",
+    "size_gb": 22.0,
+    "vram_required": 24,
+    "speed_category": "medium",
+    "context_window": 128000,
+    "capabilities": [
+      "reasoning",
+      "instruction following",
+      "code",
+      "multilingual"
+    ],
+    "use_cases": [
+      "complex reasoning",
+      "agentic workflows",
+      "large context analysis"
+    ],
+    "tags": [
+      "Reasoning",
+      "MoE",
+      "General",
+      "Microsoft"
+    ],
+    "category": "xlarge",
+    "description": "Microsoft Phi-3.5 MoE \u2014 powerful Mixture-of-Experts model with high logical reasoning quality.",
+    "source": "registry"
+  },
+  {
+    "name": "gemini-1.5-flash",
+    "type": "chat",
+    "url": "api://google/gemini-1.5-flash",
+    "size_gb": 0,
+    "vram_required": 0,
+    "speed_category": "fast",
+    "context_window": 1000000,
+    "capabilities": [
+      "instruction following",
+      "tool calling",
+      "multimodal",
+      "long context",
+      "agents"
+    ],
+    "use_cases": [
+      "ultra-long document analysis",
+      "fast multimodal chat",
+      "multimodal agents"
+    ],
+    "tags": [
+      "API",
+      "Multimodal",
+      "Long Context",
+      "Google"
+    ],
+    "category": "small",
+    "description": "Google Gemini 1.5 Flash via cloud API \u2014 ultra-fast with 1M context.",
+    "source": "registry"
+  },
+  {
+    "name": "gemini-1.5-pro",
+    "type": "chat",
+    "url": "api://google/gemini-1.5-pro",
+    "size_gb": 0,
+    "vram_required": 0,
+    "speed_category": "medium",
+    "context_window": 2000000,
+    "capabilities": [
+      "reasoning",
+      "instruction following",
+      "tool calling",
+      "multimodal",
+      "long context",
+      "agents"
+    ],
+    "use_cases": [
+      "advanced research",
+      "massive data analysis",
+      "complex reasoning"
+    ],
+    "tags": [
+      "API",
+      "Multimodal",
+      "Long Context",
+      "Reasoning",
+      "Google"
+    ],
+    "category": "small",
+    "description": "Google Gemini 1.5 Pro via cloud API \u2014 advanced reasoning with up to 2M context.",
+    "source": "registry"
+  },
+  {
+    "name": "gpt-4o-mini",
+    "type": "chat",
+    "url": "api://openai/gpt-4o-mini",
+    "size_gb": 0,
+    "vram_required": 0,
+    "speed_category": "very fast",
+    "context_window": 128000,
+    "capabilities": [
+      "instruction following",
+      "reasoning",
+      "tool calling",
+      "vision",
+      "multimodal"
+    ],
+    "use_cases": [
+      "fast chat assistant",
+      "logical reasoning",
+      "lightweight automation"
+    ],
+    "tags": [
+      "API",
+      "General",
+      "Fast",
+      "OpenAI"
+    ],
+    "category": "small",
+    "description": "OpenAI GPT-4o Mini \u2014 fast, cost-effective multimodal model via API.",
+    "source": "registry"
+  },
+  {
+    "name": "claude-3-haiku",
+    "type": "chat",
+    "url": "api://anthropic/claude-3-haiku",
+    "size_gb": 0,
+    "vram_required": 0,
+    "speed_category": "very fast",
+    "context_window": 200000,
+    "capabilities": [
+      "instruction following",
+      "chat",
+      "fast",
+      "multilingual"
+    ],
+    "use_cases": [
+      "real-time chat",
+      "low-latency tasks",
+      "quick analysis"
+    ],
+    "tags": [
+      "API",
+      "Fast",
+      "Anthropic"
+    ],
+    "category": "small",
+    "description": "Anthropic Claude 3 Haiku via API \u2014 ultra-fast and reliable lightweight model.",
+    "source": "registry"
+  },
+  {
+    "name": "claude-3-opus",
+    "type": "chat",
+    "url": "api://anthropic/claude-3-opus",
+    "size_gb": 0,
+    "vram_required": 0,
+    "speed_category": "slow",
+    "context_window": 200000,
+    "capabilities": [
+      "reasoning",
+      "instruction following",
+      "code",
+      "creative",
+      "multilingual"
+    ],
+    "use_cases": [
+      "deep research",
+      "creative writing",
+      "advanced reasoning"
+    ],
+    "tags": [
+      "API",
+      "Reasoning",
+      "Anthropic"
+    ],
+    "category": "small",
+    "description": "Anthropic Claude 3 Opus \u2014 most capable Claude model for complex reasoning and creative tasks.",
+    "source": "registry"
+  },
+  {
+    "name": "custom-agent-profile",
+    "type": "chat",
+    "url": "llama3.1:8b",
+    "size_gb": 4.7,
+    "vram_required": 8,
+    "speed_category": "fast",
+    "context_window": 131072,
+    "capabilities": [
+      "instruction following",
+      "tool calling",
+      "agents"
+    ],
+    "use_cases": [
+      "AI Persona simulation",
+      "specialized agent workflows"
+    ],
+    "tags": [
+      "Agentic",
+      "General"
+    ],
+    "category": "medium",
+    "description": "Template for custom agent profiles using Llama 3.1 8B as base engine.",
+    "source": "registry"
+  }
+]

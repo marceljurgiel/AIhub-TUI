@@ -1,0 +1,5 @@
+# VHS (terminal recorder: ttyd + chromium + ffmpeg) plus what the installer needs.
+FROM ghcr.io/charmbracelet/vhs:latest
+RUN apt-get update -qq && apt-get install -y -qq --no-install-recommends curl ca-certificates python3-pytest python-is-python3 >/dev/null \
+ && rm -rf /var/lib/apt/lists/* && useradd -m -s /bin/bash alex
+COPY pkg/ /pkg/

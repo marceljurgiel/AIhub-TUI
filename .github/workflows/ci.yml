@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  engine:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv venv --python 3.12
+      - run: uv pip install -e ".[dev]"
+      - run: uv run --no-sync pytest -q
+
+  app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - uses: astral-sh/setup-uv@v6
+      - run: uv venv --python 3.12 && uv pip install -e .
+      - working-directory: app
+        run: bun install --frozen-lockfile
+      - working-directory: app
+        run: bunx tsc --noEmit
+      - working-directory: app
+        run: bun test
+
+  installer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install from this checkout
+        run: |
+          tar --exclude=.git -czf /tmp/aihub.tar.gz --transform 's,^\.,AIhub-TUI,' .
+          AIHUB_SOURCE=/tmp/aihub.tar.gz bash install.sh --yes --ollama skip
+          ~/.local/bin/aihub version
