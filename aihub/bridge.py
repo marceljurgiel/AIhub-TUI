@@ -852,6 +852,47 @@ def _h_mcp_install(p):
     return install_item(str(p["id"]), p.get("values") or {})
 
 
+def _h_google_status(p):
+    from .google_login import status
+    return status()
+
+
+def _h_google_disconnect(p):
+    from .google_login import disconnect
+    return disconnect()
+
+
+def _h_google_import_client(p):
+    """The user's own Google client: a path, or the newest download. With
+    `since`, only a file downloaded after that time (the wizard polls)."""
+    from .google_login import find_client_json, import_client
+    path = str(p.get("path") or "")
+    if not path and p.get("since"):
+        path = find_client_json(float(p["since"])) or ""
+        if not path:
+            return {"found": False}
+    return {"found": True, **import_client(path)}
+
+
+def _h_google_paste(p):
+    from .google_login import finish_pasted
+    return finish_pasted(str(p.get("url", "")), lambda e, d: None)
+
+
+def _h_system_open_url(p):
+    """Open a web page in the user's browser (links in the app's guides)."""
+    import webbrowser
+    url = str(p.get("url", ""))
+    if not url.startswith(("https://", "http://")):
+        raise ValueError("only web links can be opened")
+    return {"opened": bool(webbrowser.open(url))}
+
+
+def _h_google_own_steps(p):
+    from .google_login import OWN_APP_STEPS
+    return {"steps": [{"text": t, "url": u} for t, u in OWN_APP_STEPS]}
+
+
 def _h_mcp_import_claude(p):
     from .mcp_catalog import import_claude
     return import_claude(p.get("names"))
@@ -918,6 +959,12 @@ _ONESHOT: Dict[str, Callable[[Dict[str, Any]], Dict[str, Any]]] = {
     "mcp.gmail_setup": _h_mcp_gmail_setup,
     "mcp.catalog": _h_mcp_catalog,
     "mcp.install": _h_mcp_install,
+    "google.status": _h_google_status,
+    "google.disconnect": _h_google_disconnect,
+    "google.import_client": _h_google_import_client,
+    "google.paste": _h_google_paste,
+    "google.own_steps": _h_google_own_steps,
+    "system.open_url": _h_system_open_url,
     "mcp.import_claude": _h_mcp_import_claude,
     "attach.clipboard": _h_attach_clipboard,
     "attach.paste": _h_attach_paste,
@@ -1223,7 +1270,29 @@ def _stream_download_gguf(req_id, p) -> None:
     _done(req_id, {"path": dest, "stem": stem})
 
 
+def _stream_google_connect(req_id, p) -> None:
+    """Connect Google: opening {url, opened} → waiting → installing → done
+    {email, services, missing}. Cancel stops the waiting sign-in."""
+    from .google_login import connect
+    cancel = threading.Event()
+    with _reg_lock:
+        _cancel_events[req_id] = cancel
+    try:
+        out = connect(cancel, lambda e, d: _emit(req_id, e, d), own=bool(p.get("own")))
+    except InterruptedError:
+        _done(req_id, {"cancelled": True})
+        return
+    except Exception as exc:
+        _error(req_id, str(exc))
+        return
+    finally:
+        with _reg_lock:
+            _cancel_events.pop(req_id, None)
+    _done(req_id, out)
+
+
 _STREAMING: Dict[str, Callable[[Any, Dict[str, Any]], None]] = {
+    "google.connect": _stream_google_connect,
     "chat.turn": _stream_chat_turn,
     "download.ollama": _stream_download_ollama,
     "download.gguf": _stream_download_gguf,

@@ -1,12 +1,13 @@
 """
-AIHub — Gmail (and the other Google services) through MCP.
+AIhub — Gmail (and the other Google services) through MCP.
 
-The servers themselves live in the catalog (aihub/mcp_catalog.py: gmail,
-calendar, drive — all `workspace-mcp`, installed into its own venv). Google
-needs an OAuth client the user creates once (Google Cloud → enable the API →
-OAuth consent "testing" with their address as a test user → Desktop client);
-the first call then opens the browser for consent and the server keeps the
-token. The same client works for all three.
+The servers live in the catalog (aihub/mcp_catalog.py: gmail, calendar,
+drive — all `workspace-mcp`, in its own venv). Connecting them is
+aihub/google_login.py: one Google sign-in, done by AIhub, covers all three.
+
+What's left here is the older path for scripts: pass an OAuth client's id
+and secret and install Gmail with it; the server then asks for consent on
+the first call.
 """
 from __future__ import annotations
 

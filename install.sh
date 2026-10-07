@@ -263,6 +263,9 @@ setup_model() {
 install_launcher() {
   step "Launcher"
   mkdir -p "$BIN_DIR"
+  # Replace, never write through: an older aihub here may be a symlink into
+  # someone's checkout, and writing to it would overwrite that file.
+  rm -f "$BIN_DIR/aihub"
   cat >"$BIN_DIR/aihub" <<EOF
 #!/bin/sh
 # AIhub launcher (written by install.sh). Re-run the installer to update.

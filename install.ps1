@@ -244,7 +244,10 @@ echo aihub cli ...    command-line tools (models, hardware)
 echo aihub version    show the installed version
 exit /b 0
 "@
-    Set-Content -Path (Join-Path $binDir "aihub.cmd") -Value $cmd -Encoding Ascii
+    $launcher = Join-Path $binDir "aihub.cmd"
+    # Replace, never write through a link to someone else's file.
+    if (Test-Path $launcher) { Remove-Item -Force $launcher }
+    Set-Content -Path $launcher -Value $cmd -Encoding Ascii
     Ok (Join-Path $binDir "aihub.cmd")
 
     $userPath = [Environment]::GetEnvironmentVariable("Path", "User")

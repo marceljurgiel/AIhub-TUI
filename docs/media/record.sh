@@ -21,13 +21,21 @@ podman build -q -t aihub-vhs-demo --build-arg "MODEL=${MODEL:-nemotron-3-ultra:c
   -f "$work/Containerfile.demo" "$work" >/dev/null
 
 cp -r "$here/tapes" "$work/tapes"
+failed=""
 for tape in "${@:-hero install chat agent models mcp skills memory theme}"; do
   for t in $tape; do
     image=aihub-vhs-demo; [ "$t" = install ] && image=aihub-vhs-base
-    echo "recording $t"
-    podman run --rm --userns=keep-id --user alex -e HOME=/home/alex -w /vhs \
-      --add-host "gpu-box.lan:$OLLAMA_SERVER" \
-      -v "$work/tapes:/vhs:Z" -v "$work/out:/vhs/out:Z" "$image" "/vhs/$t.tape"
+    # A long tape's render can run out of memory or a model can answer
+    # oddly: one more try, then carry on with the rest.
+    for attempt in 1 2; do
+      echo "recording $t (try $attempt)"
+      if podman run --rm --userns=keep-id --user alex -e HOME=/home/alex -w /vhs \
+           --add-host "gpu-box.lan:$OLLAMA_SERVER" \
+           -v "$work/tapes:/vhs:Z" -v "$work/out:/vhs/out:Z" "$image" "/vhs/$t.tape"; then
+        continue 2
+      fi
+    done
+    failed="$failed $t"
   done
 done
 # hero.tape leaves one screenshot per colour combination: one looping GIF.
@@ -41,5 +49,11 @@ if [ -e "$work/out/hero-00.png" ]; then
     /out/hero.gif
   rm -f "$work/out"/hero-[0-9][0-9].png "$work/out/hero-raw.gif" "$work/out/hero.txt"
 fi
-cp "$work/out/"* "$here/"
+# Screenshots the tapes take along the way that the README doesn't use.
+rm -f "$work/out/agent-permission.png" "$work/out"/theme-*.png
+cp "$work/out/"* "$here/" 2>/dev/null || true
+if [ -n "$failed" ]; then
+  echo "done, except:$failed — run again with just those"
+  exit 1
+fi
 echo "done — check the frames before committing (no real names, paths or addresses)"

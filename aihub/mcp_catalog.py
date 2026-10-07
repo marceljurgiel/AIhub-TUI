@@ -52,8 +52,11 @@ def _workspace(service: str, api: str, keywords: List[str], off: List[str]) -> D
             env["USER_GOOGLE_EMAIL"] = v["email"]
             entry["defaultArgs"] = {"user_google_email": v["email"]}
         return {**entry, "keywords": keywords, "disabledTools": off}
+    # Not listed on their own: "Google" (below) signs in once and installs
+    # all three (aihub/google_login.py). Kept as entries for that, and for
+    # installs made with the older paste-the-client form.
     return {"fields": GOOGLE_FIELDS, "steps": [s.format(api=api) for s in WORKSPACE_STEPS],
-            "build": build, "shares": "google"}
+            "build": build, "shares": "google", "hidden": True}
 
 
 def _github_build(v: Dict[str, str]) -> Dict[str, Any]:
@@ -80,6 +83,9 @@ CATALOG: List[Dict[str, Any]] = [
      "steps": ["github.com/settings/tokens → Generate new token (fine-grained: pick repos, "
                "Contents/Issues/Pull requests read+write; or classic with 'repo')"],
      "build": _github_build},
+    {"id": "google", "name": "Google", "category": "google",
+     "description": "Gmail, Calendar and Drive — sign in with Google once",
+     "fields": [], "steps": [], "connect": "google"},
     {"id": "gmail", "name": "Gmail", "category": "google",
      "description": "Search, read and summarise mail; drafts; send with your approval",
      **_workspace("gmail", "Gmail API",
@@ -164,13 +170,20 @@ def listing() -> List[Dict[str, Any]]:
     google = next((v for k, v in cfg.items() if "--tools" in (v.get("args") or []) and v.get("env", {}).get("GOOGLE_OAUTH_CLIENT_ID")), None)
     out = []
     for c in CATALOG:
+        if c.get("hidden"):
+            continue
         prefill = {}
         if c.get("shares") == "google" and google:
             prefill = {"client_id": google["env"].get("GOOGLE_OAUTH_CLIENT_ID", ""),
                        "client_secret": google["env"].get("GOOGLE_OAUTH_CLIENT_SECRET", ""),
                        "email": google["env"].get("USER_GOOGLE_EMAIL", "")}
+        installed = c["id"] in cfg
+        if c.get("connect") == "google":
+            from .google_login import SERVICES
+            installed = any(s in cfg for s in SERVICES)
         out.append({"id": c["id"], "name": c["name"], "category": c["category"], "description": c["description"],
-                    "fields": c["fields"], "steps": c["steps"], "installed": c["id"] in cfg, "prefill": prefill})
+                    "fields": c["fields"], "steps": c["steps"], "installed": installed, "prefill": prefill,
+                    "connect": c.get("connect", "")})
     return out
 
 
@@ -178,6 +191,8 @@ def install_item(item_id: str, values: Dict[str, str]) -> Dict[str, Any]:
     """Install/configure a catalog server and start it. Returns tool count."""
     from . import mcp_client
     c = entry(item_id)
+    if c.get("connect"):
+        raise ValueError(f"{c['name']} connects by signing in, not with a form")
     built = c["build"]({k: str(v) for k, v in (values or {}).items()})
     built.setdefault("enabled", True)
     cfg = mcp_client.load_config()

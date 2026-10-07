@@ -40,6 +40,10 @@ const GMAIL = {
 
 class McpBridge extends MockBridge {
   calls: Array<[string, any]> = [];
+  google = { connected: false, email: "", builtin: true, own_client: false };
+  /** How google.connect ends: done (with the account), an error, or stays waiting. */
+  connectEnds: "done" | "error" | "wait" = "done";
+  clientFound = false;
   servers: any[] = [GMAIL, { ...GMAIL, name: "broken", status: "error", error: "command not found: npx", tools: [] }];
   override async request(method: string, params: any = {}): Promise<any> {
     this.calls.push([method, params]);
@@ -55,11 +59,8 @@ class McpBridge extends MockBridge {
         return { items: [
           { id: "github", name: "GitHub", category: "code", description: "Repos, issues, PRs", installed: false, prefill: {},
             fields: [{ key: "token", label: "GitHub token", secret: true, placeholder: "ghp_…" }], steps: ["github.com/settings/tokens"] },
-          { id: "gmail", name: "Gmail", category: "google", description: "Mail", installed: true,
-            prefill: { client_id: "1-a.apps.googleusercontent.com", client_secret: "GOCSPX-x", email: "me@gmail.com" },
-            fields: [{ key: "client_id", label: "Google OAuth Client ID", secret: false, placeholder: "" },
-                     { key: "client_secret", label: "Client secret", secret: true, placeholder: "" },
-                     { key: "email", label: "Your Google address", secret: false, placeholder: "" }], steps: ["enable the Gmail API"] },
+          { id: "google", name: "Google", category: "google", description: "Gmail, Calendar and Drive — sign in once",
+            installed: true, prefill: {}, fields: [], steps: [], connect: "google" },
           { id: "fetch", name: "Fetch (web pages)", category: "web", description: "Read a web page", installed: false, prefill: {},
             fields: [], steps: [] },
         ], claude: ["obsidian"] };
@@ -67,9 +68,34 @@ class McpBridge extends MockBridge {
         return { ok: true, name: params.id, tools: params.id === "fetch" ? 1 : 26 };
       case "mcp.import_claude":
         return { added: ["obsidian"], skipped: [] };
+      case "google.status":
+        return { ...this.google, client: "", services: [] };
+      case "google.own_steps":
+        return { steps: [1, 2, 3, 4].map((n) => ({ text: `step ${n}`, url: `https://console.cloud.google.com/s${n}` })) };
+      case "google.import_client":
+        return this.clientFound ? { found: true, client_id: "x" } : { found: false };
+      case "google.disconnect":
+        this.google = { ...this.google, connected: false, email: "" };
+        return { revoked: true, removed: ["gmail"] };
       default:
         return super.request(method);
     }
+  }
+  override stream(method: string, params: any, handlers: any): { id: number; done: Promise<any> } {
+    if (method !== "google.connect") return super.stream(method, params, handlers);
+    this.calls.push([method, params]);
+    const done: Promise<any> = (async (): Promise<any> => {
+      await new Promise((r) => setTimeout(r, 30));
+      handlers.onEvent("opening", { url: "https://accounts.google.com/o/oauth2/v2/auth?x=1", opened: true });
+      handlers.onEvent("waiting", {});
+      if (this.connectEnds === "wait") return new Promise(() => {});
+      await new Promise((r) => setTimeout(r, 30));
+      if (this.connectEnds === "error") throw new Error("no answer from Google — the sign-in page was closed or timed out");
+      handlers.onEvent("installing", { service: "gmail" });
+      this.google = { ...this.google, connected: true, email: "alex@example.com" };
+      return { email: "alex@example.com", services: ["gmail", "calendar", "drive"], missing: [], client: "builtin" };
+    })();
+    return { id: 77, done };
   }
 }
 
@@ -78,7 +104,7 @@ async function open() {
   setup = await testRender(<AppTree client={bridge as unknown as BridgeClient} />, { width: 110, height: 34 });
   await until((f) => f.includes("llama3.2:3b") && f.includes("tab menu"));
   setup.mockInput.pressKey("F5");
-  await until((f) => f.includes("MCP — connected services") && f.includes("gmail"));
+  await until((f) => f.includes("Connections") && f.includes("gmail"));
   return bridge;
 }
 
@@ -86,7 +112,7 @@ test("F5 lists servers with status, tool counts and errors", async () => {
   const bridge = await open();
   const f = setup!.captureCharFrame();
   expect(f).toMatch(/● gmail\s+connected\s+2\/3 tools/);
-  expect(f).toContain("offered when you mention: gmail, mail, inbox");
+  expect(f).toContain("used when you mention: gmail, mail, inbox");
   setup!.mockInput.pressArrow("down");
   await until((x) => x.includes("command not found: npx"));
   expect(bridge.calls.some(([m, p]) => m === "mcp.list" && p.connect)).toBe(true);
@@ -105,7 +131,7 @@ test("enter shows tools (reads / changes); t switches one off", async () => {
 
 async function openCatalog() {
   setup!.mockInput.pressKey("a");
-  await until((x) => x.includes("Import from Claude") && x.includes("Custom server…"));
+  await until((x) => x.includes("Import from Claude") && x.includes("Custom (MCP)…"));
 }
 
 const down = async (n: number) => {
@@ -119,7 +145,7 @@ test("a opens the catalog; a server with nothing to fill installs on enter", asy
   const bridge = await open();
   await openCatalog();
   const f = setup!.captureCharFrame();
-  expect(f).toMatch(/✓ Gmail/);                                          // installed marker
+  expect(f).toMatch(/✓ Google/);                                         // installed marker
   await down(2);
   expect(setup!.captureCharFrame()).toContain("needs: nothing — enter installs it");
   setup!.mockInput.pressEnter();
@@ -139,20 +165,56 @@ test("a server that needs a token asks for it with the steps", async () => {
   expect(bridge.calls).toContainEqual(["mcp.install", { id: "github", values: { token: "ghp_fake-test-token" } }]);
 });
 
-test("Google services reuse the OAuth client already entered", async () => {
+test("Google connects in one click: sign-in in the browser, then ready", async () => {
   const bridge = await open();
   await openCatalog();
-  await down(1);                                                          // Gmail (prefilled)
+  await down(1);                                                          // Google
+  await until((x) => x.includes("needs: just your Google sign-in"));
   setup!.mockInput.pressEnter();
-  await until((x) => x.includes("Google OAuth Client ID (1/3)"));
-  for (let i = 0; i < 3; i++) {
-    setup!.mockInput.pressEnter();
-    await new Promise((r) => setTimeout(r, 220));          // a person's pace, not 2 enters in 150 ms
-    await settle();
-  }
-  await until((x) => x.includes("Gmail connected"));
-  expect(bridge.calls).toContainEqual(["mcp.install", { id: "gmail", values: {
-    client_id: "1-a.apps.googleusercontent.com", client_secret: "GOCSPX-x", email: "me@gmail.com" } }]);
+  await until((x) => x.includes("Connected as alex@example.com"));
+  expect(setup!.captureCharFrame()).toContain("Gmail, Calendar, Drive ready");
+  expect(bridge.calls).toContainEqual(["google.connect", { own: false }]);
+  expect(bridge.calls.some(([m]) => m === "mcp.install")).toBe(false);   // no form, no pasted keys
+});
+
+test("without AIhub's Google app, the wizard picks up the downloaded client", async () => {
+  const bridge = await open();
+  bridge.google = { ...bridge.google, builtin: false };
+  await openCatalog();
+  await down(1);
+  setup!.mockInput.pressEnter();
+  await until((x) => x.includes("Your own Google app") && x.includes("step 4") && x.includes("Waiting for client_secret"));
+  setup!.mockInput.pressKey("2");
+  await until(() => bridge.calls.some(([m, p]) => m === "system.open_url" && p.url.endsWith("/s2")));
+  bridge.clientFound = true;                                              // the user downloads the JSON
+  await until((x) => x.includes("Connected as alex@example.com"), 120);
+  expect(bridge.calls).toContainEqual(["google.connect", { own: true }]);
+});
+
+test("a failed sign-in explains itself and offers your own app", async () => {
+  const bridge = await open();
+  bridge.connectEnds = "error";
+  await openCatalog();
+  await down(1);
+  setup!.mockInput.pressEnter();
+  await until((x) => x.includes("Google sign-in didn't finish") && x.includes("use my own Google app"));
+  setup!.mockInput.pressKey("o");
+  await until((x) => x.includes("Your own Google app"));
+});
+
+test("d on a Google service disconnects Google after a confirmation", async () => {
+  const bridge = await open();
+  bridge.google = { connected: true, email: "alex@example.com", builtin: true, own_client: false };
+  setup!.mockInput.pressEscape();
+  await settle();
+  setup!.mockInput.pressKey("F5");
+  await until((x) => x.includes("Google · alex@example.com"));
+  setup!.mockInput.pressKey("d");
+  await until((x) => x.includes("Press d again to disconnect Google"));
+  setup!.mockInput.pressKey("d");
+  await until((x) => x.includes("Google disconnected"));
+  expect(bridge.calls.some(([m]) => m === "google.disconnect")).toBe(true);
+  expect(bridge.calls.some(([m]) => m === "mcp.remove")).toBe(false);
 });
 
 test("import from Claude and custom servers are in the catalog too", async () => {

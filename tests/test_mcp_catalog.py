@@ -24,11 +24,13 @@ def clean():
     m.manager().servers.clear()
 
 
-def test_catalog_has_ten_entries_with_what_they_need():
+def test_catalog_entries_say_what_they_need():
     items = {i["id"]: i for i in cat.listing()}
-    assert len(items) == 11 and {"github", "gmail", "calendar", "notion", "fetch", "playwright", "context7"} <= set(items)
+    # Google is one entry (sign in once); its three servers aren't listed.
+    assert len(items) == 9 and {"github", "google", "notion", "fetch", "playwright", "context7"} <= set(items)
     assert [f["key"] for f in items["github"]["fields"]] == ["token"]
-    assert items["fetch"]["fields"] == [] and not items["gmail"]["installed"]
+    assert items["fetch"]["fields"] == [] and not items["google"]["installed"]
+    assert items["google"]["connect"] == "google" and items["github"]["connect"] == ""
 
 
 def test_builders_validate_and_produce_config(tmp_path, monkeypatch):
@@ -46,14 +48,14 @@ def test_builders_validate_and_produce_config(tmp_path, monkeypatch):
         cat.entry("notion")["build"]({})
 
 
-def test_google_services_share_the_oauth_client(monkeypatch):
+def test_google_servers_are_built_for_one_account(monkeypatch):
     monkeypatch.setattr(cat, "install_pip", lambda pkg, exe: f"/venv/{exe}")
     v = {"client_id": "1-a.apps.googleusercontent.com", "client_secret": "GOCSPX-123456", "email": "me@gmail.com"}
     gmail = cat.entry("gmail")["build"](dict(v))
     assert gmail["args"] == ["--tools", "gmail", "--single-user"] and gmail["defaultArgs"] == {"user_google_email": "me@gmail.com"}
     m.save_config({"gmail": gmail})
-    cal = next(i for i in cat.listing() if i["id"] == "calendar")
-    assert cal["prefill"] == v                                   # no second trip to Google Cloud
+    google = next(i for i in cat.listing() if i["id"] == "google")
+    assert google["installed"]                                   # any of the three counts
     with pytest.raises(ValueError, match="googleusercontent"):
         cat.entry("calendar")["build"]({"client_id": "x", "client_secret": "y" * 12})
 

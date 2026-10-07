@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.2.0] - 2026-10-07
+### Added
+- **Connect Google in one sign-in.** Connections → Google → the browser
+  opens Google's sign-in; after "Allow", Gmail, Calendar and Drive all work.
+  - AIhub runs the OAuth flow itself (loopback + PKCE, `aihub/google_login.py`)
+    and stores the token where the `workspace-mcp` servers read it.
+  - No more pasting a Client ID, secret or email.
+  - Services you untick at Google are left out, and AIhub says which.
+  - A browser on another device works too: paste the address it ends on.
+- **Your own Google app**, when AIhub's own isn't available or has hit
+  Google's limit: four steps with direct links (`1`–`4` opens each), one of
+  which turns on all three APIs at once. The downloaded `client_secret….json`
+  is picked up from Downloads automatically.
+- `d` on a Google service disconnects Google: the token is revoked at Google
+  and the three servers are removed.
+
+### Changed
+- "MCP" is now **Connections** in the menu, window and README. MCP is still
+  how they work, and "Custom (MCP)…" adds any server.
+
 ## [1.1.2] - 2026-10-07
 ### Changed
 - Trying themes one after another keeps a single "Theme → …" note in the

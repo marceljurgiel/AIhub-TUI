@@ -1,6 +1,6 @@
 {
   "name": "aihub-app",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "AIhub \u2014 chat-first OpenTUI (TypeScript) front-end over the AIhub Python engine",
   "module": "src/index.tsx",
   "type": "module",

@@ -109,13 +109,19 @@ Uninstalling leaves `~/.aihub` in place.
 
 <p align="center"><img src="docs/media/models.gif" alt="The model picker: installed models with capabilities, models ranked for this hardware, the Ollama library and API models" width="820"></p>
 
-- **MCP** (`C`):
-  - Connect Model Context Protocol servers in one click: GitHub, Gmail,
-    Google Calendar and Drive, Notion, Obsidian, Fetch, Git, Playwright,
-    Context7 and Home Assistant.
-  - Add any other server, or import the servers you set up for Claude.
+- **Connections** (`C`) let AIhub use your services. Anything that sends,
+  deletes or changes something asks you first.
+  - **Google** — Gmail, Calendar and Drive in one go: press Connect and
+    sign in with Google in your browser. Google may say the app isn't
+    verified yet: *Advanced → Go to AIhub*.
+  - **More:** GitHub, Notion, Obsidian, web pages (Fetch), Git, a real
+    browser (Playwright), library docs (Context7) and Home Assistant, each
+    with the one or two things it needs.
+  - **For developers:** connections are
+    [MCP](https://modelcontextprotocol.io) servers. You can add any MCP
+    server or import the ones you set up for Claude.
 
-<p align="center"><img src="docs/media/mcp.gif" alt="The MCP catalog: GitHub, Gmail, Google Calendar, Drive, Notion and more in one click" width="820"></p>
+<p align="center"><img src="docs/media/mcp.gif" alt="Connections: Google, GitHub, Notion and more" width="820"></p>
 
 - **Images.** With a vision model, paste a screenshot with `Ctrl+V`, or drag a
   file into the terminal.
