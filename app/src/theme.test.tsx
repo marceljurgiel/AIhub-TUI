@@ -42,6 +42,9 @@ test("a theme and an accent replace the palette; unknown names fall back", () =>
   expect(theme.bg0).toBe(THEMES.nord!.palette.bg0);
   expect(theme.accent).toBe(ACCENTS.orange!.accent);
   expect(logoGradient[2]).toBe(ACCENTS.orange!.accent);
+  applyTheme("light", "");
+  // On a light canvas the logo runs dark → accent, never towards white.
+  expect(logoGradient[3]).toBe(THEMES.light!.palette.accent);
   applyTheme("no-such-theme", "no-such-accent");
   expect(activeTheme).toEqual({ name: "aihub", accent: "" });
   expect(theme.accent).toBe(THEMES.aihub!.palette.accent);

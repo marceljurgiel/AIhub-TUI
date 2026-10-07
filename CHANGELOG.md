@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1] - 2026-10-07
+### Fixed
+- Light theme: the logo gradient faded to near-white and disappeared; on a
+  light canvas it now runs from dark to the accent.
+
+### Added
+- A screenshot of four themes in the README (`docs/media/themes.png`).
+
 ## [1.1.0] - 2026-10-07
 ### Added
 - Themes: AIhub, Tokyo Night, Catppuccin, Dracula, Nord, Gruvbox and Light,

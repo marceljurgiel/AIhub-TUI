@@ -131,6 +131,8 @@ Uninstalling leaves `~/.aihub` in place.
 
 <p align="center"><img src="docs/media/theme.gif" alt="Switching between themes and accent colours with a live preview" width="820"></p>
 
+<p align="center"><img src="docs/media/themes.png" alt="Four of the themes: AIhub, Tokyo Night, Gruvbox and Light" width="900"></p>
+
 - **Temperature** (`Ctrl+T`), **Settings** (`S`), **Command palette**
   (`Ctrl+P`), **Help** (`F1`).
 

@@ -29,6 +29,12 @@ Sleep 600ms
 Type "t"
 Wait+Screen@10s /Tokyo Night/
 Sleep 1.5s
+Screenshot out/theme-aihub.png
+Sleep 600ms
+Down
+Sleep 1.4s
+Screenshot out/theme-tokyo-night.png
+Sleep 600ms
 Down
 Sleep 1.4s
 Down
@@ -37,10 +43,12 @@ Down
 Sleep 1.4s
 Down
 Sleep 1.4s
-Down
-Sleep 1.4s
+Screenshot out/theme-gruvbox.png
+Sleep 600ms
 Down
 Sleep 1.8s
+Screenshot out/theme-light.png
+Sleep 600ms
 Up 5
 Sleep 1.2s
 Right

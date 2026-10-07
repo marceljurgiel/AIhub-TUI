@@ -139,8 +139,18 @@ function mix(hex: string, to: string, amount: number): string {
   return "#" + [16, 8, 0].map((sh) => ch(sh).toString(16).padStart(2, "0")).join("");
 }
 
-function gradientFor(accent: string, soft: string): string[] {
-  return [mix(accent, "#ffffff", 0.7), soft, accent, mix(accent, "#000000", 0.15), mix(accent, "#000000", 0.3)];
+function isLight(hex: string): boolean {
+  const n = parseInt(hex.slice(1), 16);
+  const lum = 0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255);
+  return lum > 128;
+}
+
+/** Logo rows, light to dark on a dark canvas — on a light one the pale end
+ *  would vanish, so there it runs dark to the accent. */
+function gradientFor(accent: string, soft: string, canvas: string): string[] {
+  return isLight(canvas)
+    ? [mix(accent, "#000000", 0.45), mix(accent, "#000000", 0.3), mix(accent, "#000000", 0.15), accent, soft]
+    : [mix(accent, "#ffffff", 0.7), soft, accent, mix(accent, "#000000", 0.15), mix(accent, "#000000", 0.3)];
 }
 
 let version = 0;
@@ -156,7 +166,7 @@ export function applyTheme(name?: string, accent?: string): void {
     theme.accent = ACCENTS[acc]!.accent;
     theme.accentSoft = ACCENTS[acc]!.accentSoft;
   }
-  logoGradient.splice(0, logoGradient.length, ...gradientFor(theme.accent, theme.accentSoft));
+  logoGradient.splice(0, logoGradient.length, ...gradientFor(theme.accent, theme.accentSoft, theme.bg0));
   activeTheme.name = id;
   activeTheme.accent = acc;
   version++;
