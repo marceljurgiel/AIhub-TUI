@@ -147,3 +147,11 @@ def test_chat_turn_sees_the_current_working_directory(session_dir, monkeypatch):
         {"role": "system", "content": system}, {"role": "user", "content": "hi"}]})
     assert f"Working directory: {session_dir / 'later'}" in seen["system"]
     assert seen["system"].count("Environment (") == 1
+
+
+def test_theme_and_accent_are_saved_and_checked(cfg):
+    out = bridge._h_config_set({"patch": {"theme": "Nord", "accent": "blue"}})
+    assert out["theme"] == "nord" and out["accent"] == "blue"
+    assert bridge._h_config_set({"patch": {"theme": "", "accent": ""}})["theme"] == "aihub"
+    with pytest.raises(ValueError, match="not a theme name"):
+        bridge._h_config_set({"patch": {"accent": "#ff00ff; rm -rf"}})

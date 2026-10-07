@@ -8,7 +8,7 @@ afterEach(() => {
   setup = undefined;
 });
 
-const LABELS = ["New Chat", "Agent", "Skills", "Models", "History", "Memory", "Hardware", "Settings", "Palette", "Help"];
+const LABELS = ["New Chat", "Agent", "Skills", "Models", "History", "Memory", "Hardware", "Settings", "Theme", "Palette", "Help"];
 
 async function frameAt(w: number, h: number) {
   setup = await testRender(<AppTree client={mockClient()} />, { width: w, height: h });
@@ -41,7 +41,8 @@ for (const [w, h] of [[80, 24], [80, 18]] as const) {
     const text = sidebar(await frameAt(w, h)).join("\n");
     for (const label of LABELS) expect(text).toContain(label);
     expect(text).not.toContain("`--' `--'");          // no room for the figlet logo
-    expect(text).toContain("CONNECTED");
+    // Room for the boxed card at 24 rows; at 18 it shrinks to one line.
+    expect(text).toContain(h >= 24 ? "CONNECTED" : "● llama3.2:3b · 4K");
   });
 }
 

@@ -22,6 +22,7 @@ export type ActionId =
   | "save_session"
   | "toggle_tools"
   | "temperature"
+  | "theme"
   | "cancel_stream"
   | "quit";
 
@@ -61,6 +62,7 @@ export const ACTIONS: readonly ActionSpec[] = [
   // works; ctrl+, is kept as an alias for terminals running the Kitty keyboard
   // protocol, which can disambiguate it.
   { id: "settings", label: "Settings", key: "f3", altKeys: ["ctrl+,"], nav: "s", sidebar: true, group: "system", icon: "≡" },
+  { id: "theme", label: "Theme", key: "f2", nav: "t", sidebar: true, group: "system", icon: "▒" },
   { id: "command_palette", label: "Palette", key: "ctrl+p", nav: "p", sidebar: true, group: "system", icon: "⌘" },
   { id: "help", label: "Help", key: "f1", nav: "?", sidebar: true, group: "system", icon: "?" },
   { id: "clear_chat", label: "Clear chat", key: "ctrl+l" },

@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0] - 2026-10-07
+### Added
+- Themes: AIhub, Tokyo Night, Catppuccin, Dracula, Nord, Gruvbox and Light,
+  plus an accent colour over any of them (purple, blue, cyan, green, amber,
+  orange, pink, red). Menu → Theme (`T`, `F2`): ↑↓ theme, ←→ accent, the
+  whole app previews live, Enter keeps it (saved in config.yaml as `theme` /
+  `accent`), Esc restores. The saved theme is applied before the first frame.
+
+### Fixed
+- Very short terminals: the model card shrinks to one line before any menu
+  item is cut off; at 24 rows the boxed card stays.
+
 ## [1.0.0] - 2026-10-07
 The first public release of the new AIhub: the OpenTUI terminal app (`app/`)
 on top of the Python engine (`aihub/`), in one repository with one version.

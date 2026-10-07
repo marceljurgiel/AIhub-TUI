@@ -1,6 +1,7 @@
-import { memo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { SyntaxStyle, getTreeSitterClient } from "@opentui/core";
 import { theme } from "../theme.ts";
+import { useThemeVersion } from "../state/useTheme.ts";
 import type { LogItem } from "../log.ts";
 import { ToolPanel } from "./ToolPanel.tsx";
 import { Spinner } from "../ui/primitives.tsx";
@@ -12,7 +13,8 @@ import { Spinner } from "../ui/primitives.tsx";
  * for the `**`, `#` and backtick markers — dimmed, since they stay visible
  * (CONCEAL below). Unknown names resolve to `default`.
  */
-const mdStyle = SyntaxStyle.fromStyles({
+function makeMdStyle() {
+  return SyntaxStyle.fromStyles({
   default: { fg: theme.fg0 },
   "markup.strong": { fg: theme.fg0, bold: true },
   "markup.italic": { fg: theme.fg1, italic: true },
@@ -62,7 +64,15 @@ const mdStyle = SyntaxStyle.fromStyles({
   function: { fg: theme.fg0 },
   variable: { fg: theme.fg1 },
   default_highlight: { fg: theme.fg0 },
-});
+  });
+}
+
+/** One SyntaxStyle per theme (it is built from the live palette). */
+let mdCache: { v: number; style: SyntaxStyle } | null = null;
+function mdStyle(v: number): SyntaxStyle {
+  if (!mdCache || mdCache.v !== v) mdCache = { v, style: makeMdStyle() };
+  return mdCache.style;
+}
 
 /**
  * Markdown renders blank without a tree-sitter client (the parsers are WASM
@@ -94,11 +104,12 @@ const CONCEAL = false;
 
 /** Settled assistant body — markdown with the theme's syntax palette. */
 const AssistantBody = memo(function AssistantBody({ text }: { text: string }) {
+  const v = useThemeVersion();
   return (
     <box paddingLeft={2} flexDirection="column">
       <markdown
         content={text}
-        syntaxStyle={mdStyle}
+        syntaxStyle={mdStyle(v)}
         treeSitterClient={treeSitter}
         fg={theme.fg0}
         conceal={CONCEAL}
@@ -108,13 +119,15 @@ const AssistantBody = memo(function AssistantBody({ text }: { text: string }) {
   );
 });
 
-/** Hoisted: a fresh object here would be a new prop on every streamed token,
- *  forcing the scrollbox to re-apply its style each frame. */
-const SCROLL_STYLE = {
-  rootOptions: { backgroundColor: theme.bg0 },
-  viewportOptions: { backgroundColor: theme.bg0 },
-  contentOptions: { backgroundColor: theme.bg0 },
-} as const;
+/** Built once per theme: a fresh object here would be a new prop on every
+ *  streamed token, forcing the scrollbox to re-apply its style each frame. */
+function scrollStyle() {
+  return {
+    rootOptions: { backgroundColor: theme.bg0 },
+    viewportOptions: { backgroundColor: theme.bg0 },
+    contentOptions: { backgroundColor: theme.bg0 },
+  } as const;
+}
 
 /** One automatic-memory change, dim like the thought line:
  *    ✻ Remembered · Editor — VS Code  (was: Neovim)   /memory undo */
@@ -154,6 +167,7 @@ function ThoughtItem({ seconds, text }: { seconds: number; text: string }) {
 /** Memoised: streaming appends re-render the log every token, but a settled
  *  item never changes. */
 const Item = memo(function Item({ item }: { item: LogItem }) {
+  useThemeVersion();
   switch (item.kind) {
     case "system":
       return (
@@ -199,6 +213,8 @@ export function ChatLog({
   items: LogItem[];
   streamingText: string;
 }) {
+  const v = useThemeVersion();
+  const style = useMemo(scrollStyle, [v]);
   // Sticky bottom: follows new messages and streamed tokens while the view is
   // at the bottom, and stops following once the user scrolls up to read.
   // (A scrollToBottom() call used to live here — ScrollBox has no such method,
@@ -210,7 +226,7 @@ export function ChatLog({
       flexGrow={1}
       paddingLeft={2}
       paddingRight={2}
-      style={SCROLL_STYLE}
+      style={style}
     >
       {items.map((item, i) => (
         <Item key={i} item={item} />
@@ -224,7 +240,7 @@ export function ChatLog({
           <box paddingLeft={2} flexDirection="column">
             <markdown
               content={streamingText}
-              syntaxStyle={mdStyle}
+              syntaxStyle={mdStyle(v)}
               treeSitterClient={treeSitter}
               fg={theme.fg0}
               conceal={CONCEAL}

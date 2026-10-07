@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { useTerminalDimensions } from "@opentui/react";
 import { theme, logoGradient, logoLines } from "../theme.ts";
+import { useThemeVersion } from "../state/useTheme.ts";
 import { Dot, SectionLabel } from "../ui/primitives.tsx";
 import {
   SIDEBAR_ACTIONS,
@@ -27,6 +28,7 @@ const NavRow = memo(function NavRow({
   active: boolean;
   onAction: (action: ActionId) => void;
 }) {
+  useThemeVersion();
   return (
     <box
       flexDirection="row"
@@ -118,12 +120,26 @@ function ModelCard({
       ? model.slice(0, inner - 15) + "…"
       : model
     : "choose a model";
+  const dot = live ? theme.success : online ? theme.warn : online === null ? theme.fg2 : theme.error;
+
+  // Very short terminals: one line, so the whole nav still fits below.
+  if (tight)
+    return (
+      <box marginLeft={2} marginRight={2} flexShrink={0} height={1} onMouseDown={() => onAction("model_picker")}>
+        <text>
+          <Dot color={dot} />
+          <span fg={model ? theme.accentSoft : theme.fg2}>{` ${name}`}</span>
+          <span fg={theme.borderStrong}>{" · "}</span>
+          <span fg={live ? theme.fg1 : theme.fg2}>{`${ctxK}K`}</span>
+        </text>
+      </box>
+    );
 
   return (
     <box
       marginLeft={2}
       marginRight={2}
-      marginTop={tight ? 0 : 1}
+      marginTop={1}
       flexShrink={0}
       border
       borderStyle="rounded"
@@ -136,7 +152,7 @@ function ModelCard({
       <text>
         {/* Connected but no model yet (still loading, or none installed) is
             not "offline": yellow dot, and the line below says what to do. */}
-        <Dot color={live ? theme.success : online ? theme.warn : online === null ? theme.fg2 : theme.error} />
+        <Dot color={dot} />
         <span fg={theme.fg2}>{online ? ` CONNECTED` : online === null ? ` CONNECTING` : ` OFFLINE`}</span>
         <span fg={theme.borderStrong}>{" · "}</span>
         <span fg={live ? theme.fg1 : theme.fg2}>{`${ctxK}K CTX`}</span>
@@ -169,7 +185,8 @@ export function Sidebar({
 }) {
   // The column below the header and status bars. Short terminals give up
   // decoration in order — figlet logo → one-line wordmark → group headers →
-  // wordmark, version line and gaps — so the nav itself is never clipped.
+  // wordmark → the boxed model card (one line instead) — so the nav itself
+  // is never clipped.
   const { height } = useTerminalDimensions();
   const rows = height - 2;
   const NAV = SIDEBAR_ACTIONS.length + 2;          // rows + card borders
@@ -177,9 +194,10 @@ export function Sidebar({
     rows >= 6 + 5 + NAV + 4 + 1 ? 0 :               // logo, headers
     rows >= 2 + 5 + NAV + 4 + 1 ? 1 :               // wordmark, headers
     rows >= 2 + 5 + NAV + 1 + 1 ? 2 :               // wordmark
-    3;                                              // nav + model card only
+    rows >= 5 + NAV + 1 + 1 ? 3 :                   // boxed model card + nav
+    4;                                              // one-line model card + nav
   const headers = level <= 1;
-  const tight = level === 3;
+  const tight = level === 4;
 
   return (
     <box width={SIDEBAR_WIDTH} height="100%" backgroundColor={theme.bg1} flexDirection="column">
@@ -194,7 +212,7 @@ export function Sidebar({
             </text>
           ))}
         </box>
-      ) : level < 3 ? (
+      ) : level <= 2 ? (
         <box paddingTop={1} paddingLeft={2} flexShrink={0}>
           <text>
             <span fg={theme.accent}>{"◆ "}</span>

@@ -3,7 +3,8 @@ import { useRenderer, useTerminalDimensions } from "@opentui/react";
 import { useBindings } from "@opentui/keymap/react";
 import { ACTIONS, SIDEBAR_ACTIONS, type ActionId } from "../keymap/actions.ts";
 import { LAYER } from "../keymap/AppKeymap.tsx";
-import { theme, humanTokens } from "../theme.ts";
+import { theme, humanTokens, applyTheme, THEMES, ACCENTS } from "../theme.ts";
+import { useThemeVersion } from "../state/useTheme.ts";
 import { useBridge } from "../state/BridgeContext.tsx";
 import { useSession } from "../state/SessionContext.tsx";
 import { useModals } from "../state/ModalContext.tsx";
@@ -25,6 +26,7 @@ import {
   SkillsModal,
   type SkillInfo,
   TemperatureModal,
+  ThemeModal,
   McpModal,
 } from "../modals/index.ts";
 import { toolsLabel } from "../modals/AgentModal.tsx";
@@ -78,6 +80,8 @@ export function ChatScreen({
 }) {
   const bridge = useBridge();
   const { state, dispatch } = useSession();
+  // Everything below reads the live palette while rendering.
+  useThemeVersion();
   const modals = useModals();
   const renderer = useRenderer();
   const { width, height } = useTerminalDimensions();
@@ -224,6 +228,7 @@ export function ChatScreen({
       try {
         const cfg = await bridge.request("config.get");
         if (cancelled) return;
+        applyTheme(cfg.theme, cfg.accent);
         // Where tools actually run: project_dir, else the launch directory.
         setProjectDir(cfg.workdir || cfg.project_dir || "");
         dispatch({
@@ -800,6 +805,24 @@ export function ChatScreen({
     modals.push<void>((close) => <McpModal onClose={close} />).catch(() => {});
   };
 
+  const openTheme = () => {
+    modals
+      .push<void>((close) => (
+        <ThemeModal
+          onClose={close}
+          onSave={(name, accent) =>
+            bridge
+              .request("config.set", { patch: { theme: name, accent } })
+              .then(() =>
+                addSystem(`Theme → ${THEMES[name]?.label ?? name}${accent ? `, ${ACCENTS[accent]?.label} accent` : ""}.`),
+              )
+              .catch(reportFailure("Saving the theme"))
+          }
+        />
+      ), { backdrop: false })
+      .catch(() => {});
+  };
+
   const openTemperature = () => {
     modals
       .push<void>((close) => (
@@ -950,6 +973,8 @@ export function ChatScreen({
       case "help": return openHelp();
       case "temperature":
         return openTemperature();
+      case "theme":
+        return openTheme();
       case "toggle_tools":
         dispatch({ type: "patch", patch: { toolsEnabled: !stateRef.current.toolsEnabled } });
         addSystem(`Tools ${!stateRef.current.toolsEnabled ? "enabled" : "disabled"}.`);

@@ -4,7 +4,7 @@
 #   OLLAMA_SERVER=<address of an Ollama server> docs/media/record.sh [tape …]
 #
 # Needs podman. The server is reached as "gpu-box.lan" inside the recording,
-# so its real address never shows. Tapes: install chat agent models mcp skills memory.
+# so its real address never shows. Tapes: install chat agent models mcp skills memory theme.
 # MODEL=<name> picks the chat model (default nemotron-3-ultra:cloud).
 set -euo pipefail
 : "${OLLAMA_SERVER:?set OLLAMA_SERVER to your Ollama server, e.g. OLLAMA_SERVER=192.0.2.10}"
@@ -21,7 +21,7 @@ podman build -q -t aihub-vhs-demo --build-arg "MODEL=${MODEL:-nemotron-3-ultra:c
   -f "$work/Containerfile.demo" "$work" >/dev/null
 
 cp -r "$here/tapes" "$work/tapes"
-for tape in "${@:-install chat agent models mcp skills memory}"; do
+for tape in "${@:-install chat agent models mcp skills memory theme}"; do
   for t in $tape; do
     image=aihub-vhs-demo; [ "$t" = install ] && image=aihub-vhs-base
     echo "recording $t"

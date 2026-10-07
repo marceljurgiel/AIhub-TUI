@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { theme } from "../theme.ts";
+import { useThemeVersion } from "./useTheme.ts";
 
 /** A modal is rendered by a factory that receives a `close(value)` callback,
  *  mirroring Textual's push_screen/dismiss. */
@@ -16,10 +17,17 @@ interface ModalEntry {
   id: number;
   render: (close: (value: any) => void) => ReactNode;
   resolve: (value: any) => void;
+  /** false: no full-screen backdrop — the app stays visible around the modal
+   *  (the theme picker, so the whole interface is the preview). */
+  backdrop: boolean;
+}
+
+export interface ModalOptions {
+  backdrop?: boolean;
 }
 
 interface ModalApi {
-  push<T = void>(factory: ModalFactory<T>): Promise<T>;
+  push<T = void>(factory: ModalFactory<T>, options?: ModalOptions): Promise<T>;
   depth: number;
   isOpen: boolean;
 }
@@ -29,6 +37,9 @@ const ModalContext = createContext<ModalApi | null>(null);
 let _modalId = 1;
 
 export function ModalProvider({ children }: { children: ReactNode }) {
+  // Modals are re-created from their factories on render: a theme switch
+  // repaints the open ones (the theme picker itself included).
+  useThemeVersion();
   const [stack, setStack] = useState<ModalEntry[]>([]);
 
   const close = useCallback((id: number, value: any) => {
@@ -39,10 +50,10 @@ export function ModalProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const push = useCallback(<T,>(factory: ModalFactory<T>): Promise<T> => {
+  const push = useCallback(<T,>(factory: ModalFactory<T>, options?: ModalOptions): Promise<T> => {
     return new Promise<T>((resolve) => {
       const id = _modalId++;
-      setStack((s) => [...s, { id, render: factory as any, resolve }]);
+      setStack((s) => [...s, { id, render: factory as any, resolve, backdrop: options?.backdrop !== false }]);
     });
   }, []);
 
@@ -65,7 +76,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
             top={0}
             width="100%"
             height="100%"
-            backgroundColor={theme.bg0}
+            backgroundColor={entry.backdrop ? theme.bg0 : undefined}
             zIndex={100 + i}
             alignItems="center"
             justifyContent="center"

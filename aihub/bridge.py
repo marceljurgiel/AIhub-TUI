@@ -25,6 +25,7 @@ from __future__ import annotations
 import json
 import logging
 import queue
+import re
 import sys
 import threading
 from datetime import datetime
@@ -579,8 +580,19 @@ def _normalize_temperature(v) -> float:
     return round(t, 2)
 
 
+def _normalize_theme_name(v) -> str:
+    """Theme / accent ids are the app's to know; the engine only keeps them
+    short and safe for config.yaml. Empty = default."""
+    s = str(v or "").strip().lower()
+    if s and not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,31}", s):
+        raise ValueError(f"not a theme name: {v!r}")
+    return s
+
+
 _CONFIG_NORMALIZERS = {
     "temperature": _normalize_temperature,
+    "theme": lambda v: _normalize_theme_name(v) or "aihub",
+    "accent": _normalize_theme_name,
     "ollama_gpu_memory_gb": _normalize_gb,
     "ollama_api_url": _normalize_ollama_url,
     "project_dir": _normalize_project_dir,

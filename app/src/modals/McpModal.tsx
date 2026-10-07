@@ -50,13 +50,15 @@ type CatalogRow = { kind: "item"; item: CatalogItem } | { kind: "claude"; names:
 
 const VIEWPORT = 8;
 
-const STATUS: Record<string, [string, string]> = {
-  connected: ["●", theme.success],
-  starting: ["◌", theme.warn],
-  error: ["●", theme.error],
-  stopped: ["○", theme.fg2],
-  off: ["○", theme.fg2],
-};
+/** Status dot and colour — a function, so it follows the live theme. */
+const status = (s: string): [string, string] =>
+  ({
+    connected: ["●", theme.success],
+    starting: ["◌", theme.warn],
+    error: ["●", theme.error],
+    stopped: ["○", theme.fg2],
+    off: ["○", theme.fg2],
+  })[s] as [string, string] ?? ["○", theme.fg2];
 
 /**
  * MCP servers (connections to outside services — Gmail, GitHub, files…).
@@ -300,7 +302,7 @@ export function McpModal({ onClose }: { onClose: () => void }) {
               servers.slice(list.start, list.end).map((s, i) => {
                 const idx = list.start + i;
                 const sel = idx === list.index;
-                const [dot, color] = STATUS[s.status] ?? STATUS.stopped!;
+                const [dot, color] = status(s.status);
                 const on = s.tools.filter((t) => t.enabled).length;
                 return (
                   <ListRow key={s.name} selected={sel} onSelect={() => list.setIndex(idx)}>

@@ -126,6 +126,11 @@ Uninstalling leaves `~/.aihub` in place.
 - **History** (`Ctrl+R`): pick up any earlier chat.
 - **Hardware** (`W`) shows your GPU, VRAM and RAM. Context size is chosen
   automatically so the model stays in GPU memory.
+- **Themes** (`T`): seven colour themes (Tokyo Night, Catppuccin, Dracula,
+  Nord, Gruvbox, Light…) and an accent colour of your choice, previewed live.
+
+<p align="center"><img src="docs/media/theme.gif" alt="Switching between themes and accent colours with a live preview" width="820"></p>
+
 - **Temperature** (`Ctrl+T`), **Settings** (`S`), **Command palette**
   (`Ctrl+P`), **Help** (`F1`).
 

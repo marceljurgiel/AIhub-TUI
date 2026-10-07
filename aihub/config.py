@@ -51,6 +51,8 @@ class AppConfig(BaseModel):
     memory_auto:    bool = Field(default=True, description="Learn durable facts about the user from chats automatically")
     skills_disabled: list = Field(default_factory=list, description="Skill names turned off (not offered to the model)")
     temperature:    float = Field(default=0.7, description="Sampling temperature for chats (0 = precise … 2 = very random)")
+    theme:          str   = Field(default="aihub", description="Colour theme of the terminal app (aihub, nord, dracula, …)")
+    accent:         str   = Field(default="", description="Accent colour over the theme (purple, blue, …); empty = the theme's own")
     # Picked with scripts/memory_eval.py: best of the small models tested
     # (88% on 32 cases, misses but no wrong writes, ~4.5 s on the GPU server).
     memory_model:   str  = Field(default="llama3.2:3b", description="Ollama model that extracts facts for memory (empty = off for background learning)")
