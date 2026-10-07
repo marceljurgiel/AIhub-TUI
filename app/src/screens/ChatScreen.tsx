@@ -29,6 +29,7 @@ import {
   ThemeModal,
   KnowledgeModal,
   McpModal,
+  ScheduleModal,
 } from "../modals/index.ts";
 import { toolsLabel } from "../modals/AgentModal.tsx";
 import { parseSlash } from "../slash.ts";
@@ -38,8 +39,9 @@ import type { LogItem } from "../log.ts";
 import type { Attachment, ChatMessage } from "../bridge/types.ts";
 import { imagePaste } from "../clipboard.ts";
 import type { SessionState } from "../state/SessionContext.tsx";
-import type { EngineChange } from "../modals/SettingsModal.tsx";
+import { ctxLabel, type EngineChange } from "../modals/SettingsModal.tsx";
 import { ActivityLine, type Activity, type Phase } from "../widgets/ActivityLine.tsx";
+import { useScheduler } from "../schedule/useScheduler.ts";
 
 /** True when a text field currently owns the keyboard. Bare-letter nav is
  *  suppressed in that case, mirroring the Textual app's rule — but read from
@@ -177,7 +179,8 @@ export function ChatScreen({
   const scheduleLearning = () => {
     cancelLearnTimer();
     learnTimer.current = setTimeout(() => {
-      if (stateRef.current.streaming) return scheduleLearning();
+      // Neither next to a reply nor next to a scheduled task: one model request at a time.
+      if (stateRef.current.streaming || scheduler.isRunning()) return scheduleLearning();
       learnNow();
     }, LEARN_IDLE_MS);
   };
@@ -262,8 +265,7 @@ export function ChatScreen({
           // Same sizing as picking a model: the configured default (often
           // 2048) can't even hold the tool descriptions.
           const sized = await bridge.request("hardware.recommend_context", { model }).catch(() => null);
-          if (!cancelled && sized?.context > 0)
-            dispatch({ type: "patch", patch: { contextLength: sized.context, ctxMax: sized.context } });
+          if (!cancelled) applySizing(sized);
         } else if (!cancelled) {
           // An offline Ollama also lists zero models — say which one it is.
           addSystem(
@@ -385,12 +387,44 @@ export function ChatScreen({
         return true;            // the path was an image that failed: don't paste it as text
       });
 
+  // ── scheduled tasks: the clock ──
+  // Tasks run only while AIhub is open, one model request at a time: a task
+  // waits for a streaming reply, and a message sent during a task waits for it.
+  const heldMessage = useRef<{ input: string; wire?: string } | null>(null);
+  const scheduler = useScheduler({
+    chatBusy: () => stateRef.current.streaming,
+    addSystem,
+    onIdle: () => {
+      const held = heldMessage.current;
+      heldMessage.current = null;
+      if (held) startChat(held.input, held.wire);
+      return !!held;
+    },
+  });
+  useEffect(() => {
+    if (!state.streaming) scheduler.pump();
+  }, [state.streaming]);
+
+  /** The context a model loads with: what fits, or the size set by hand
+   *  (then the chat says so, since it isn't the automatic choice). */
+  const applySizing = (d: { context?: number; manual?: number } | null) => {
+    if (!d?.context || d.context <= 0) return;
+    dispatch({ type: "patch", patch: { contextLength: d.context, ctxMax: d.context } });
+    if (d.manual) addSystem(`Context ${ctxLabel(d.context)} (manual) — Settings → c to change.`);
+  };
+
   // ── chat submit ──
   /** `wire`: what the model gets when it differs from what the user typed
    *  (a /skill message carries the skill's instructions). */
   const startChat = (input: string, wire?: string) => {
     const s = stateRef.current;
     if (s.streaming || !s.modelName) return;
+    const task = scheduler.isRunning();
+    if (task) {
+      if (heldMessage.current) addSystem("Replaced the waiting message.");
+      heldMessage.current = { input, wire };
+      return addSystem(`Waiting for task ${task}… your message goes right after.`);
+    }
     const images = pendingRef.current;
     const userMsg: ChatMessage = { role: "user", content: wire ?? input };
     if (images.length) userMsg.images = images.map((a) => a.id);
@@ -654,10 +688,7 @@ export function ChatScreen({
       // Touchless context: size the window to what the hardware fits.
       bridge
         .request("hardware.recommend_context", { model: display })
-        .then((d) => {
-          if (d.context && d.context > 0)
-            dispatch({ type: "patch", patch: { contextLength: d.context, ctxMax: d.context } });
-        })
+        .then(applySizing)
         .catch(reportFailure("Sizing the context window"));
     }
   };
@@ -678,6 +709,21 @@ export function ChatScreen({
       case "skills": return openSkills();
       case "mcp": return openMcp();
       case "knowledge": return openKnowledge();
+      case "schedule": return openSchedule();
+      case "schedule_run": {
+        const name = (r.payload?.value ?? "").trim();
+        if (!name) return openSchedule();
+        bridge
+          .request("schedule.list")
+          .then((d) => {
+            if (!(d.tasks || []).some((t: { name: string }) => t.name === name))
+              return addSystem(`No task named ${name} — F7 to see tasks.`, true);
+            runTaskNow(name);
+            addSystem(`Running task ${name}…`);
+          })
+          .catch(reportFailure("Listing tasks"));
+        return;
+      }
       case "kb": return applyKb((r.payload?.value ?? "").trim());
       case "skill": {
         const s = stateRef.current;
@@ -827,6 +873,36 @@ export function ChatScreen({
       .request("config.set", { patch: { temperature: v } })
       .then(() => addSystem(`Temperature → ${v.toFixed(1)}.`))
       .catch(reportFailure("Saving the temperature"));
+  };
+
+  // ── scheduled tasks ──
+  const runTaskNow = (name: string) => scheduler.runNow(name);
+  const cancelTask = () => scheduler.cancel();
+  const openTaskSession = (sess: { model: string; filename: string }) => {
+    bridge
+      .request("history.load", { model: sess.model, filename: sess.filename })
+      .then((d) => {
+        doLoadHistory(d.messages || [], d.start_time);
+        const active = stateRef.current.modelName;
+        if (active && sess.model !== active)
+          addSystem(`Session from ${sess.model} — the current model stays ${active}.`);
+      })
+      .catch(reportFailure("Opening the task's session"));
+  };
+  const openSchedule = () => {
+    const s = stateRef.current;
+    modals
+      .push<void>((close) => (
+        <ScheduleModal
+          onClose={close}
+          running={scheduler.isRunning}
+          onRunNow={runTaskNow}
+          onCancelRun={cancelTask}
+          onOpenSession={openTaskSession}
+          current={{ model: s.modelName ?? "", backend: s.backend, streamModel: s.streamModel || s.modelName || "" }}
+        />
+      ))
+      .catch(() => {});
   };
 
   const openKnowledge = () => {
@@ -1014,11 +1090,17 @@ export function ChatScreen({
     setNavFocus(false);                       // any action hands the keyboard back
     switch (action) {
       case "quit": {
-        // Autosave the chat before leaving; never hang the exit on it.
+        // Autosave the chat and let a running task be recorded as cancelled
+        // before leaving; never hang the exit on either.
         const s = stateRef.current;
-        if (!s.modelName || !s.messages.some((m) => m.role === "user")) return renderer.destroy();
+        const stopTask = scheduler.stop();
+        const save = s.modelName && s.messages.some((m) => m.role === "user");
+        if (!save && !scheduler.isRunning()) return renderer.destroy();
         cancelLearnTimer();
-        Promise.race([saveSession(s, s.messages, true), new Promise((r) => setTimeout(r, 1500))])
+        Promise.race([
+          Promise.all([save ? saveSession(s, s.messages, true) : null, stopTask]),
+          new Promise((r) => setTimeout(r, 1500)),
+        ])
           .catch(() => {})
           .finally(() => renderer.destroy());
         return;
@@ -1041,6 +1123,8 @@ export function ChatScreen({
         return openTemperature();
       case "knowledge":
         return openKnowledge();
+      case "schedule":
+        return openSchedule();
       case "theme":
         return openTheme();
       case "toggle_tools":
@@ -1190,6 +1274,7 @@ export function ChatScreen({
       </box>
       <Footer
         state={state}
+        task={scheduler.running}
         onToggleMemory={toggleMemory}
         onToggleTools={() => dispatchAction("toggle_tools")}
         onTemperature={openTemperature}

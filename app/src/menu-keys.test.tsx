@@ -36,7 +36,7 @@ test("tab from an empty prompt focuses the menu; arrows + enter open a panel", a
   setup!.mockInput.pressTab();
   let f = await until((x) => x.includes("esc back to typing"));
   expect(row(f, "New Chat")).toContain("▎");                    // cursor on the first row
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 4; i++) {      // Agent, Schedule, Skills, Models
     setup!.mockInput.pressArrow("down");
     await settle();
   }

@@ -88,8 +88,8 @@ function FieldRow({
   );
 }
 
-type FieldId = "ollama" | "gpuMem" | "workdir" | "model" | "ctx" | "memoryModel";
-const FIELDS: FieldId[] = ["ollama", "gpuMem", "workdir", "model", "ctx", "memoryModel"];
+type FieldId = "ollama" | "gpuMem" | "workdir" | "model" | "memoryModel";
+const FIELDS: FieldId[] = ["ollama", "gpuMem", "workdir", "model", "memoryModel"];
 
 /** On/off settings that save the moment they're flipped. */
 type SwitchId = "tools" | "memory" | "autoLearn" | "autosave";
@@ -126,7 +126,8 @@ export function SettingsModal({
   const [ollama, setOllama] = useState("");
   const [workdir, setWorkdir] = useState("");
   const [model, setModel] = useState("");
-  const [ctx, setCtx] = useState("");
+  // The current model's context: set by hand (manual) or automatic.
+  const [ctxInfo, setCtxInfo] = useState<{ context: number; manual: boolean } | null>(null);
   const [memoryModel, setMemoryModel] = useState("");
   // GPU memory of the machine running Ollama; empty = learned from chats.
   const [gpuMem, setGpuMem] = useState("");
@@ -148,7 +149,6 @@ export function SettingsModal({
         setOllama(d.ollama_api_url ?? "");
         setWorkdir(d.project_dir ?? "");
         setModel(d.default_chat_model ?? "");
-        setCtx(String(d.default_context_length ?? 2048));
         setMemoryModel(d.memory_model ?? "");
         setGpuMem(d.ollama_gpu_memory_gb ? String(d.ollama_gpu_memory_gb) : "");
         setSwitches({
@@ -159,6 +159,11 @@ export function SettingsModal({
         });
       })
       .catch((e) => setStatus({ text: `load failed: ${(e as Error).message}`, tone: "warn" }));
+    if (session.modelName)
+      bridge
+        .request("hardware.recommend_context", { model: session.modelName })
+        .then((d) => setCtxInfo({ context: d.context || session.contextLength, manual: (d.manual || 0) > 0 }))
+        .catch(() => setCtxInfo({ context: session.contextLength, manual: false }));
   }, []);
 
   /** `latest` carries the value of the field Enter was pressed in: after a
@@ -167,8 +172,7 @@ export function SettingsModal({
     if (!cfg || saving) return;
     setSaving(true);
     setFocus(null);
-    const v = { ollama, gpuMem, workdir, model, ctx, memoryModel, ...latest };
-    const ctxN = parseInt(v.ctx, 10);
+    const v = { ollama, gpuMem, workdir, model, memoryModel, ...latest };
     const gpuN = v.gpuMem.trim() ? Number(v.gpuMem.trim().replace(",", ".")) : 0;
     if (!Number.isFinite(gpuN) || gpuN < 0 || gpuN > 1024) {
       setStatus({ text: `Not saved: GPU memory must be a number of GB (e.g. 8), or empty.`, tone: "warn" });
@@ -190,7 +194,6 @@ export function SettingsModal({
         default_chat_model: v.model.trim() || cfg.default_chat_model,
         memory_model: v.memoryModel.trim(),
         ollama_gpu_memory_gb: gpuN,
-        default_context_length: Number.isFinite(ctxN) && ctxN >= 256 ? ctxN : 2048,
         tools_enabled: tools,
         memory_enabled: memory,
       };
@@ -199,12 +202,7 @@ export function SettingsModal({
       setOllama(d.ollama_api_url ?? "");
       setWorkdir(d.project_dir ?? "");
       setGpuMem(d.ollama_gpu_memory_gb ? String(d.ollama_gpu_memory_gb) : "");
-      onPatchSession({
-        toolsEnabled: tools,
-        memoryEnabled: memory,
-        ctxMax: patch.default_context_length as number,
-        contextLength: Math.min(session.contextLength, patch.default_context_length as number),
-      });
+      onPatchSession({ toolsEnabled: tools, memoryEnabled: memory });
       onEngineChanged?.({ workdir: d.workdir ?? "", ollamaChanged });
       setStatus({ text: `Settings saved.${note}`, tone: note.includes("⚠") ? "warn" : "ok" });
     } catch (e) {
@@ -238,6 +236,32 @@ export function SettingsModal({
       return FIELDS[(i + step + FIELDS.length) % FIELDS.length]!;
     });
 
+  /** The context window for the current model, by hand or automatic. */
+  const openContext = () => {
+    if (!session.modelName) {
+      setStatus({ text: "Select a model first.", tone: "warn" });
+      return;
+    }
+    modals
+      .push<void>((close) => (
+        <ContextConfigModal
+          model={session.modelName!}
+          current={ctxInfo?.context ?? session.contextLength}
+          onApply={(n, manual) => {
+            onPatchSession({ contextLength: n, ctxMax: n });
+            setCtxInfo({ context: n, manual });
+            setStatus({
+              text: `Context for ${session.modelName}: ${n.toLocaleString()} tokens (${manual ? "manual" : "automatic"}) — saved.`,
+              tone: "ok",
+            });
+            close();
+          }}
+          onClose={() => close()}
+        />
+      ))
+      .catch(() => {});
+  };
+
   // Letter shortcuts only while no field is being typed into.
   const typing = () => focus != null;
   useModalKeys([
@@ -251,28 +275,7 @@ export function SettingsModal({
       { key: "return", run: () => void save() },
       { key: "s", run: () => void save() },
       ...(Object.keys(SWITCHES) as SwitchId[]).map((id) => ({ key: SWITCHES[id].key, run: () => void toggle(id) })),
-      {
-        key: "c",
-        run: () => {
-          if (!session.modelName) {
-            setStatus({ text: "Select a model first.", tone: "warn" });
-            return;
-          }
-          modals
-            .push<void>((close) => (
-              <ContextConfigModal
-                model={session.modelName!}
-                current={session.contextLength}
-                onApply={(n) => {
-                  onPatchSession({ contextLength: n, ctxMax: n });
-                  close();
-                }}
-                onClose={() => close()}
-              />
-            ))
-            .catch(() => {});
-        },
-      },
+      { key: "c", run: () => openContext() },
     ],
     { enabled: () => !typing() },
   );
@@ -318,7 +321,17 @@ export function SettingsModal({
         <box marginTop={1} flexDirection="column">
           <SectionLabel label="defaults" width={width - 4} />
           {field("model", "Default model", model, setModel, "ollama model tag")}
-          {field("ctx", "Default context", ctx, setCtx, "2048")}
+          <box onMouseDown={openContext}>
+            <text>
+              <span fg={theme.fg2}>{`  ${"Context".padEnd(18)}`}</span>
+              <span fg={theme.fg0}>
+                {session.modelName
+                  ? fit(`${session.modelName} · ${ctxInfo ? `${ctxInfo.manual ? "manual" : "auto"} ${ctxLabel(ctxInfo.context)}` : "…"}`, width - 36)
+                  : "no model selected"}
+              </span>
+              <span fg={theme.fg2}>{"   c to change"}</span>
+            </text>
+          </box>
         </box>
 
         <box marginTop={1} flexDirection="column">
@@ -338,9 +351,24 @@ export function SettingsModal({
   );
 }
 
-const CTX_OPTIONS = [512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072];
+const CTX_OPTIONS = [2048, 4096, 8192, 16384, 32768, 65536, 131072];
 
-/** Context-size picker capped by the largest window that fits the hardware. */
+/** "24k" / "24K" / "1.5k" / "16,384" → tokens; null when it isn't a size. */
+export function parseContext(raw: string): number | null {
+  const m = raw.trim().toLowerCase().replace(/[,_\s]/g, "").match(/^(\d+(?:\.\d+)?)(k?)$/);
+  if (!m) return null;
+  const n = Math.round(Number(m[1]) * (m[2] ? 1024 : 1));
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+/** 16384 → "16K", as the model card shows it. */
+export const ctxLabel = (n: number) => `${Math.max(1, Math.round(n / 1024))}K`;
+
+/**
+ * The context window for one model, by hand: any size (also more than fits
+ * the hardware — then part of the model runs on the CPU), or back to
+ * automatic. Saved per model in the engine's config (context.set).
+ */
 export function ContextConfigModal({
   model,
   current,
@@ -349,63 +377,121 @@ export function ContextConfigModal({
 }: {
   model: string;
   current: number;
-  onApply: (n: number) => void;
+  /** The context now in effect for this model, and whether it is manual. */
+  onApply: (n: number, manual: boolean) => void;
   onClose: () => void;
 }) {
   const bridge = useBridge();
-  const [recommended, setRecommended] = useState<number | null>(null);
+  const [info, setInfo] = useState<{ manual: number; fits: number } | null>(null);
   const [note, setNote] = useState("");
-  const [sel, setSel] = useState(CTX_OPTIONS.indexOf(current) >= 0 ? CTX_OPTIONS.indexOf(current) : 2);
-  const width = 52;
+  const [custom, setCustom] = useState(false);
+  const inputEl = useRef<any>(null);
+  const lastSubmit = useRef(0);
+  const rows = [...CTX_OPTIONS, 0];                            // 0 = "custom…"
+  const [sel, setSel] = useState(() => Math.max(0, CTX_OPTIONS.indexOf(current)));
+  const width = 64;
 
   useEffect(() => {
     bridge
       .request("hardware.recommend_context", { model })
-      .then((d) => setRecommended(d.context ?? null))
+      .then((d) => setInfo({ manual: d.manual || 0, fits: d.fits || d.context || 0 }))
       .catch((e) => setNote(String((e as Error).message || e)));
   }, [model]);
 
-  const options = CTX_OPTIONS.filter((n) => recommended == null || n <= Math.max(recommended, current));
+  const apply = (n: number) => {
+    setNote("");
+    bridge
+      .request("context.set", { model, context: n })
+      .then((d) => {
+        const manual = d.manual || 0;
+        setInfo((i) => (i ? { ...i, manual } : i));
+        setCustom(false);
+        onApply(manual || info?.fits || current, manual > 0);
+        if (d.note) setNote(d.note);
+      })
+      .catch((e) => setNote(String((e as Error).message || e)));
+  };
+
+  const submitCustom = (v?: string) => {
+    if (Date.now() - lastSubmit.current < 200) return;     // Enter reaches keymap and input
+    lastSubmit.current = Date.now();
+    const n = parseContext(String(v ?? inputEl.current?.value ?? ""));
+    if (n == null) return setNote("Type a number of tokens, e.g. 24k or 24576.");
+    apply(n);
+  };
+
+  const choose = () => {
+    const n = rows[sel];
+    if (n === 0) return setCustom(true);
+    if (n != null) apply(n);
+  };
 
   useModalKeys([
-    { key: "escape", run: onClose },
-    { key: "up", run: () => setSel((s) => Math.max(0, s - 1)) },
-    { key: "down", run: () => setSel((s) => Math.min(options.length - 1, s + 1)) },
-    { key: "return", run: () => onApply(options[sel] ?? current) },
+    { key: "escape", run: () => (custom ? setCustom(false) : onClose()) },
+    { key: "return", run: () => (custom ? submitCustom() : choose()) },
   ]);
+  useModalKeys(
+    [
+      { key: "up", run: () => setSel((s) => Math.max(0, s - 1)) },
+      { key: "down", run: () => setSel((s) => Math.min(rows.length - 1, s + 1)) },
+      { key: "a", run: () => info?.manual && apply(0) },
+    ],
+    { enabled: () => !custom },
+  );
+
+  const head = !info
+    ? note || "checking hardware…"
+    : info.manual
+      ? `manual: ${info.manual.toLocaleString()} tokens · fits: ${info.fits.toLocaleString()} · a = automatic`
+      : `automatic: ${info.fits.toLocaleString()} tokens — what fits your hardware`;
 
   return (
     <ModalShell
-      title={`Context — ${fit(model, 26)}`}
+      title={`Context — ${fit(model, 36)}`}
       width={width}
-      height={Math.min(16, options.length + 7)}
-      hints={[
-        ["↑↓", "select"],
-        ["enter", "apply"],
-      ]}
+      height={rows.length + 10}
+      hints={custom ? [["enter", "set"], ["esc", "back"]] : [["↑↓", "select"], ["enter", "set"], ["a", "automatic"]]}
     >
-      {recommended != null ? (
-        <text fg={theme.fg2}>{`  fits your hardware: ${recommended.toLocaleString()} tokens`}</text>
-      ) : (
-        <text fg={theme.warn}>{`  ${fit(note || "checking hardware…", width - 6)}`}</text>
-      )}
+      <text fg={info ? theme.fg1 : theme.warn}>{`  ${fit(head, width - 6)}`}</text>
       <box flexDirection="column" paddingTop={1} flexGrow={1}>
-        {options.map((n, i) => {
-          const selected = i === sel;
+        {rows.map((n, i) => {
+          const selected = i === sel && !custom;
           const isCurrent = n === current;
-          const isRec = n === recommended;
+          const tag = n === 0
+            ? ""
+            : info && n === info.fits
+              ? "  ✓ fits"
+              : info && n > info.fits
+                ? "  · more than fits — part runs on the CPU"
+                : "";
           return (
             <box key={n} onMouseDown={() => setSel(i)} backgroundColor={selected ? theme.bg3 : undefined}>
               <text>
                 <span fg={selected ? theme.accent : theme.border}>{"▎"}</span>
-                <span fg={selected ? theme.fg0 : theme.fg1}>{` ${n.toLocaleString()}`}</span>
+                <span fg={selected ? theme.fg0 : theme.fg1}>{n === 0 ? " custom…" : ` ${n.toLocaleString().padStart(7)}`}</span>
                 {isCurrent ? <span fg={theme.fg2}>{"  current"}</span> : null}
-                {isRec ? <span fg={theme.success}>{"  ✓ recommended"}</span> : null}
+                <span fg={n && info && n > info.fits ? theme.warn : theme.success}>{tag}</span>
               </text>
             </box>
           );
         })}
       </box>
+      {custom ? (
+        <box border borderStyle="rounded" borderColor={theme.border} backgroundColor={theme.bg2} flexShrink={0} paddingLeft={1}>
+          <input
+            ref={inputEl}
+            onPaste={singleLinePaste}
+            focused
+            placeholder="Tokens, e.g. 24k or 24576"
+            onSubmit={(v: unknown) => submitCustom(typeof v === "string" ? v : undefined)}
+            backgroundColor={theme.bg2}
+            textColor={theme.fg0}
+            placeholderColor={theme.fg2}
+            cursorColor={theme.accent}
+          />
+        </box>
+      ) : null}
+      {note ? <text fg={theme.warn}>{fit(`  ${note}`, width - 4)}</text> : null}
     </ModalShell>
   );
 }

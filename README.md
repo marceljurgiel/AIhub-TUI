@@ -110,6 +110,18 @@ Uninstalling leaves `~/.aihub` in place.
 
 <p align="center"><img src="docs/media/agent.gif" alt="AIhub reads a project, asks before running the tests, and reports the result" width="820"></p>
 
+- **Schedule** (`J`, `F7`) runs an agent on a timetable: every 30 minutes,
+  daily at 08:00, on weekdays, weekly, or once. Say "every morning, summarize
+  my new email", and the answer is waiting in History (`Enter` in Schedule
+  opens it).
+  - **It runs only while AIhub is open.** If a time passed while AIhub was
+    closed, AIhub asks whether to run the task when it starts.
+  - A task runs with its agent's tools. Anything that agent would ask you
+    about is refused, since nobody is there to answer.
+  - Your own chat comes first: a task waits for an answer in progress, and
+    one model request runs at a time.
+  - `/schedule run <name>` runs a task now.
+
 - **Models** (`Ctrl+O`):
   - Browse the Ollama library and Hugging Face GGUFs, ranked by how well they
     fit your hardware or your server's.
@@ -144,7 +156,8 @@ Uninstalling leaves `~/.aihub` in place.
 <p align="center"><img src="docs/media/skills.gif" alt="Creating a skill from one sentence and using it on a file" width="820"></p>
 - **History** (`Ctrl+R`): pick up any earlier chat.
 - **Hardware** (`W`) shows your GPU, VRAM and RAM. Context size is chosen
-  automatically so the model stays in GPU memory.
+  automatically so the model stays in GPU memory, or set it by hand for a
+  model in Settings → `c` (any size, e.g. `24k`; `a` goes back to automatic).
 - **Themes** (`T`): seven colour themes (Tokyo Night, Catppuccin, Dracula,
   Nord, Gruvbox, Light…) and an accent colour of your choice, previewed live.
 

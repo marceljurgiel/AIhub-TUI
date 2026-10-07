@@ -1,5 +1,40 @@
 # Changelog
 
+## [1.4.0] - 2026-10-07
+### Added
+- **Scheduled tasks**: an agent runs a prompt on a timetable — only while
+  AIhub is open.
+  - **Schedule (`J`, `F7`):** make, edit, switch off, run now (`r`; `r`
+    again cancels), delete (twice). Each row shows the next time and the
+    last result; `Enter` opens that run's session.
+  - **Times:** `every 30m`, `every 2h`, `daily 08:00`, `weekdays 08:00`,
+    `weekly Mon 08:00`, `once 2026-10-08 10:00` (local time).
+  - **Unattended:** the task uses its agent's tools and permissions. A tool
+    the agent would ask about is refused without waiting.
+  - **One model request at a time:** a task waits for a chat answer in
+    progress; a message sent during a task goes right after it.
+  - **Missed while closed:** at startup AIhub asks, per task, whether to
+    run it now or skip that time.
+  - **Results:** every run is saved to History (whatever the autosave
+    setting), with a line in the chat when it ends or fails.
+  - **Storage:** `~/.aihub/schedule/<name>.md` (front matter + prompt) and
+    `state.json` for the run history. Two AIhub windows never run the same
+    time twice.
+  - `/schedule`, `/schedule run <name>`.
+- **Context by hand, per model:** Settings → `c` sets the context window
+  for the current model — a listed size, or any number (`24k`, `24576`),
+  also more than fits the GPU (marked: part then runs on the CPU). `a` goes
+  back to automatic. It is saved in `config.yaml` (`context_overrides`) and
+  used for chats, agents and scheduled tasks; the chat says so when a model
+  loads with it.
+### Changed
+- Settings shows the current model's context (`auto 32K` / `manual 64K`)
+  instead of the "Default context" field, which the automatic sizing
+  always overrode.
+- The sidebar fits one more item: on a 24-row terminal the version line
+  goes before the model card does, and on 18 rows the menu drops its border
+  instead of its last row.
+
 ## [1.3.0] - 2026-10-07
 ### Added
 - **Knowledge bases**: search your own documents by meaning (local RAG).

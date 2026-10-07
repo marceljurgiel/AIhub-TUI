@@ -342,6 +342,13 @@ def agent_context(model: str, backend: str, profile: Optional[AgentProfile] = No
     cap. Never below MIN_AGENT_CONTEXT (spilling a little to the CPU beats an
     agent that forgets its task)."""
     from .config import config
+    from .hardware import manual_context
+    by_hand = manual_context(model)
+    if by_hand:
+        # Set by hand for this model (Settings → c): respected, even if small.
+        ctx = min(by_hand, max_context) if max_context else by_hand
+        return ctx, ("manual" if ctx >= MIN_AGENT_CONTEXT
+                     else f"manual — below {MIN_AGENT_CONTEXT // 1024}K the agent may lose track of its task")
     cap = (profile.context if profile and profile.context else 0) or config.agent_default_context
     if max_context:
         cap = min(cap, max_context)

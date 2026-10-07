@@ -9,7 +9,7 @@ import shutil
 from datetime import datetime
 
 import yaml
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator
 
 log = logging.getLogger(__name__)
 
@@ -64,6 +64,9 @@ class AppConfig(BaseModel):
     hardware_scan_completed: bool = Field(default=False, description="Whether the initial hardware scan was completed")
     # v0.1.2 — Context Length
     default_context_length: int = Field(default=2048, description="Default context window size (num_ctx) for models")
+    # v1.4 — a context window set by hand per model (Settings → c); a model
+    # not listed is sized automatically to what fits.
+    context_overrides: dict = Field(default_factory=dict, description="Manual context window (num_ctx) per model; others are sized automatically")
     # v0.3.1 — Ollama GPU offload. 0 = auto (Ollama decides). >0 = force that many
     # layers onto the GPU (e.g. 999 = all). Never send 0 to Ollama (that = CPU-only).
     ollama_num_gpu: int = Field(default=0, description="Ollama num_gpu layers: 0=auto, 999=force all on GPU")
@@ -84,6 +87,23 @@ class AppConfig(BaseModel):
     llamacpp_agent_allow:  bool = Field(default=False, description="Allow llama.cpp models in agent mode (tool support is model-dependent)")
     project_dir:           str  = Field(default="",    description="Working directory for agent file/shell tools (empty = current dir)")
     recent_models:         list = Field(default_factory=list, description="Recently used model names, most-recent first")
+
+    @field_validator("context_overrides", mode="before")
+    @classmethod
+    def _clean_overrides(cls, v):
+        """Keep only model → positive whole number; a hand-edited typo drops
+        that one entry, not the user's whole config."""
+        if not isinstance(v, dict):
+            return {}
+        out = {}
+        for k, n in v.items():
+            try:
+                n = int(n)
+            except (TypeError, ValueError):
+                continue
+            if n > 0:
+                out[str(k)] = n
+        return out
 
 
 def _salvage(data: dict) -> AppConfig:

@@ -20,6 +20,8 @@ export const SLASH_COMMANDS: SlashCommand[] = [
   { cmd: "/mcp", desc: "Connections: Google, GitHub and other services (F5)" },
   { cmd: "/knowledge", desc: "Knowledge bases: search your own documents (F6)" },
   { cmd: "/kb", desc: "Use a knowledge base in this chat → /kb <name>, /kb off" },
+  { cmd: "/schedule", desc: "Scheduled tasks: agents on a timetable (F7)" },
+  { cmd: "/schedule run", desc: "Run a scheduled task now → /schedule run <name>" },
   { cmd: "/tools", desc: "List available agentic tools" },
   { cmd: "/clear", desc: "Clear chat context (keep system)" },
   { cmd: "/websearch", desc: "Test web search → /websearch <query>" },
@@ -49,6 +51,8 @@ export interface SlashResult {
     | "mcp"
     | "knowledge"
     | "kb"
+    | "schedule"
+    | "schedule_run"
     | "skill"
     | "history"
     | "memory_show"
@@ -82,6 +86,9 @@ export function parseSlash(raw: string): SlashResult {
   if (lower === "/skills" || lower === "/skill") return { kind: "skills" };
   if (lower === "/mcp" || lower === "/connections") return { kind: "mcp" };
   if (lower === "/knowledge") return { kind: "knowledge" };
+  if (lower === "/schedule") return { kind: "schedule" };
+  if (lower === "/schedule run" || lower.startsWith("/schedule run "))
+    return { kind: "schedule_run", payload: { value: text.slice("/schedule run".length).trim() } };
   if (lower === "/kb" || lower.startsWith("/kb ")) return { kind: "kb", payload: { value: text.slice(3).trim() } };
   if (lower.startsWith("/skill ")) {
     const rest = text.slice("/skill ".length).trim();

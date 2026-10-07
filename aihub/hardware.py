@@ -390,8 +390,18 @@ def free_vram_gb() -> float:
 _CTX_LADDER = [2048, 4096, 8192, 16384, 32768, 65536, 131072]
 
 
-def recommend_context(model_name: str, hard_cap: int | None = None) -> int:
-    """Largest sensible context whose model weights + KV cache fit GPU VRAM.
+def manual_context(model_name: str) -> int:
+    """The context window the user set by hand for this model (0 = automatic)."""
+    from .config import config
+    try:
+        return int((config.context_overrides or {}).get(model_name) or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def recommend_context(model_name: str, hard_cap: int | None = None, manual: bool = True) -> int:
+    """Largest sensible context whose model weights + KV cache fit GPU VRAM —
+    or, unless `manual` is False, the size the user set for this model.
 
     Falls back to config.default_context_length when no GPU is detected (on CPU
     the context size doesn't change the GPU/CPU decision). Capped at `hard_cap`
@@ -400,6 +410,9 @@ def recommend_context(model_name: str, hard_cap: int | None = None) -> int:
     from .config import config
     from .ollama_cloud import is_cloud
     from .target import current
+    by_hand = manual_context(model_name) if manual else 0
+    if by_hand:
+        return min(by_hand, hard_cap) if hard_cap else by_hand
     if is_cloud(model_name):
         # Runs on ollama.com: no local memory limit. A generous window, within
         # the model's own maximum.

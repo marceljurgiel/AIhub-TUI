@@ -24,10 +24,12 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import queue
 import re
 import sys
 import threading
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Callable, Dict, List
 
@@ -522,9 +524,48 @@ def _h_hardware_usage(p):
 
 
 def _h_hardware_recommend_context(p):
-    from .hardware import recommend_context
-    cap = p.get("cap")
-    return {"context": recommend_context(p["model"], hard_cap=int(cap) if cap else None)}
+    """The context for a model: set by hand (`manual`, 0 = automatic) or what
+    fits the hardware (`fits`, always reported so Settings can compare)."""
+    from .hardware import manual_context, recommend_context
+    cap = int(p["cap"]) if p.get("cap") else None
+    fits = recommend_context(p["model"], hard_cap=cap, manual=False)
+    by_hand = manual_context(p["model"])
+    context = (min(by_hand, cap) if cap else by_hand) if by_hand else fits
+    return {"context": context, "manual": by_hand, "fits": fits}
+
+
+MAX_MANUAL_CONTEXT = 1_048_576
+
+
+def _h_context_set(p):
+    """Set (or with 0 clear) the context window for one model, by hand."""
+    from .config import config, save_config
+    model = str(p.get("model") or "").strip()
+    if not model:
+        raise ValueError("no model selected")
+    try:
+        n = int(p.get("context") or 0)
+    except (TypeError, ValueError):
+        n = -1
+    if n and not 512 <= n <= MAX_MANUAL_CONTEXT:
+        raise ValueError(f"context must be a number of tokens from 512 to {MAX_MANUAL_CONTEXT:,} (e.g. 16384 or 16k)")
+    note = ""
+    if n:
+        try:
+            from .ollama_client import get_model_info
+            top = int(get_model_info(model).get("max_context") or 0)
+        except Exception:
+            top = 0
+        if top and n > top:
+            n, note = top, f"{model} holds at most {top:,} tokens — set to that."
+    overrides = dict(config.context_overrides or {})
+    if n:
+        overrides[model] = n
+    else:
+        overrides.pop(model, None)
+    config.context_overrides = overrides
+    save_config(config)
+    return {"model": model, "manual": n, "note": note}
 
 
 def _h_config_get(p):
@@ -1014,6 +1055,150 @@ def _h_vision_check(p):
     return {"vision": supports_vision(model, p.get("backend", "ollama"))}
 
 
+
+# ── Scheduled tasks ───────────────────────────────────────────────────────────
+# The app keeps the clock (tasks run only while AIhub is open) and asks
+# schedule.check what is due; schedule.run is one unattended agent turn.
+
+def _task_row(t, state) -> Dict[str, Any]:
+    from . import schedule as sch
+    row = t.to_dict()
+    st = state.get(t.name) or {}
+    nxt = None
+    if t.enabled and not t.broken:
+        slot = sch.next_run(sch.parse_when(t.when), sch.anchor_of(t, state))
+        nxt = slot.isoformat() if slot else None
+    row.update(next_run=nxt, last_run=st.get("last_run"), last_status=st.get("last_status"),
+               last_summary=st.get("last_summary", ""), last_session=st.get("last_session"),
+               last_error=st.get("last_error", ""))
+    return row
+
+
+def _h_schedule_list(p):
+    from . import schedule as sch
+    state = sch.load_state()
+    rows = []
+    for t in sch.list_tasks():
+        try:
+            rows.append(_task_row(t, state))
+        except Exception as exc:
+            # Shown as broken rather than failing the whole list.
+            t.broken = f"can't compute its schedule: {exc}"
+            rows.append(_task_row(t, state))
+    return {"tasks": rows}
+
+
+def _h_schedule_save(p):
+    from . import schedule as sch
+    raw = dict(p["task"])
+    fields = {k: raw[k] for k in ("name", "agent", "model", "backend", "stream_model", "when",
+                                  "prompt", "enabled", "created") if k in raw and raw[k] is not None}
+    t = sch.save_task(sch.Task(**fields), original_name=p.get("original_name"))
+    return {"task": _task_row(t, sch.load_state())}
+
+
+def _h_schedule_delete(p):
+    from . import schedule as sch
+    return {"ok": sch.delete_task(str(p["name"]))}
+
+
+def _h_schedule_toggle(p):
+    from . import schedule as sch
+    t = sch.set_enabled(str(p["name"]), bool(p["enabled"]))
+    return {"task": _task_row(t, sch.load_state())}
+
+
+def _h_schedule_check(p):
+    from . import schedule as sch
+    now = sch.datetime.now()
+    if p.get("startup"):
+        sch.reset_every(now)
+        missed = sch.missed(now)
+        asked = {m["name"] for m in missed}
+        return {"due": [d for d in sch.due(now) if d["name"] not in asked], "missed": missed}
+    return {"due": sch.due(now), "missed": []}
+
+
+def _h_schedule_skip(p):
+    from . import schedule as sch
+    sch.skip(str(p["name"]), str(p["slot"]))
+    return {"ok": True}
+
+
+def _stream_schedule_run(req_id, p) -> None:
+    from datetime import datetime as _dt, timezone as _tz
+    from . import schedule as sch
+    from .agents import agent_context, get_agent
+    from .chat import finalize_session
+    name, slot = str(p["name"]), p.get("slot")
+    try:
+        task = sch.get_task(name)
+    except KeyError as exc:
+        _error(req_id, exc.args[0])
+        return
+
+    def fail(msg: str) -> None:
+        sch.record_run(name, last_run=_dt.now().replace(microsecond=0).isoformat(),
+                       last_status="error", last_error=msg)
+        _error(req_id, msg)
+
+    if task.broken:
+        fail(f"the task file is broken: {task.broken}")
+        return
+    if slot and not task.enabled:
+        # Switched off while it waited in the app's queue.
+        _done(req_id, {"status": "skipped", "summary": "switched off", "session": None})
+        return
+    if not sch.claim(name, slot):
+        _done(req_id, {"status": "skipped", "summary": "already ran in another AIhub window",
+                       "session": None})
+        return
+    if slot and task.when.startswith("once"):
+        sch.set_enabled(name, False)
+    try:
+        profile = get_agent(task.agent)
+    except KeyError:
+        fail(f"agent {task.agent!r} no longer exists — edit the task")
+        return
+    if task.backend == "ollama":
+        from .ollama_client import is_ollama_running
+        if not is_ollama_running():
+            fail("Ollama is offline — start it, then run the task again")
+            return
+    start = _dt.now().replace(microsecond=0)
+    _emit(req_id, "task", {"name": name, "phase": "started"})
+    context, _why = agent_context(task.model, task.backend, profile)
+    try:
+        o = _drive_turn(req_id, {
+            "model": task.model, "stream_model": task.stream_model or task.model,
+            "backend": task.backend, "agent": True, "agent_name": task.agent, "submode": "build",
+            "messages": [{"role": "user", "content": task.prompt}],
+            "context_length": context, "tools_enabled": True, "knowledge": [],
+        }, unattended=True)
+    except Exception as exc:
+        log.warning("scheduled task %s failed", name, exc_info=True)
+        fail(str(exc) or type(exc).__name__)
+        return
+    # Always kept, whatever the autosave setting: the session is the result.
+    path = ""
+    try:
+        # Dated in UTC like the app's own chat sessions, so History sorts them together.
+        session_start = start.astimezone().astimezone(_tz.utc)
+        path = finalize_session(task.model, o.messages, 0.7, session_start,
+                                backend=task.backend, stream_model=task.stream_model) or ""
+    except Exception:
+        log.warning("could not save the session of task %s", name, exc_info=True)
+    session = {"model": task.model, "filename": os.path.basename(path)} if path else None
+    status = "error" if o.error else ("cancelled" if o.cancelled else "ok")
+    summary = sch.summary_of(o.final_text)
+    sch.record_run(name, last_run=start.isoformat(), last_status=status, last_summary=summary,
+                   last_session=session, last_error=o.error)
+    if o.error:
+        _error(req_id, o.error)
+        return
+    _done(req_id, {"status": status, "summary": summary, "session": session})
+
+
 _ONESHOT: Dict[str, Callable[[Dict[str, Any]], Dict[str, Any]]] = {
     "ping": _h_ping,
     "backend.status": _h_backend_status,
@@ -1097,6 +1282,13 @@ _ONESHOT: Dict[str, Callable[[Dict[str, Any]], Dict[str, Any]]] = {
     "tools.describe": _h_tools_describe,
     "chat.start": _h_chat_start,
     "chat.finalize": _h_chat_finalize,
+    "context.set": _h_context_set,
+    "schedule.list": _h_schedule_list,
+    "schedule.save": _h_schedule_save,
+    "schedule.delete": _h_schedule_delete,
+    "schedule.toggle": _h_schedule_toggle,
+    "schedule.check": _h_schedule_check,
+    "schedule.skip": _h_schedule_skip,
     "model.unload": _h_model_unload,
 }
 
@@ -1158,8 +1350,27 @@ def _record_speed(model: str, tps: float) -> None:
         log.info("could not record speed sample for %s", model, exc_info=True)
 
 
+@dataclass
+class TurnOutcome:
+    """What one driven turn left behind: the updated messages, whether it was
+    cancelled, a fatal error message ("" = none), and the final answer."""
+    messages: List[Dict[str, Any]]
+    cancelled: bool
+    error: str = ""
+    final_text: str = ""
+
+
 def _stream_chat_turn(req_id, p) -> None:
-    from .chat import ToolCallResult, Usage, run_chat_turn
+    o = _drive_turn(req_id, p)
+    # Return the mutated messages so the UI keeps its copy in sync.
+    _done(req_id, {"messages": o.messages, "cancelled": o.cancelled})
+
+
+def _drive_turn(req_id, p, *, unattended: bool = False) -> TurnOutcome:
+    """One chat or agent turn: assemble the tools, knowledge and system prompt,
+    run it, stream its events. `unattended` (a scheduled task) has nobody to
+    ask: a tool that would need approval is denied on the spot."""
+    from .chat import Done, Error, ToolCallResult, Usage, run_chat_turn
 
     stream_model = p.get("stream_model") or p["model"]
     messages: List[Dict[str, Any]] = p["messages"]
@@ -1214,12 +1425,15 @@ def _stream_chat_turn(req_id, p) -> None:
     # an agent asks per its profile, and always in Plan.
     policy = permission_policy(profile, submode) if profile else "chat"
     pq: "queue.Queue[bool]" = queue.Queue()
-    with _reg_lock:
-        _perm_queues[req_id] = pq
+    if not unattended:
+        with _reg_lock:
+            _perm_queues[req_id] = pq
 
     def approve_fn(name, args):  # noqa: E731 (needs closure over req_id)
         if permission_for(policy, name) != "ask":
             return True
+        if unattended:
+            return False
         _emit(req_id, "permission_request", {"name": name, "arguments": args})
         try:
             return bool(pq.get())
@@ -1297,9 +1511,9 @@ def _stream_chat_turn(req_id, p) -> None:
             _perm_queues.pop(req_id, None)
         if original_system is not None:
             messages[0]["content"] = original_system
-        _emit(req_id, "chat_error", {"message": _no_vision_message(p["model"], backend), "fatal": True})
-        _done(req_id, {"messages": messages, "cancelled": False})
-        return
+        msg = _no_vision_message(p["model"], backend)
+        _emit(req_id, "chat_error", {"message": msg, "fatal": True})
+        return TurnOutcome(messages, False, error=msg)
     # The UI's messages carry image ids; the backend gets the image data.
     wire, originals = expand(messages)
     gen = run_chat_turn(
@@ -1313,10 +1527,15 @@ def _stream_chat_turn(req_id, p) -> None:
         cancel_check=cancel.is_set,
     )
     last_tps = 0.0
+    error, final_text = "", ""
     try:
         for ev in gen:
             if isinstance(ev, Usage) and ev.tps:
                 last_tps = ev.tps
+            elif isinstance(ev, Done):
+                final_text = ev.final_text
+            elif isinstance(ev, Error) and ev.fatal:
+                error = ev.message
             if isinstance(ev, ToolCallResult):
                 # One line per tool call in the error log, so "the model said it
                 # saved the file" can be checked against what actually ran.
@@ -1335,8 +1554,7 @@ def _stream_chat_turn(req_id, p) -> None:
         with _reg_lock:
             _cancel_events.pop(req_id, None)
             _perm_queues.pop(req_id, None)
-    # Return the mutated messages so the UI keeps its copy in sync.
-    _done(req_id, {"messages": messages, "cancelled": cancel.is_set()})
+    return TurnOutcome(messages, cancel.is_set(), error=error, final_text=final_text)
 
 
 def _stream_download_ollama(req_id, p) -> None:
@@ -1412,6 +1630,7 @@ _STREAMING: Dict[str, Callable[[Any, Dict[str, Any]], None]] = {
     "kb.sync": lambda req_id, p: _stream_kb_index(req_id, p, True),
     "kb.pull": _stream_kb_pull,
     "chat.turn": _stream_chat_turn,
+    "schedule.run": _stream_schedule_run,
     "download.ollama": _stream_download_ollama,
     "download.gguf": _stream_download_gguf,
 }

@@ -61,12 +61,15 @@ function NavCard({
   onAction,
   headers,
   tight,
+  bare,
   focused,
 }: {
   activeAction: ActionId | null;
   onAction: (action: ActionId) => void;
   headers: boolean;
   tight: boolean;
+  /** No border: a very short terminal needs those two rows for items. */
+  bare: boolean;
   /** The menu has the keyboard (Tab from an empty prompt): accent ring. */
   focused: boolean;
 }) {
@@ -75,9 +78,9 @@ function NavCard({
       marginLeft={2}
       marginRight={2}
       marginTop={tight ? 0 : 1}
-      border
-      borderStyle="rounded"
-      borderColor={focused ? theme.accent : theme.border}
+      {...(bare
+        ? { paddingLeft: 1, paddingRight: 1 }
+        : { border: true, borderStyle: "rounded" as const, borderColor: focused ? theme.accent : theme.border })}
       backgroundColor={theme.bg2}
       flexDirection="column"
       flexShrink={0}
@@ -194,10 +197,14 @@ export function Sidebar({
     rows >= 6 + 5 + NAV + 4 + 1 ? 0 :               // logo, headers
     rows >= 2 + 5 + NAV + 4 + 1 ? 1 :               // wordmark, headers
     rows >= 2 + 5 + NAV + 1 + 1 ? 2 :               // wordmark
-    rows >= 5 + NAV + 1 + 1 ? 3 :                   // boxed model card + nav
+    rows >= 5 + NAV + 1 ? 3 :                       // boxed model card + nav
     4;                                              // one-line model card + nav
   const headers = level <= 1;
   const tight = level === 4;
+  // The version line goes before the boxed card does (80×24 with every item).
+  const showVersion = !tight && (level < 3 || rows >= 5 + NAV + 1 + 1);
+  // Shorter still: the nav loses its card border rather than its last rows.
+  const bare = tight && rows < 1 + NAV;
 
   return (
     <box width={SIDEBAR_WIDTH} height="100%" backgroundColor={theme.bg1} flexDirection="column">
@@ -231,11 +238,12 @@ export function Sidebar({
         onAction={onAction}
         headers={headers}
         tight={tight}
+        bare={bare}
         focused={!!menuFocused}
       />
 
       <box flexGrow={1} />
-      {tight ? null : (
+      {!showVersion ? null : (
         <box paddingLeft={2} flexShrink={0}>
           <text fg={theme.fg2}>{`aihub v${version}${coreVersion ? `  ·  core ${coreVersion}` : ""}`}</text>
         </box>

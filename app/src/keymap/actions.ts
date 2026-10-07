@@ -9,6 +9,7 @@
 export type ActionId =
   | "new_chat"
   | "agent"
+  | "schedule"
   | "skills"
   | "mcp"
   | "model_picker"
@@ -52,6 +53,7 @@ export const SIDEBAR_GROUPS: ReadonlyArray<{ id: NonNullable<ActionSpec["group"]
 export const ACTIONS: readonly ActionSpec[] = [
   { id: "new_chat", label: "New Chat", key: "ctrl+n", nav: "n", sidebar: true, group: "chat", icon: "+" },
   { id: "agent", label: "Agent", key: "ctrl+g", nav: "a", sidebar: true, group: "chat", icon: "◇" },
+  { id: "schedule", label: "Schedule", key: "f7", nav: "j", sidebar: true, group: "chat", icon: "○" },
   { id: "skills", label: "Skills", key: "f4", nav: "k", sidebar: true, group: "chat", icon: "✦" },
   { id: "model_picker", label: "Models", key: "ctrl+o", nav: "m", sidebar: true, group: "models", icon: "◆" },
   { id: "history", label: "History", key: "ctrl+r", nav: "h", sidebar: true, group: "models", icon: "↺" },

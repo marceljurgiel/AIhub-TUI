@@ -93,8 +93,11 @@ export function Footer({
   onToggleMemory,
   onToggleTools,
   onTemperature,
+  task,
 }: {
   state: SessionState;
+  /** A scheduled task running now. */
+  task?: string | null;
   onToggleMemory?: () => void;
   onToggleTools?: () => void;
   onTemperature?: () => void;
@@ -117,6 +120,12 @@ export function Footer({
           <text fg={theme.borderStrong}>{"  ·  "}</text>
           {/* Knowledge bases on in this chat (/kb). */}
           <text fg={theme.accentSoft}>{fit(`¶ ${state.knowledge.join(",")}`, 9)}</text>
+        </>
+      ) : null}
+      {task ? (
+        <>
+          <text fg={theme.borderStrong}>{"  ·  "}</text>
+          <text fg={theme.accent}>{fit(`► task ${task}…`, 28)}</text>
         </>
       ) : null}
     </box>
