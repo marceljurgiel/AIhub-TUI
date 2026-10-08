@@ -23,7 +23,8 @@ test("shell renders header, sidebar nav, footer and welcome", async () => {
     expect(frame).toContain(label);
   }
   expect(frame).toContain("Welcome to AIhub");
-  expect(frame).toMatch(/mem ✓  tools ✓  ·  T 0\.7/);
+  expect(frame).toMatch(/mem ✓  tools ✓/);
+  expect(frame).not.toContain("T 0.7");
   expect(frame).toContain("v0.2.1");
   expect(frame).toContain("core 0.3.15");
   expect(frame).toContain("llama3.2:3b");
@@ -35,7 +36,7 @@ test("size guard shows on a tiny terminal", async () => {
   expect(setup.captureCharFrame().toLowerCase()).toContain("too small");
 });
 
-test("footer: mem / tools / temperature only; T opens the temperature editor and saves", async () => {
+test("footer: mem / tools only; temperature lives in Settings (e) and /temp", async () => {
   const { MockBridge } = await import("./test-tree.tsx");
   const calls: any[] = [];
   class B extends MockBridge {
@@ -54,17 +55,26 @@ test("footer: mem / tools / temperature only; T opens the temperature editor and
     }
     throw new Error("frame never matched:\n" + setup!.captureCharFrame());
   };
-  const frame = await until((f) => f.includes("T 0.4") && f.includes("llama3.2:3b"));
+  const frame = await until((f) => f.includes("llama3.2:3b") && f.includes("mem ✓"));
   const last = frame.trimEnd().split("\n").at(-1)!;
-  expect(last.trim()).toBe("mem ✓  tools ✓  ·  T 0.4");                 // nothing else down there
-  await setup.mockInput.typeText("/temp");
-  await until((f) => f.includes("/temp"));
-  setup.mockInput.pressEnter();
+  expect(last.trim()).toBe("mem ✓  tools ✓");                           // nothing else down there
+
+  // Settings shows the temperature; e opens the editor, the row follows the save.
+  setup.mockInput.pressKey("F3");
+  await until((f) => /Temperature\s+0\.4 · precise and repeatable/.test(f));
+  setup.mockInput.pressKey("e");
   await until((f) => f.includes("precise"));
   setup.mockInput.pressArrow("right");
   setup.mockInput.pressArrow("right");
   await until((f) => f.includes("0.6"));
   setup.mockInput.pressEnter();
-  await until((f) => f.includes("T 0.6"));
+  await until((f) => /Temperature\s+0\.6 · balanced/.test(f));
   expect(calls).toContainEqual(["config.set", { patch: { temperature: 0.6 } }]);
+
+  // /temp still opens the same editor straight from the chat.
+  setup.mockInput.pressEscape();
+  await until((f) => !f.includes("e to change"));
+  await setup.mockInput.typeText("/temp 0.3");
+  setup.mockInput.pressEnter();
+  await until(() => calls.some(([m, p]) => m === "config.set" && p.patch?.temperature === 0.3));
 });

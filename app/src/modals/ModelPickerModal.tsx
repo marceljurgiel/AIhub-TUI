@@ -683,7 +683,7 @@ function CatalogRow({
   return (
     <text>
       <span fg={selected ? theme.accent : col}>{"▎"}</span>
-      <span fg={theme.accentSoft}>{installed ? "●" : " "}</span>
+      <span fg={theme.accentSoft}>{installed ? "✓" : " "}</span>
       <span fg={row.fits ? (selected ? theme.fg0 : theme.fg1) : theme.fg2}>{pad(row.name, nameW)}</span>
       <span fg={theme.fg2}>{padL(humanGb(row.size_gb), SIZE_W)}</span>
       <span fg={row.fits ? fast : theme.fg2}>{padL(tpsLabel(row), TPS_W)}</span>

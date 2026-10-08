@@ -348,10 +348,10 @@ export function SkillsModal({
                 return (
                   <ListRow key={s.name} selected={sel} onSelect={() => list.setIndex(idx)}>
                     <text>
-                      <span fg={s.enabled ? theme.success : theme.fg2}>{s.enabled ? " ● " : " ○ "}</span>
+                      <span fg={s.enabled ? theme.success : theme.fg2}>{s.enabled ? " [✓] " : " [ ] "}</span>
                       <span fg={s.enabled ? (sel ? theme.fg0 : theme.fg1) : theme.fg2}>{fit(s.name, 18).padEnd(19)}</span>
                       <span fg={theme.fg2}>{SOURCE[s.source]!.padEnd(9)}</span>
-                      <span fg={theme.fg2}>{fit(s.description, width - 38)}</span>
+                      <span fg={theme.fg2}>{fit(s.description, width - 40)}</span>
                     </text>
                   </ListRow>
                 );

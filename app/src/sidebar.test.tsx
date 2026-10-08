@@ -44,9 +44,16 @@ for (const [w, h] of [[80, 24], [80, 18]] as const) {
     expect(text.split("╭").length).toBe(text.split("╰").length);
     expect(text).not.toContain("`--' `--'");          // no room for the figlet logo
     // Room for the boxed card at 24 rows; at 18 it shrinks to one line.
-    expect(text).toContain(h >= 24 ? "CONNECTED" : "● llama3.2:3b · 4K");
+    expect(text).toContain(h >= 24 ? "CONNECTED" : "llama3.2:3b · 4K");
+    expect(text).not.toContain("●");
   });
 }
+
+test("no status dots: the header and the model card say it in words", async () => {
+  const f = await frameAt(110, 34);
+  expect(f).not.toContain("●");
+  expect(f).toMatch(/│ CONNECTED · 4K CTX/);
+});
 
 test("no row is highlighted when no panel is open", async () => {
   const lines = sidebar(await frameAt(110, 34));

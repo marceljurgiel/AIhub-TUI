@@ -3,11 +3,6 @@ import { theme } from "../theme.ts";
 
 // ── Micro-parts shared by every screen and modal ────────────────────────────
 
-/** Status dot — the app's only indicator vocabulary. */
-export function Dot({ color }: { color: string }) {
-  return <span fg={color}>●</span>;
-}
-
 /** A keycap hint, e.g. [^O] or [enter]. */
 export function KeyHint({ k }: { k: string }) {
   return (

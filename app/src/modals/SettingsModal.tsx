@@ -6,6 +6,7 @@ import { useModals } from "../state/ModalContext.tsx";
 import { ModalShell } from "../ui/ModalShell.tsx";
 import { SectionLabel } from "../ui/primitives.tsx";
 import { useModalKeys } from "./modalKit.ts";
+import { TemperatureModal, temperatureLabel } from "./TemperatureModal.tsx";
 import type { SessionState } from "../state/SessionContext.tsx";
 
 function ToggleRow({
@@ -113,11 +114,14 @@ export function SettingsModal({
   session,
   onPatchSession,
   onEngineChanged,
+  onTemperature,
   onClose,
 }: {
   session: SessionState;
   onPatchSession: (patch: Partial<SessionState>) => void;
   onEngineChanged?: (change: EngineChange) => void;
+  /** Applies and saves a new temperature (the same path as /temp). */
+  onTemperature?: (t: number) => void;
   onClose: () => void;
 }) {
   const bridge = useBridge();
@@ -129,6 +133,7 @@ export function SettingsModal({
   // The current model's context: set by hand (manual) or automatic.
   const [ctxInfo, setCtxInfo] = useState<{ context: number; manual: boolean } | null>(null);
   const [memoryModel, setMemoryModel] = useState("");
+  const [temperature, setTemperatureShown] = useState(session.temperature);
   // GPU memory of the machine running Ollama; empty = learned from chats.
   const [gpuMem, setGpuMem] = useState("");
   const [switches, setSwitches] = useState<Record<SwitchId, boolean>>({
@@ -262,6 +267,23 @@ export function SettingsModal({
       .catch(() => {});
   };
 
+  const openTemperature = () => {
+    modals
+      .push<void>((close) => (
+        <TemperatureModal
+          value={temperature}
+          onSave={(t) => {
+            const v = Math.round(t * 10) / 10;
+            onTemperature?.(v);
+            setTemperatureShown(v);
+            setStatus({ text: `Temperature ${v.toFixed(1)} — saved.`, tone: "ok" });
+          }}
+          onClose={() => close()}
+        />
+      ))
+      .catch(() => {});
+  };
+
   // Letter shortcuts only while no field is being typed into.
   const typing = () => focus != null;
   useModalKeys([
@@ -276,6 +298,7 @@ export function SettingsModal({
       { key: "s", run: () => void save() },
       ...(Object.keys(SWITCHES) as SwitchId[]).map((id) => ({ key: SWITCHES[id].key, run: () => void toggle(id) })),
       { key: "c", run: () => openContext() },
+      { key: "e", run: () => openTemperature() },
     ],
     { enabled: () => !typing() },
   );
@@ -302,10 +325,9 @@ export function SettingsModal({
         ["tab", "field"],
         ["enter", "save"],
         ["t/m/a/h", "switch"],
-        ["c", "context"],
       ]}
     >
-      <box flexDirection="column" paddingTop={1} flexGrow={1}>
+      <box flexDirection="column" flexGrow={1}>
         <SectionLabel label="engine" width={width - 4} />
         {field("ollama", "Ollama server", ollama, setOllama, "http://localhost:11434")}
         {field("gpuMem", "Ollama GPU memory", gpuMem, setGpuMem, "GB · empty = learned from chats")}
@@ -323,13 +345,20 @@ export function SettingsModal({
           {field("model", "Default model", model, setModel, "ollama model tag")}
           <box onMouseDown={openContext}>
             <text>
-              <span fg={theme.fg2}>{`  ${"Context".padEnd(18)}`}</span>
+              <span fg={theme.fg2}>{`  ${"Context".padEnd(19)}`}</span>
               <span fg={theme.fg0}>
                 {session.modelName
                   ? fit(`${session.modelName} · ${ctxInfo ? `${ctxInfo.manual ? "manual" : "auto"} ${ctxLabel(ctxInfo.context)}` : "…"}`, width - 36)
                   : "no model selected"}
               </span>
               <span fg={theme.fg2}>{"   c to change"}</span>
+            </text>
+          </box>
+          <box onMouseDown={openTemperature}>
+            <text>
+              <span fg={theme.fg2}>{`  ${"Temperature".padEnd(19)}`}</span>
+              <span fg={theme.fg0}>{`${temperature.toFixed(1)} · ${temperatureLabel(temperature)}`}</span>
+              <span fg={theme.fg2}>{"   e to change"}</span>
             </text>
           </box>
         </box>

@@ -104,7 +104,7 @@ export function ThemeModal({
                 const color = id ? ACCENTS[id]!.accent : THEMES[name]!.palette.accent;
                 return (
                   <span key={id || "own"} fg={on ? theme.fg0 : theme.fg2} bg={on ? theme.bg3 : undefined}>
-                    <span fg={color}>{" ●"}</span>
+                    <span fg={color}>{" ■"}</span>
                     {` ${(id ? ACCENTS[id]!.label : "Theme's").padEnd(8)}`}
                   </span>
                 );

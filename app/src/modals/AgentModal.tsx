@@ -256,13 +256,13 @@ export function AgentModal({
                 return (
                   <ListRow key={a?.name ?? "__chat"} selected={sel} onSelect={() => list.setIndex(idx)}>
                     <text>
-                      <span fg={active ? theme.accent : theme.fg2}>{active ? " ● " : "   "}</span>
+                      <span fg={active ? theme.accent : theme.fg2}>{active ? " [✓] " : " [ ] "}</span>
                       <span fg={sel ? theme.fg0 : theme.fg1}>{(a ? a.name : "chat").padEnd(14)}</span>
                       <span fg={a ? (a.permission === "auto" ? theme.warn : theme.success) : theme.fg2}>
                         {(a ? (a.permission === "auto" ? "auto" : "asks") : "").padEnd(6)}
                       </span>
                       <span fg={theme.fg2}>
-                        {fit(a ? a.description : "Plain chat — no agent; tools only when you ask", width - 30)}
+                        {fit(a ? a.description : "Plain chat — no agent; tools only when you ask", width - 32)}
                       </span>
                     </text>
                   </ListRow>

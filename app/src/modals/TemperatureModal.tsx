@@ -10,6 +10,11 @@ const PRESETS: Array<[string, number, string]> = [
 ];
 const STEPS = 20; // 0.0 … 2.0 in 0.1 steps
 
+/** What a temperature means, in words (also shown in Settings). */
+export function temperatureLabel(t: number): string {
+  return t <= 0.4 ? "precise and repeatable" : t <= 1.0 ? "balanced" : t <= 1.4 ? "creative" : "very random — may ramble";
+}
+
 /** How random the model's answers are. ←/→ by 0.1, 1–3 presets, enter saves. */
 export function TemperatureModal({
   value,
@@ -38,8 +43,7 @@ export function TemperatureModal({
 
   const filled = Math.round(t * 10);
   const tone = t <= 0.4 ? theme.success : t <= 1.0 ? theme.accentSoft : theme.warn;
-  const what =
-    t <= 0.4 ? "precise and repeatable" : t <= 1.0 ? "balanced" : t <= 1.4 ? "creative" : "very random — may ramble";
+  const what = temperatureLabel(t);
   const width = 60;
   return (
     <ModalShell

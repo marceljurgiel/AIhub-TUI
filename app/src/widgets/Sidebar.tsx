@@ -2,7 +2,7 @@ import { memo } from "react";
 import { useTerminalDimensions } from "@opentui/react";
 import { theme, logoGradient, logoLines } from "../theme.ts";
 import { useThemeVersion } from "../state/useTheme.ts";
-import { Dot, SectionLabel } from "../ui/primitives.tsx";
+import { SectionLabel } from "../ui/primitives.tsx";
 import {
   SIDEBAR_ACTIONS,
   SIDEBAR_GROUPS,
@@ -123,15 +123,18 @@ function ModelCard({
       ? model.slice(0, inner - 15) + "…"
       : model
     : "choose a model";
-  const dot = live ? theme.success : online ? theme.warn : online === null ? theme.fg2 : theme.error;
+  // The state is said in a word, coloured — no status dot.
+  const tone = live ? theme.success : online ? theme.warn : online === null ? theme.fg2 : theme.error;
+  const word = online ? "CONNECTED" : online === null ? "CONNECTING" : "OFFLINE";
 
   // Very short terminals: one line, so the whole nav still fits below.
   if (tight)
     return (
       <box marginLeft={2} marginRight={2} flexShrink={0} height={1} onMouseDown={() => onAction("model_picker")}>
         <text>
-          <Dot color={dot} />
-          <span fg={model ? theme.accentSoft : theme.fg2}>{` ${name}`}</span>
+          {/* One line has no room for the word unless something is wrong. */}
+          {live ? null : <span fg={tone}>{`${word} `}</span>}
+          <span fg={model ? theme.accentSoft : theme.fg2}>{name}</span>
           <span fg={theme.borderStrong}>{" · "}</span>
           <span fg={live ? theme.fg1 : theme.fg2}>{`${ctxK}K`}</span>
         </text>
@@ -154,9 +157,8 @@ function ModelCard({
     >
       <text>
         {/* Connected but no model yet (still loading, or none installed) is
-            not "offline": yellow dot, and the line below says what to do. */}
-        <Dot color={dot} />
-        <span fg={theme.fg2}>{online ? ` CONNECTED` : online === null ? ` CONNECTING` : ` OFFLINE`}</span>
+            not "offline": yellow word, and the line below says what to do. */}
+        <span fg={tone}>{word}</span>
         <span fg={theme.borderStrong}>{" · "}</span>
         <span fg={live ? theme.fg1 : theme.fg2}>{`${ctxK}K CTX`}</span>
       </text>

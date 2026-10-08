@@ -330,12 +330,12 @@ export function ScheduleModal({
                 return (
                   <ListRow key={t.name} selected={sel} onSelect={() => list.setIndex(idx)}>
                     <text>
-                      <span fg={t.enabled && !t.broken ? theme.success : theme.fg2}>{t.enabled && !t.broken ? " ● " : " ○ "}</span>
+                      <span fg={t.enabled && !t.broken ? theme.success : theme.fg2}>{t.enabled && !t.broken ? " [✓] " : " [ ] "}</span>
                       <span fg={sel ? theme.fg0 : theme.fg1}>{fit(t.name, 18).padEnd(19)}</span>
                       <span fg={theme.fg2}>{fit(t.when, 18).padEnd(19)}</span>
                       <span fg={theme.fg2}>{fit(isRunning ? "► running…" : next, 24).padEnd(25)}</span>
                       <span fg={t.broken || t.last_status === "error" ? theme.error : theme.fg2}>
-                        {fit(statusText(t), Math.max(10, width - 72))}
+                        {fit(statusText(t), Math.max(10, width - 74))}
                       </span>
                     </text>
                   </ListRow>

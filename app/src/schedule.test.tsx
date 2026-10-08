@@ -109,7 +109,7 @@ test("slot times read as today / tomorrow / a date", () => {
 test("F7 opens Schedule with tasks, the last result and the only-while-open note", async () => {
   await open();
   const f = await openSchedule();
-  expect(f).toMatch(/● mail-digest\s+daily 08:00/);
+  expect(f).toMatch(/\[✓\] mail-digest\s+daily 08:00/);
   expect(f).toContain("ok ·");
   expect(f).toContain("Three new emails: the Lisbon trip is confirmed.");
   expect(f).toContain("Tasks run only while AIhub is open.");
@@ -131,7 +131,7 @@ test("space toggles, r runs now, d needs a second press", async () => {
   const bridge = await open();
   await openSchedule();
   setup!.mockInput.pressKey(" ");
-  await until((f) => f.includes("○ mail-digest") && f.includes("(off)"));
+  await until((f) => f.includes("[ ] mail-digest") && f.includes("(off)"));
   expect(bridge.calls).toContainEqual(["schedule.toggle", { name: "mail-digest", enabled: false }]);
   setup!.mockInput.pressKey("r");
   await until(() => bridge.calls.some(([m]) => m === "schedule.run"));

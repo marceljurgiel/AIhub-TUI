@@ -129,7 +129,7 @@ test("t turns a skill off; v shows its instructions", async () => {
   const bridge = await boot();
   await openSkills();
   setup!.mockInput.pressKey("t");
-  await until((f) => f.includes("○ commit"));
+  await until((f) => f.includes("[ ] commit"));
   expect(bridge.calls).toContainEqual(["skills.enable", { name: "commit", enabled: false }]);
   setup!.mockInput.pressKey("v");
   await until((f) => f.includes("1. Run git status."));

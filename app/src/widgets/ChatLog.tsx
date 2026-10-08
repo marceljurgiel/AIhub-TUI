@@ -193,7 +193,7 @@ const Item = memo(function Item({ item }: { item: LogItem }) {
     case "assistant":
       return (
         <box marginTop={1} flexDirection="column">
-          <Role glyph="●" label="AIHUB" color={theme.fg1} />
+          <Role glyph="‹" label="AIHUB" color={theme.fg1} />
           <AssistantBody text={item.text} />
         </box>
       );

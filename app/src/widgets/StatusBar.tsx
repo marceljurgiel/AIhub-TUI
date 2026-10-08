@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { theme, usageColor, tpsColor, utilColor, humanTokens, fit } from "../theme.ts";
-import { Dot, Spinner } from "../ui/primitives.tsx";
+import { Spinner } from "../ui/primitives.tsx";
 import type { SessionState } from "../state/SessionContext.tsx";
 
 function sessionTitle(state: SessionState): string {
@@ -46,8 +46,7 @@ export function Header({ state }: { state: SessionState }) {
       flexShrink={0}
     >
       <text>
-        <Dot color={theme.accent} />
-        <span fg={theme.fg0}>{` ${title}`}</span>
+        <span fg={theme.fg0}>{title}</span>
         {statusNode ? (
           <>
             <SEP />
@@ -92,7 +91,6 @@ export function Footer({
   state,
   onToggleMemory,
   onToggleTools,
-  onTemperature,
   task,
 }: {
   state: SessionState;
@@ -100,7 +98,6 @@ export function Footer({
   task?: string | null;
   onToggleMemory?: () => void;
   onToggleTools?: () => void;
-  onTemperature?: () => void;
 }) {
   return (
     <box height={1} backgroundColor={theme.bg1} flexDirection="row" paddingLeft={2} paddingRight={1} flexShrink={0}>
@@ -110,10 +107,6 @@ export function Footer({
       <text>{"  "}</text>
       <text onMouseDown={onToggleTools}>
         <span fg={state.toolsEnabled ? theme.success : theme.fg2}>{`tools ${state.toolsEnabled ? "✓" : "·"}`}</span>
-      </text>
-      <text fg={theme.borderStrong}>{"  ·  "}</text>
-      <text onMouseDown={onTemperature}>
-        <span fg={theme.fg1}>{`T ${state.temperature.toFixed(1)}`}</span>
       </text>
       {state.knowledge.length ? (
         <>

@@ -920,7 +920,7 @@ export function ChatScreen({
       if (!kbList.length) return addSystem("No knowledge bases yet — /knowledge (F6) makes one from your documents.");
       return addSystem(
         "Knowledge bases: " +
-          kbList.map((b) => `${on.includes(b.name) ? "● " : ""}${b.name}${b.description ? ` (${b.description})` : ""}`).join(" · ") +
+          kbList.map((b) => `${on.includes(b.name) ? "✓ " : ""}${b.name}${b.description ? ` (${b.description})` : ""}`).join(" · ") +
           (on.length ? `\nActive here: ${on.join(", ")} — /kb off to stop.` : "\nUse one here: /kb <name>."),
       );
     }
@@ -1067,6 +1067,7 @@ export function ChatScreen({
           session={stateRef.current}
           onPatchSession={patchSession}
           onEngineChanged={onEngineChanged}
+          onTemperature={setTemperature}
           onClose={close}
         />
       ))
@@ -1277,7 +1278,6 @@ export function ChatScreen({
         task={scheduler.running}
         onToggleMemory={toggleMemory}
         onToggleTools={() => dispatchAction("toggle_tools")}
-        onTemperature={openTemperature}
       />
     </box>
   );

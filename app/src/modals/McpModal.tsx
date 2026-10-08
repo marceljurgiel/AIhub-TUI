@@ -76,15 +76,13 @@ type CatalogRow = { kind: "item"; item: CatalogItem } | { kind: "claude"; names:
 
 const VIEWPORT = 8;
 
-/** Status dot and colour — a function, so it follows the live theme. */
-const status = (s: string): [string, string] =>
+/** Status colour — a function, so it follows the live theme. */
+const statusColor = (s: string): string =>
   ({
-    connected: ["●", theme.success],
-    starting: ["◌", theme.warn],
-    error: ["●", theme.error],
-    stopped: ["○", theme.fg2],
-    off: ["○", theme.fg2],
-  })[s] as [string, string] ?? ["○", theme.fg2];
+    connected: theme.success,
+    starting: theme.warn,
+    error: theme.error,
+  })[s] ?? theme.fg2;
 
 /**
  * Connections — the services AIhub can use (Google, GitHub, Notion, files…).
@@ -477,14 +475,12 @@ export function McpModal({ onClose }: { onClose: () => void }) {
               servers.slice(list.start, list.end).map((s, i) => {
                 const idx = list.start + i;
                 const sel = idx === list.index;
-                const [dot, color] = status(s.status);
                 const on = s.tools.filter((t) => t.enabled).length;
                 return (
                   <ListRow key={s.name} selected={sel} onSelect={() => list.setIndex(idx)}>
                     <text>
-                      <span fg={color}>{` ${dot} `}</span>
-                      <span fg={sel ? theme.fg0 : theme.fg1}>{fit(s.name, 16).padEnd(17)}</span>
-                      <span fg={theme.fg2}>{s.status.padEnd(11)}</span>
+                      <span fg={sel ? theme.fg0 : theme.fg1}>{` ${fit(s.name, 16).padEnd(19)}`}</span>
+                      <span fg={statusColor(s.status)}>{s.status.padEnd(11)}</span>
                       <span fg={theme.fg2}>{(s.tools.length ? `${on}/${s.tools.length} tools` : "").padEnd(12)}</span>
                       <span fg={theme.fg2}>{fit(s.command, width - 50)}</span>
                     </text>
@@ -528,8 +524,8 @@ export function McpModal({ onClose }: { onClose: () => void }) {
                 return (
                   <ListRow key={t.name} selected={sel} onSelect={() => tools.setIndex(idx)}>
                     <text>
-                      <span fg={t.enabled ? theme.success : theme.fg2}>{t.enabled ? " ● " : " ○ "}</span>
-                      <span fg={t.enabled ? (sel ? theme.fg0 : theme.fg1) : theme.fg2}>{fit(t.name, 34).padEnd(35)}</span>
+                      <span fg={t.enabled ? theme.success : theme.fg2}>{t.enabled ? " [✓] " : " [ ] "}</span>
+                      <span fg={t.enabled ? (sel ? theme.fg0 : theme.fg1) : theme.fg2}>{fit(t.name, 32).padEnd(33)}</span>
                       <span fg={t.read_only ? theme.fg2 : theme.warn}>{t.read_only ? "reads  " : "changes"}</span>
                     </text>
                   </ListRow>

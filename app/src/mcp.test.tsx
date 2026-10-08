@@ -111,7 +111,8 @@ async function open() {
 test("F5 lists servers with status, tool counts and errors", async () => {
   const bridge = await open();
   const f = setup!.captureCharFrame();
-  expect(f).toMatch(/● gmail\s+connected\s+2\/3 tools/);
+  expect(f).toMatch(/ gmail\s+connected\s+2\/3 tools/);
+  expect(f).not.toMatch(/[●○◌]/);
   expect(f).toContain("used when you mention: gmail, mail, inbox");
   setup!.mockInput.pressArrow("down");
   await until((x) => x.includes("command not found: npx"));
