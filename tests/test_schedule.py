@@ -223,8 +223,19 @@ def test_skip_records_slot_and_disables_once():
     assert sch.due(dt(2026, 10, 7, 10, 0)) == []
 
 
-def test_claim_is_once_per_slot():
+def freeze(monkeypatch, *at):
+    """Pin the engine's clock: claim() looks at "now" for the latest slot."""
+    class Now(dt):
+        @classmethod
+        def now(cls, tz=None):
+            return dt(*at)
+
+    monkeypatch.setattr(sch, "datetime", Now)
+
+
+def test_claim_is_once_per_slot(monkeypatch):
     make()
+    freeze(monkeypatch, 2026, 10, 7, 9, 0)
     assert sch.claim("digest", "2026-10-07T08:00:00") is True
     assert sch.claim("digest", "2026-10-07T08:00:00") is False
     assert sch.claim("digest", None) is True
@@ -258,8 +269,9 @@ def test_state_writes_are_safe_across_threads():
     assert {k: v["n"] for k, v in sch.load_state().items()} == {f"t{i}": 59 for i in range(4)}
 
 
-def test_skip_never_moves_the_anchor_back():
+def test_skip_never_moves_the_anchor_back(monkeypatch):
     make()
+    freeze(monkeypatch, 2026, 10, 7, 9, 0)
     sch.claim("digest", "2026-10-07T08:00:00")
     sch.skip("digest", "2026-10-06T08:00:00")         # a late answer for an older slot
     assert sch.load_state()["digest"]["anchor"] == "2026-10-07T08:00:00"
