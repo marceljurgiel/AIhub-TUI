@@ -117,15 +117,16 @@ function ModelCard({
   tight: boolean;
 }) {
   const live = online && !!model;
-  const inner = SIDEBAR_WIDTH - 6;
-  const name = model
-    ? model.length > inner - 14
-      ? model.slice(0, inner - 15) + "…"
-      : model
-    : "choose a model";
   // The state is said in a word, coloured — no status dot.
   const tone = live ? theme.success : online ? theme.warn : online === null ? theme.fg2 : theme.error;
   const word = online ? "CONNECTED" : online === null ? "CONNECTING" : "OFFLINE";
+  // The name gets every cell its line has: the card's inside (sidebar minus
+  // margins, border and padding), or what the one-line card leaves after
+  // the state word and the context size.
+  const room = tight
+    ? SIDEBAR_WIDTH - 4 - ` · ${ctxK}K`.length - (live ? 0 : word.length + 1)
+    : SIDEBAR_WIDTH - 8;
+  const name = model ? (model.length > room ? model.slice(0, room - 1) + "…" : model) : "choose a model";
 
   // Very short terminals: one line, so the whole nav still fits below.
   if (tight)

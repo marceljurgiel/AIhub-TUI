@@ -59,3 +59,33 @@ test("no row is highlighted when no panel is open", async () => {
   const lines = sidebar(await frameAt(110, 34));
   expect(lines.filter((l) => l.includes("▎"))).toEqual([]);
 });
+
+/** A model with a long tag: the card uses its whole width before cutting. */
+async function frameWithModel(name: string, w: number, h: number) {
+  const { MockBridge } = await import("./test-tree.tsx");
+  class B extends MockBridge {
+    override async request(m: string): Promise<any> {
+      const r = await super.request(m);
+      if (m === "config.get") return { ...r, default_chat_model: name };
+      if (m === "models.installed") return { models: [{ name, size_gb: 2 }], recent: [] };
+      return r;
+    }
+  }
+  setup = await testRender(<AppTree client={new B() as any} />, { width: w, height: h });
+  return setup.waitForFrame((f) => f.includes("New Chat") && f.includes(name.slice(0, 12)), { maxPasses: 40 });
+}
+
+for (const [w, h] of [[110, 34], [80, 18]] as const) {
+  test(`model card shows a long model name whole when it fits (${w}x${h})`, async () => {
+    const text = sidebar(await frameWithModel("nemotron-3-ultra:cloud", w, h)).join("\n");
+    expect(text).toContain("nemotron-3-ultra:cloud");
+    expect(text).not.toContain("nemotron-3-ultra:cl…");
+  });
+}
+
+test("model card: a name longer than the card is cut at the card's edge", async () => {
+  const name = "hf.co/unsloth/Qwen3-30B-A3B-Instruct-GGUF:Q4_K_M";
+  const lines = sidebar(await frameWithModel(name, 110, 34));
+  const row = lines.find((l) => l.includes("hf.co/unsloth"))!;
+  expect(row).toMatch(/│ hf\.co\/unsloth\/Qwen3-30B-A3B-Ins… │/);
+});
