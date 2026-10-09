@@ -27,8 +27,6 @@ import logging
 import os
 import re
 import tempfile
-import threading
-from contextlib import contextmanager
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
@@ -202,32 +200,11 @@ def _write_atomic(path: str, text: str) -> None:
         raise
 
 
-_THREAD_LOCK = threading.RLock()
-
-
-@contextmanager
 def _state_lock():
     """Serialise read-modify-write of the run state: between the bridge's
     request threads, and between two AIhub windows (an OS file lock)."""
-    with _THREAD_LOCK:
-        os.makedirs(schedule_dir(), exist_ok=True)
-        with open(os.path.join(schedule_dir(), ".lock"), "a+b") as f:
-            if os.name == "nt":
-                import msvcrt
-                f.seek(0)
-                msvcrt.locking(f.fileno(), msvcrt.LK_LOCK, 1)
-                try:
-                    yield
-                finally:
-                    f.seek(0)
-                    msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1)
-            else:
-                import fcntl
-                fcntl.flock(f.fileno(), fcntl.LOCK_EX)
-                try:
-                    yield
-                finally:
-                    fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+    from .filelock import file_lock
+    return file_lock(os.path.join(schedule_dir(), ".lock"))
 
 
 def _parse_task(text: str, path: str) -> Task:
