@@ -311,6 +311,36 @@ export function ChatScreen({
     return () => clearInterval(t);
   }, []);
 
+  // ── where the model runs (10s, and at once after each reply) ──
+  // Asked of the Ollama machine itself (/api/ps), so it is right when Ollama
+  // runs on a server. Paused while a reply streams: the model can't move
+  // mid-reply, and the server is left to the one request it is serving.
+  const locModel = state.backend === "ollama" ? state.streamModel || state.modelName || "" : "";
+  useEffect(() => {
+    patchSession({ modelLocation: null });                 // a new model: unknown until asked
+  }, [locModel]);
+  useEffect(() => {
+    if (!locModel || state.streaming) return;
+    let alive = true;
+    const ask = () =>
+      bridge
+        .request("models.location", { model: locModel })
+        .then((d) => {
+          if (!alive) return;
+          const known = ["gpu", "split", "cpu", "unloaded", "cloud"].includes(d?.state);
+          patchSession({ modelLocation: known ? d : null });   // offline: say nothing
+        })
+        .catch(reportBackground("Checking where the model runs"));
+    ask();
+    const t = setInterval(ask, 10000);
+    return () => {
+      alive = false;
+      clearInterval(t);
+    };
+    // `messages` too: a finished reply always changes them, even when it was
+    // so quick that `streaming` never rendered as true.
+  }, [locModel, state.streaming, state.messages]);
+
   // Skills → "/skill <name>" suggestions in the prompt; refreshed when the
   // Skills modal changes them.
   const [skillList, setSkillList] = useState<SkillInfo[]>([]);

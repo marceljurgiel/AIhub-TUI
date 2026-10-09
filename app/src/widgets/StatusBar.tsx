@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { theme, usageColor, tpsColor, utilColor, humanTokens, fit } from "../theme.ts";
+import { theme, usageColor, tpsColor, humanTokens, fit } from "../theme.ts";
 import { Spinner } from "../ui/primitives.tsx";
-import type { SessionState } from "../state/SessionContext.tsx";
+import type { ModelLocation, SessionState } from "../state/SessionContext.tsx";
 
 function sessionTitle(state: SessionState): string {
   const firstUser = state.messages.find((m) => m.role === "user");
@@ -33,7 +33,7 @@ export function Header({ state }: { state: SessionState }) {
   );
 
   const ctxFrac = state.ctxMax > 0 ? state.ctxUsed / state.ctxMax : 0;
-  const showGpu = state.vramTotalGb > 0 && state.modelOnGpu !== false;
+  const where = locationNode(state.modelLocation);
 
   return (
     <box
@@ -65,24 +65,41 @@ export function Header({ state }: { state: SessionState }) {
         ) : null}
         <span fg={theme.fg2}>ctx </span>
         <span fg={usageColor(ctxFrac)}>{`${humanTokens(state.ctxUsed)}/${humanTokens(state.ctxMax)}`}</span>
-        <SEP />
-        {showGpu ? (
+        {where ? (
           <>
-            <span fg={theme.fg2}>GPU </span>
-            <span fg={utilColor(state.gpuUtil < 0 ? 0 : state.gpuUtil)}>
-              {state.gpuUtil < 0 ? "· " : `${Math.round(state.gpuUtil)}% `}
-            </span>
-            <span fg={theme.fg1}>{`${state.vramUsedGb.toFixed(1)}/${state.vramTotalGb.toFixed(1)}G`}</span>
+            <SEP />
+            {where}
           </>
-        ) : (
-          <>
-            <span fg={theme.fg2}>CPU </span>
-            <span fg={utilColor(state.cpuPercent)}>{`${Math.round(state.cpuPercent)}%`}</span>
-          </>
-        )}
+        ) : null}
       </text>
     </box>
   );
+}
+
+/** Where the model runs, as the Ollama machine reports it — nothing while
+ *  that isn't known, so the header never guesses. */
+function locationNode(loc: ModelLocation | null) {
+  if (!loc) return null;
+  switch (loc.state) {
+    case "gpu":
+      return (
+        <>
+          <span fg={theme.fg2}>GPU </span>
+          <span fg={theme.success}>100%</span>
+          <span fg={theme.fg1}>{` ${loc.vram_gb.toFixed(1)}G`}</span>
+        </>
+      );
+    case "split": {
+      const gpu = Math.round(loc.gpu_fraction * 100);
+      return <span fg={theme.warn}>{`GPU ${gpu}% · CPU ${100 - gpu}%`}</span>;
+    }
+    case "cpu":
+      return <span fg={theme.warn}>CPU</span>;
+    case "unloaded":
+      return <span fg={theme.fg2}>not loaded</span>;
+    case "cloud":
+      return <span fg={theme.fg2}>cloud</span>;
+  }
 }
 
 /** Bottom bar: the session switches, each clickable — the header and the

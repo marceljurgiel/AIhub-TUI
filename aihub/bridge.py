@@ -197,6 +197,13 @@ def _h_target_info(p):
     return current().to_dict()
 
 
+def _h_models_location(p):
+    """Where the chat's model runs on the Ollama machine (header readout)."""
+    from .ollama_client import model_location
+    model = str(p.get("model") or "").strip()
+    return model_location(model) if model else {"state": "unknown"}
+
+
 def _h_models_info(p):
     from .ollama_client import get_model_info
     return get_model_info(p["model"])
@@ -1206,6 +1213,7 @@ _ONESHOT: Dict[str, Callable[[Dict[str, Any]], Dict[str, Any]]] = {
     "models.registry": _h_models_registry,
     "models.recommend": _h_models_recommend,
     "models.info": _h_models_info,
+    "models.location": _h_models_location,
     "agent.check": _h_agent_check,
     "agents.list": _h_agents_list,
     "cloud.models": _h_cloud_models,

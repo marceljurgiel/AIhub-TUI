@@ -36,13 +36,15 @@ export interface SessionState {
   llamacppOnline: boolean;
   llamacppModel: string;
 
-  // device readout
-  gpuUtil: number; // -1 = unknown
-  vramUsedGb: number;
-  vramTotalGb: number;
-  cpuPercent: number;
-  modelOnGpu: boolean | null; // true=GPU, false=CPU, null=unknown
+  /** Where the model runs on the Ollama machine; null = not known (not
+   *  asked yet, Ollama offline, or not an Ollama model). */
+  modelLocation: ModelLocation | null;
 }
+
+/** As models.location reports it, from Ollama's /api/ps. */
+export type ModelLocation =
+  | { state: "gpu" | "split" | "cpu"; gpu_fraction: number; vram_gb: number; size_gb: number }
+  | { state: "unloaded" | "cloud" };
 
 export function initialSession(): SessionState {
   return {
@@ -67,11 +69,7 @@ export function initialSession(): SessionState {
     ollamaOnline: null,
     llamacppOnline: false,
     llamacppModel: "",
-    gpuUtil: -1,
-    vramUsedGb: 0,
-    vramTotalGb: 0,
-    cpuPercent: 0,
-    modelOnGpu: null,
+    modelLocation: null,
   };
 }
 

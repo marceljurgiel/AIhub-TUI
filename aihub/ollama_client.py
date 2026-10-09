@@ -546,16 +546,57 @@ def get_running_models() -> list:
         return []
 
 
-def model_placement(model_name: str) -> dict:
-    """Where is `model_name` running? Returns
-        {"size", "size_vram", "gpu_fraction"}  (gpu_fraction in 0..1)
-    or {} when the model isn't currently loaded."""
-    for m in get_running_models():
-        name = m.get("name") or m.get("model") or ""
-        # Match on the loaded name or its bare stem (Ollama may add ':latest').
-        if name == model_name or name.split(":")[0] == model_name.split(":")[0]:
+def _same_model(a: str, b: str) -> bool:
+    """One Ollama model under two spellings: a bare name means ':latest'.
+    Only the tag may be implied — qwen3:4b is not qwen3:8b."""
+    full = lambda n: n if ":" in n else f"{n}:latest"
+    return full(a) == full(b)
+
+
+def _placement_in(models: list, model_name: str) -> dict:
+    for m in models:
+        if _same_model(m.get("name") or m.get("model") or "", model_name):
             size = float(m.get("size", 0) or 0)
             vram = float(m.get("size_vram", 0) or 0)
             frac = (vram / size) if size else 0.0
             return {"size": size, "size_vram": vram, "gpu_fraction": frac}
     return {}
+
+
+def model_placement(model_name: str) -> dict:
+    """Where is `model_name` running? Returns
+        {"size", "size_vram", "gpu_fraction"}  (gpu_fraction in 0..1)
+    or {} when the model isn't currently loaded."""
+    return _placement_in(get_running_models(), model_name)
+
+
+def model_location(model_name: str) -> dict:
+    """Where the model runs, for the header — read from the Ollama server
+    itself (/api/ps), so it is right when Ollama runs on another machine.
+
+    state: "gpu" | "split" | "cpu" (+ gpu_fraction, vram_gb, size_gb),
+           "unloaded" (Ollama answers, the model isn't in memory now),
+           "cloud" (runs on ollama.com), "offline" (Ollama didn't answer).
+    """
+    from .ollama_cloud import is_cloud
+    if is_cloud(model_name):
+        return {"state": "cloud"}
+    try:
+        response = requests.get(f"{config.ollama_api_url}/api/ps", timeout=3)
+        response.raise_for_status()
+        models = response.json().get("models", []) or []
+    except Exception as exc:
+        log.debug("listing running models failed: %s", exc)
+        return {"state": "offline"}
+    p = _placement_in(models, model_name)
+    if not p:
+        return {"state": "unloaded"}
+    frac = p["gpu_fraction"]
+    # Ollama rounds layer sizes; a sliver short of 100% is still "all on GPU".
+    state = "gpu" if frac >= 0.99 else "split" if frac > 0.01 else "cpu"
+    return {
+        "state": state,
+        "gpu_fraction": 1.0 if state == "gpu" else 0.0 if state == "cpu" else round(frac, 2),
+        "vram_gb": round(p["size_vram"] / 1024 ** 3, 1),
+        "size_gb": round(p["size"] / 1024 ** 3, 1),
+    }
