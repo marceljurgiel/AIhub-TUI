@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.1] - 2026-10-09
+### Fixed
+- Windows: knowledge-base sources were shown and cited with backslashes
+  (`docs\boiler.md`); they now read `docs/boiler.md` everywhere.
+- Windows: a Polish (Windows-1250) text file was read with the system's
+  code page and lost its letters; Polish/Czech text is now recognised on
+  every system.
+
 ## [1.4.0] - 2026-10-09
 ### Added
 - **Scheduled tasks**: an agent runs a prompt on a timetable — only while

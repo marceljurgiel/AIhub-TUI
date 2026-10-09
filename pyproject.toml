@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aihub"
-version = "1.4.0"
+version = "1.4.1"
 description = "AIhub — a terminal AI workspace for local and cloud models: chat, agents, skills, MCP, memory"
 readme = "README.md"
 authors = [{ name = "AIHub Contributors" }]

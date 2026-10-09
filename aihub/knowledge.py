@@ -97,11 +97,13 @@ def _decode(raw: bytes) -> str:
         return raw.decode("utf-8")
     except UnicodeDecodeError:
         pass
-    if os.name == "nt":
+    if _CP1250_MARKS & set(raw):
+        page = "cp1250"                 # Polish/Czech letters, whatever the system's code page
+    elif os.name == "nt":
         import locale
         page = locale.getpreferredencoding(False)
     else:
-        page = "cp1250" if _CP1250_MARKS & set(raw) else "cp1252"
+        page = "cp1252"
     return raw.decode(page, errors="replace")
 
 
@@ -450,9 +452,10 @@ def delete(name: str) -> bool:
 
 def _display(path: str, sources: List[str]) -> str:
     """A short name for a file: relative to the folder it was added from."""
+    # With / on every system: it is shown and cited ("docs/boiler.md").
     for s in sorted(sources, key=len, reverse=True):
         if os.path.isdir(s) and path.startswith(s.rstrip(os.sep) + os.sep):
-            return os.path.relpath(path, os.path.dirname(s.rstrip(os.sep)))
+            return os.path.relpath(path, os.path.dirname(s.rstrip(os.sep))).replace(os.sep, "/")
     return os.path.basename(path)
 
 
