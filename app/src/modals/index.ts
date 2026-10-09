@@ -15,3 +15,4 @@ export { ThemeModal } from "./ThemeModal.tsx";
 export { KnowledgeModal, type KnowledgeBase } from "./KnowledgeModal.tsx";
 export { ScheduleModal } from "./ScheduleModal.tsx";
 export { MissedTasksModal } from "./MissedTasksModal.tsx";
+export { UpdateOllamaModal } from "./UpdateOllamaModal.tsx";

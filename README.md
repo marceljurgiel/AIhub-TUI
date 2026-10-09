@@ -135,6 +135,9 @@ Uninstalling leaves `~/.aihub` in place.
     fit your hardware or your server's.
   - Download, delete and switch models.
   - Each model shows badges for what it can do: tools, vision, thinking and cloud.
+- **Ollama updates.** At start AIhub checks for a newer Ollama (new models
+  often need it). On this machine it runs the update for you; on a server
+  it tells you the command to run there.
 - **Ollama Cloud.** Sign in with `ollama signin` to use the big open models
   (`…:cloud`) for free, within Ollama's limits.
 

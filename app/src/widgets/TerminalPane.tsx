@@ -31,11 +31,15 @@ export function TerminalPane({
   focused,
   width,
   options,
+  command,
   onExit,
   onFocusRequest,
 }: {
   cwd: string;
   focused: boolean;
+  /** Run this instead of an interactive shell (e.g. the Ollama update);
+   *  the panel waits for Enter at the end so the output can be read. */
+  command?: string;
   /** Columns the panel has (for the title line). */
   width: number;
   options?: TerminalOptions;
@@ -63,7 +67,9 @@ export function TerminalPane({
       cols,
       rows,
       shell: options?.shell,
-      args: options?.args,
+      args: command
+        ? ["-c", `${command}; s=$?; echo; printf 'Finished (exit %s) — press Enter to close ' "$s"; read _; exit $s`]
+        : options?.args,
       onData: (data) => term.current?.write(data),
       onExit: (code) => {
         shell.current = null;
@@ -86,7 +92,9 @@ export function TerminalPane({
       onMouseDown={onFocusRequest}
     >
       <box flexDirection="row" justifyContent="space-between" paddingLeft={1} paddingRight={1} flexShrink={0}>
-        <text fg={focused ? theme.fg0 : theme.fg2}>{fit(`terminal · ${where}`, Math.max(8, width - hint.length - 6))}</text>
+        <text fg={focused ? theme.fg0 : theme.fg2}>
+          {fit(command ? `running · ${command}` : `terminal · ${where}`, Math.max(8, width - hint.length - 6))}
+        </text>
         <text fg={focused ? theme.accentSoft : theme.fg2}>{hint}</text>
       </box>
       {/* Sized by the layout: without width/height it takes a fixed 80×24

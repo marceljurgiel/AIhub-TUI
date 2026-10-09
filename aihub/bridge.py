@@ -213,6 +213,12 @@ def _h_target_info(p):
     return current().to_dict()
 
 
+def _h_ollama_update_check(p):
+    """Is there a newer Ollama than the server's, and how to get it."""
+    from .ollama_update import check
+    return check()
+
+
 def _h_models_location(p):
     """Where the chat's model runs on the Ollama machine (header readout)."""
     from .ollama_client import model_location
@@ -1230,6 +1236,7 @@ _ONESHOT: Dict[str, Callable[[Dict[str, Any]], Dict[str, Any]]] = {
     "models.recommend": _h_models_recommend,
     "models.info": _h_models_info,
     "models.location": _h_models_location,
+    "ollama.update_check": _h_ollama_update_check,
     "agent.check": _h_agent_check,
     "agents.list": _h_agents_list,
     "cloud.models": _h_cloud_models,

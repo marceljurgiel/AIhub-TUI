@@ -10,6 +10,14 @@
   and Bun's pseudo-terminals — no new dependencies.
 - An image path typed into the prompt attaches on Enter (some terminals and
   SSH sessions deliver a dragged-in file as typing, not a paste).
+- **A newer Ollama** is noticed at start (Ollama's latest release, checked
+  once a day). Ollama on this machine: Enter runs the update in the terminal
+  panel (Linux installer or Homebrew), and AIhub checks it took. Ollama on
+  another machine: a note with the command to run there.
+### Fixed
+- A failed model pull says why. A 412 means the server's Ollama is too old
+  for the model — the picker now says so, with the version, instead of a cut
+  "pull model manifest: 412: …"; other errors show whole.
 ### Changed
 - README: images and vision models get their own section and a demo.
 

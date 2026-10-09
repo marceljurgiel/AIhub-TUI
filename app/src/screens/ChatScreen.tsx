@@ -30,6 +30,7 @@ import {
   KnowledgeModal,
   McpModal,
   ScheduleModal,
+  UpdateOllamaModal,
 } from "../modals/index.ts";
 import { toolsLabel } from "../modals/AgentModal.tsx";
 import { parseSlash } from "../slash.ts";
@@ -103,7 +104,7 @@ export function ChatScreen({
   // The sidebar menu has the keyboard instead of the prompt.
   const [navFocus, setNavFocus] = useState(false);
   // The terminal panel (F8): open beside the chat, and whether it has the keyboard.
-  const [term, setTerm] = useState({ open: false, focused: false });
+  const [term, setTerm] = useState<{ open: boolean; focused: boolean; command?: string }>({ open: false, focused: false });
   const termRef = useRef(term);
   termRef.current = term;
   const [navIndex, setNavIndex] = useState(0);
@@ -260,6 +261,8 @@ export function ChatScreen({
         const status = await bridge.request("backend.status");
         if (!cancelled) applyStatus(status);
         if (!cancelled && status.ollama_started) addSystem("Started Ollama in the background.");
+        // A newer Ollama? New models often need it (an old one gets 412).
+        if (!cancelled && status.ollama_online) checkOllamaUpdate();
 
         const inst = await bridge.request("models.installed");
         if (cancelled) return;
@@ -1100,8 +1103,46 @@ export function ChatScreen({
     if (termRef.current.focused) setTerm((t) => ({ ...t, focused: false }));
   };
   const terminalExited = () => {
+    const wasUpdate = !!termRef.current.command;
     setTerm({ open: false, focused: false });
-    addSystem("Terminal closed.");
+    if (!wasUpdate) return addSystem("Terminal closed.");
+    // The update ran: did it take?
+    bridge
+      .request("ollama.update_check")
+      .then((d) =>
+        d.newer
+          ? addSystem(`Ollama is still ${d.server || "the old version"} — the update didn't finish (see above, or run it yourself: ${d.command}).`, true)
+          : addSystem(`Ollama is now ${d.server}.`),
+      )
+      .catch(reportFailure("Checking Ollama's version"));
+  };
+
+  /** Startup: is there a newer Ollama than the one AIhub talks to? */
+  const checkOllamaUpdate = () => {
+    bridge
+      .request("ollama.update_check")
+      .then((d) => {
+        if (!d?.newer) return;
+        const out = `Ollama ${d.latest} is out`;
+        if (d.how === "manual")
+          return addSystem(`${out} — ${d.host} has ${d.server}, and newer models need it. Update it on that machine: ${d.command}`);
+        if (d.how === "app")
+          return addSystem(`${out} — this machine has ${d.server}. The Ollama app updates itself: open it, or get it at ollama.com/download.`);
+        // This machine, and AIhub can run the update (Linux installer, Homebrew).
+        modals
+          .push<"update" | "later">((close) => (
+            <UpdateOllamaModal from={d.server} to={d.latest} command={d.command} onClose={close} />
+          ))
+          .then((choice) => {
+            if (choice !== "update") return;
+            if (!ptySupported(terminalOptions?.platform) || width < TERMINAL_MIN_WIDTH)
+              return addSystem(`The terminal panel can't open here — run it yourself: ${d.command}`);
+            setNavFocus(false);
+            setTerm({ open: true, focused: true, command: d.command });
+          })
+          .catch(() => {});
+      })
+      .catch(reportBackground("Checking for a newer Ollama"));
   };
 
   const openHardware = () => {
@@ -1364,6 +1405,8 @@ export function ChatScreen({
         </box>
         {term.open ? (
           <TerminalPane
+            key={term.command ? "command" : "shell"}
+            command={term.command}
             cwd={projectDir || process.env.AIHUB_WORKDIR || process.cwd()}
             focused={term.focused && !modals.isOpen}
             width={width - SIDEBAR_WIDTH - chatWidth}
