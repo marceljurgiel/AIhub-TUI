@@ -100,7 +100,7 @@ def test_add_search_and_sources(kbroot):
     assert out["files"] == 2 and out["chunks"] >= 2 and not out["problems"]
     hits = kb.search("home", "what pressure for the boiler?")
     assert hits[0]["source"] == "docs/boiler.md" and "1.2" in hits[0]["text"]
-    assert kb.search("home", "wifi password")[0]["source"] == os.path.join("docs", "sub", "wifi.txt")
+    assert kb.search("home", "wifi password")[0]["source"] == "docs/sub/wifi.txt"   # / on every system
     assert all("node_modules" not in h["source"] for h in kb.search("home", "indexed", 10))
     info = kb.list_bases()[0]
     assert info["name"] == "home" and info["description"] == "House notes" and info["files"] == 2
