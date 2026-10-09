@@ -506,3 +506,30 @@ def test_quote_survives_reconcile(mem, monkeypatch):
         {"topic": "Location", "fact": "Lives in Lisbon.", "quote": "mieszkam w lizbonie", "still_true": True}]})
     changes, _ = memory_learn.learn_from([{"role": "user", "content": "od marca mieszkam w lizbonie"}])
     assert [c.after for c in changes] == ["Lives in Lisbon."]
+
+
+# The reviewer's bypasses: a real quote with an invented fact, a shuffled
+# quote, and a fact that stands on one word of a place name.
+@pytest.mark.parametrize("op,kept", [
+    ({"op": "update", "topic": "Family", "fact": "Has three children and a dog named Rex.", "quote": "Mieszkam w Porto"}, False),
+    ({"op": "update", "topic": "Car", "fact": "Drives a red Toyota.", "quote": "pracuję jako"}, False),
+    ({"op": "update", "topic": "Boat", "fact": "Owns a boat.", "quote": "grafik Porto Mieszkam"}, False),
+    ({"op": "update", "topic": "Job", "fact": "Works at Porto Bank as a manager."}, False),
+    # Still kept: real quotes, translated names, and facts in the user's words.
+    ({"op": "update", "topic": "Location", "fact": "Lives in Porto.", "quote": "Mieszkam w Porto"}, True),
+    ({"op": "update", "topic": "Job", "fact": "Works as a graphic designer.", "quote": "pracuję jako grafik"}, True),
+    ({"op": "update", "topic": "Job", "fact": "Pracuje jako grafik."}, True),
+])
+def test_grounding_ties_the_fact_to_the_users_words(op, kept):
+    said = "Mieszkam w Porto i pracuję jako grafik."
+    assert bool(memory_learn.grounded([op], [said], BASE)) is kept
+
+
+def test_a_translated_place_name_still_counts():
+    op = {"op": "update", "topic": "Location", "fact": "Lives in Lisbon.", "quote": "mieszkam w lizbonie"}
+    assert memory_learn.grounded([op], ["od marca mieszkam w lizbonie"], BASE)
+
+
+def test_numbers_in_a_fact_must_be_the_users():
+    op = {"op": "update", "topic": "NAS", "fact": "NAS at 192.0.2.21", "quote": "Mój NAS ma adres"}
+    assert not memory_learn.grounded([op], ["Mój NAS ma adres 192.0.2.20"], BASE)

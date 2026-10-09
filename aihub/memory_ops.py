@@ -30,6 +30,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import difflib
 import re
 import uuid
 from dataclasses import asdict, dataclass, field
@@ -163,12 +164,48 @@ def fact_supported(fact: str, said: set) -> bool:
     return _share(fact, said, FACT_SUPPORT)
 
 
-def quote_supported(quote: str, said: set) -> bool:
-    """The memory model's quote of the user's own words must really be
-    theirs — this grounds an English fact taken from a message in any
-    language, which shares few words with it ("Lives in Lisbon." ←
-    "mieszkam w lizbonie"). Most of the quote, not one word of it."""
-    return _share(quote, said, 2 / 3)
+def _flat(text: str) -> str:
+    return " ".join(re.findall(r"\w+", (text or "").lower()))
+
+
+def quote_in(quote: str, texts: List[str]) -> bool:
+    """The memory model's quote of the user's own words: a stretch of one
+    message, word for word (case and punctuation aside), with at least one
+    content word. This grounds an English fact taken from a message in any
+    language ("Lives in Lisbon." ← "mieszkam w lizbonie")."""
+    q = _flat(quote)
+    return bool(q) and bool(_words(quote)) and any(f" {q} " in f" {_flat(t)} " for t in texts)
+
+
+_TOKEN = re.compile(r"[\w.:/-]+")
+
+
+def _close(a: str, b: str) -> bool:
+    """Same word, an inflection of it, or the same name spelled another way
+    (Lisbon / Lizbonie, NeoVim / neovima)."""
+    if any(ch.isdigit() for ch in a + b):
+        return a == b
+    if _same_word(a, b):
+        return True
+    # Against b's start at a few lengths, so an ending (-ie, -a, -ów) can't
+    # sink the match.
+    return len(a) >= 3 and max(difflib.SequenceMatcher(None, a, b[:n]).ratio()
+                               for n in range(max(1, len(a) - 1), len(a) + 3)) >= 0.75
+
+
+def names_supported(fact: str, texts: List[str]) -> bool:
+    """Every name and number in a fact must be the user's: a model that
+    quotes real words can still invent "a dog named Rex" or "Porto Bank".
+    A name is a capitalised word after the first; a number has a digit."""
+    said = [t.strip(".:/-").lower() for t in _TOKEN.findall(" ".join(texts))]
+    for i, tok in enumerate(_TOKEN.findall(fact or "")):
+        tok = tok.strip(".:/-")
+        if not tok:
+            continue
+        if any(ch.isdigit() for ch in tok) or (i > 0 and tok[:1].isupper()):
+            if not any(_close(tok.lower(), s) for s in said if s):
+                return False
+    return True
 
 
 def same_fact(new: str, old: str) -> bool:

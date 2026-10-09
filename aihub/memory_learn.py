@@ -243,7 +243,7 @@ def grounded(ops: List[Dict[str, Any]], user_texts: List[str], memory_md: str) -
     examples or invent facts; a fact sharing no content word with what the
     user wrote is dropped, and "forget" needs the user to mention the thing
     being forgotten."""
-    from .memory_ops import fact_supported, parse_memory, quote_supported, _supported, _words
+    from .memory_ops import fact_supported, names_supported, parse_memory, quote_in, _supported, _words
 
     said = _words(" ".join(user_texts))
     known = {e.topic.lower(): e.fact for e in parse_memory(memory_md)[1]}
@@ -260,8 +260,11 @@ def grounded(ops: List[Dict[str, Any]], user_texts: List[str], memory_md: str) -
             ok = retracted and _supported(evidence, said) and forgets == 0
             forgets += ok
         else:
-            # Its words, or the user's words it quotes (any language).
-            ok = fact_supported(op.get("fact", ""), said) or quote_supported(op.get("quote", ""), said)
+            # Its words, or the user's words it quotes (any language) — and
+            # no name or number the user didn't give.
+            fact = op.get("fact", "")
+            ok = ((fact_supported(fact, said) or quote_in(op.get("quote", ""), user_texts))
+                  and names_supported(fact, user_texts))
         if ok:
             kept.append(op)
         else:
