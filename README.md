@@ -174,6 +174,11 @@ Uninstalling leaves `~/.aihub` in place.
 
 <p align="center"><img src="docs/media/skills.gif" alt="Creating a skill from one sentence and using it on a file" width="820"></p>
 
+- **Terminal** (`F8`): a real shell beside the chat — git, an editor, a
+  build — in AIhub's working directory. `F8` moves the keyboard between the
+  shell and the chat; while the shell has it, every other key is the
+  shell's. `exit` closes it. Linux and macOS, in a window 120 columns wide
+  or more.
 - **History** (`Ctrl+R`): pick up any earlier chat.
 - **Hardware** (`W`) shows your GPU, VRAM and RAM. Context size is chosen
   automatically so the model stays in GPU memory, or set it by hand for a

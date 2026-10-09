@@ -25,6 +25,8 @@ export type ActionId =
   | "toggle_tools"
   | "temperature"
   | "theme"
+  | "terminal"
+  | "terminal_close"
   | "cancel_stream"
   | "quit";
 
@@ -61,6 +63,9 @@ export const ACTIONS: readonly ActionSpec[] = [
   { id: "knowledge", label: "Knowledge", key: "f6", nav: "b", sidebar: true, group: "models", icon: "¶" },
   { id: "mcp", label: "Connections", key: "f5", nav: "c", sidebar: true, group: "system", icon: "⇄" },
   { id: "hardware", label: "Hardware", key: "ctrl+b", nav: "w", sidebar: true, group: "system", icon: "▣" },
+  // F8, the palette, help and /terminal — not the sidebar: one more row there
+  // costs the logo at 34 rows and the model card's frame at 24.
+  { id: "terminal", label: "Terminal", key: "f8" },
   // Ctrl+, cannot be encoded by a normal terminal — the byte it produces is
   // Ctrl+\ (0x1c), so it arrives as name "\\". F3 is the chord that actually
   // works; ctrl+, is kept as an alias for terminals running the Kitty keyboard
@@ -73,6 +78,7 @@ export const ACTIONS: readonly ActionSpec[] = [
   { id: "save_session", label: "Save session", key: "ctrl+s" },
   { id: "toggle_tools", label: "Toggle tools", key: "ctrl+t" },
   { id: "temperature", label: "Temperature" },
+  { id: "terminal_close", label: "Close terminal" },
   { id: "cancel_stream", label: "Cancel stream", key: "escape" },
   { id: "quit", label: "Quit", key: "ctrl+q" },
 ];

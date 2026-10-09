@@ -38,6 +38,8 @@ import { debugLog } from "../bridge/client.ts";
 import type { LogItem } from "../log.ts";
 import type { Attachment, ChatMessage } from "../bridge/types.ts";
 import { imagePaste } from "../clipboard.ts";
+import { TerminalPane, type TerminalOptions } from "../widgets/TerminalPane.tsx";
+import { ptySupported } from "../terminal/pty.ts";
 import type { SessionState } from "../state/SessionContext.tsx";
 import { ctxLabel, type EngineChange } from "../modals/SettingsModal.tsx";
 import { ActivityLine, type Activity, type Phase } from "../widgets/ActivityLine.tsx";
@@ -65,6 +67,8 @@ const MAX_THOUGHT = 20_000;
 // Approximate width taken by the sidebar, for sizing the status preview.
 
 const MIN_WIDTH = 80;
+/** Menu, chat and terminal side by side need this many columns. */
+const TERMINAL_MIN_WIDTH = 120;
 const MIN_HEIGHT = 18;
 const WELCOME_ITEM: LogItem = {
   kind: "system",
@@ -75,11 +79,14 @@ const WELCOME_ITEM: LogItem = {
 export function ChatScreen({
   version,
   coreVersion,
+  terminal: terminalOptions,
 }: {
   /** This UI's version (package.json). */
   version: string;
   /** The Python engine's version, as reported by the bridge ready banner. */
   coreVersion: string;
+  /** The terminal panel's shell and platform (tests). */
+  terminal?: TerminalOptions;
 }) {
   const bridge = useBridge();
   const { state, dispatch } = useSession();
@@ -95,6 +102,10 @@ export function ChatScreen({
   const [activeAction, setActiveAction] = useState<ActionId>("new_chat");
   // The sidebar menu has the keyboard instead of the prompt.
   const [navFocus, setNavFocus] = useState(false);
+  // The terminal panel (F8): open beside the chat, and whether it has the keyboard.
+  const [term, setTerm] = useState({ open: false, focused: false });
+  const termRef = useRef(term);
+  termRef.current = term;
   const [navIndex, setNavIndex] = useState(0);
   const [installedNames, setInstalledNames] = useState<Set<string>>(new Set());
   const streamId = useRef<number | null>(null);
@@ -742,6 +753,7 @@ export function ChatScreen({
       case "skills": return openSkills();
       case "mcp": return openMcp();
       case "knowledge": return openKnowledge();
+      case "terminal": return toggleTerminal();
       case "schedule": return openSchedule();
       case "schedule_run": {
         const name = (r.payload?.value ?? "").trim();
@@ -1069,6 +1081,22 @@ export function ChatScreen({
     modals.push<void>((close) => <MemoryModal onClose={close} />).catch(() => {});
   };
 
+  /** F8: open the panel and give the shell the keyboard, or swap the
+   *  keyboard between the shell and the chat. */
+  const toggleTerminal = () => {
+    const t = termRef.current;
+    if (t.open) return setTerm({ open: true, focused: !t.focused });
+    if (!ptySupported(terminalOptions?.platform)) return addSystem("The terminal panel needs Linux or macOS for now.", true);
+    if (width < TERMINAL_MIN_WIDTH)
+      return addSystem(`The terminal panel needs at least ${TERMINAL_MIN_WIDTH} columns — widen the window (now ${width}).`, true);
+    setNavFocus(false);
+    setTerm({ open: true, focused: true });
+  };
+  const terminalExited = () => {
+    setTerm({ open: false, focused: false });
+    addSystem("Terminal closed.");
+  };
+
   const openHardware = () => {
     modals
       .push<void>((close) => (
@@ -1151,6 +1179,13 @@ export function ChatScreen({
       case "history": return openHistory();
       case "memory": return openMemory();
       case "hardware": return openHardware();
+      case "terminal": return toggleTerminal();
+      case "terminal_close":
+        if (termRef.current.open) {
+          setTerm({ open: false, focused: false });     // unmounting the panel ends the shell
+          addSystem("Terminal closed.");
+        }
+        return;
       case "settings": return openSettings();
       case "command_palette": return openPalette();
       case "help": return openHelp();
@@ -1205,7 +1240,7 @@ export function ChatScreen({
   useBindings(
     () => ({
       priority: LAYER.nav,
-      enabled: () => navState.current.focus && !modalsRef.current.isOpen,
+      enabled: () => navState.current.focus && !modalsRef.current.isOpen && !termRef.current.focused,
       commands: [
         { name: "menu.up", run: () => setNavIndex((i) => (i - 1 + SIDEBAR_ACTIONS.length) % SIDEBAR_ACTIONS.length) },
         { name: "menu.down", run: () => setNavIndex((i) => (i + 1) % SIDEBAR_ACTIONS.length) },
@@ -1226,8 +1261,9 @@ export function ChatScreen({
   useBindings(
     () => ({
       priority: LAYER.global,
-      // A modal owns the keyboard while it is up.
-      enabled: () => !modalsRef.current.isOpen,
+      // A modal owns the keyboard while it is up; the shell owns it while it
+      // has focus (it gets F8 back from the layer below).
+      enabled: () => !modalsRef.current.isOpen && !termRef.current.focused,
       commands: ACTIONS.map((a) => ({
         name: a.id,
         run: () => {
@@ -1247,10 +1283,21 @@ export function ChatScreen({
       // Bare letters must not fire while a text field is swallowing characters.
       // Asking the renderer which renderable has focus beats tracking it in our
       // own context — the framework already owns that state.
-      enabled: () => !modalsRef.current.isOpen && !isTextInputFocused(renderer),
+      enabled: () => !modalsRef.current.isOpen && !isTextInputFocused(renderer) && !termRef.current.focused,
       bindings: ACTIONS.filter((a) => a.nav).map((a) => ({ key: a.nav!, cmd: a.id })),
     }),
     [renderer],
+  );
+
+  // While the shell has the keyboard, F8 is the one key AIhub keeps.
+  useBindings(
+    () => ({
+      priority: LAYER.global,
+      enabled: () => !modalsRef.current.isOpen && termRef.current.focused,
+      commands: [{ name: "terminal.leave", run: () => setTerm((t) => ({ ...t, focused: false })) }],
+      bindings: [{ key: "f8", cmd: "terminal.leave" }],
+    }),
+    [],
   );
 
   // ── size guard ──
@@ -1264,6 +1311,8 @@ export function ChatScreen({
   }
 
   const ctxK = Math.max(1, Math.round(state.contextLength / 1024));
+  // With the terminal open the area right of the menu is split in half.
+  const chatWidth = term.open ? Math.floor((width - SIDEBAR_WIDTH) / 2) : width - SIDEBAR_WIDTH;
 
   return (
     <box width="100%" height="100%" flexDirection="column" backgroundColor={theme.bg0}>
@@ -1279,10 +1328,10 @@ export function ChatScreen({
           menuFocused={navFocus && !modals.isOpen}
           onAction={dispatchAction}
         />
-        <box flexDirection="column" flexGrow={1}>
+        <box flexDirection="column" flexGrow={1} flexBasis={0}>
           <ChatLog items={logItems} streamingText={streamingText} />
           {activity ? (
-            <ActivityLine activity={activity} width={width - SIDEBAR_WIDTH} />
+            <ActivityLine activity={activity} width={chatWidth} />
           ) : (
             <box paddingLeft={2} flexShrink={0}>
               <text fg={theme.fg2}>
@@ -1293,7 +1342,7 @@ export function ChatScreen({
             </box>
           )}
           <ChatInput
-            focused={!modals.isOpen && !navFocus}
+            focused={!modals.isOpen && !navFocus && !term.focused}
             onTabOut={() => setNavFocus(true)}
             attachments={pending}
             onRemoveLast={() => setPending((p) => p.slice(0, -1))}
@@ -1306,6 +1355,19 @@ export function ChatScreen({
             prefill={prefill}
           />
         </box>
+        {term.open ? (
+          <TerminalPane
+            cwd={projectDir || process.env.AIHUB_WORKDIR || process.cwd()}
+            focused={term.focused && !modals.isOpen}
+            width={width - SIDEBAR_WIDTH - chatWidth}
+            options={terminalOptions}
+            onExit={terminalExited}
+            onFocusRequest={() => {
+              setNavFocus(false);
+              setTerm({ open: true, focused: true });
+            }}
+          />
+        ) : null}
       </box>
       <Footer
         state={state}

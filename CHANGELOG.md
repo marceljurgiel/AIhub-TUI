@@ -1,5 +1,18 @@
 # Changelog
 
+## [Unreleased]
+### Added
+- **Terminal panel** (`F8`, `/terminal`): a real shell on the right of the
+  chat, in AIhub's working directory. `F8` moves the keyboard between the
+  shell and the chat; while the shell has it every other key is the
+  shell's (`Ctrl+V` pastes the clipboard). `exit` closes it. Linux and
+  macOS; the window needs 120 columns. Built on OpenTUI's terminal emulator
+  and Bun's pseudo-terminals — no new dependencies.
+- An image path typed into the prompt attaches on Enter (some terminals and
+  SSH sessions deliver a dragged-in file as typing, not a paste).
+### Changed
+- README: images and vision models get their own section and a demo.
+
 ## [1.4.1] - 2026-10-09
 ### Fixed
 - Windows: knowledge-base sources were shown and cited with backslashes

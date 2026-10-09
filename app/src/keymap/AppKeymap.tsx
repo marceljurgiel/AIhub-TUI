@@ -80,6 +80,18 @@ function FieldShortcuts({ read, hasImage }: { read: () => Promise<string>; hasIm
               .catch((e) => debugLog(`Ctrl+V paste failed: ${(e as Error).message || e}`));
           },
         },
+      ],
+      bindings: [{ key: "ctrl+v", cmd: "clipboard.paste" }],
+    }),
+    [renderer],
+  );
+  // Ctrl+A only where there is something to select: in the terminal panel it
+  // is the shell's (readline: start of line).
+  useBindings(
+    () => ({
+      priority: LAYER.clipboard,
+      enabled: () => typeof (renderer.currentFocusedRenderable as { selectAll?: unknown } | null)?.selectAll === "function",
+      commands: [
         {
           name: "field.select-all",
           run: () => {
@@ -88,10 +100,7 @@ function FieldShortcuts({ read, hasImage }: { read: () => Promise<string>; hasIm
           },
         },
       ],
-      bindings: [
-        { key: "ctrl+v", cmd: "clipboard.paste" },
-        { key: "ctrl+a", cmd: "field.select-all" },
-      ],
+      bindings: [{ key: "ctrl+a", cmd: "field.select-all" }],
     }),
     [renderer],
   );

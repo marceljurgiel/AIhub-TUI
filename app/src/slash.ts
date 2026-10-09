@@ -19,6 +19,7 @@ export const SLASH_COMMANDS: SlashCommand[] = [
   { cmd: "/skill", desc: "Use a skill → /skill <name> <task>" },
   { cmd: "/mcp", desc: "Connections: Google, GitHub and other services (F5)" },
   { cmd: "/knowledge", desc: "Knowledge bases: search your own documents (F6)" },
+  { cmd: "/terminal", desc: "A shell beside the chat (F8)" },
   { cmd: "/kb", desc: "Use a knowledge base in this chat → /kb <name>, /kb off" },
   { cmd: "/schedule", desc: "Scheduled tasks: agents on a timetable (F7)" },
   { cmd: "/schedule run", desc: "Run a scheduled task now → /schedule run <name>" },
@@ -50,6 +51,7 @@ export interface SlashResult {
     | "skills"
     | "mcp"
     | "knowledge"
+    | "terminal"
     | "kb"
     | "schedule"
     | "schedule_run"
@@ -86,6 +88,7 @@ export function parseSlash(raw: string): SlashResult {
   if (lower === "/skills" || lower === "/skill") return { kind: "skills" };
   if (lower === "/mcp" || lower === "/connections") return { kind: "mcp" };
   if (lower === "/knowledge") return { kind: "knowledge" };
+  if (lower === "/terminal") return { kind: "terminal" };
   if (lower === "/schedule") return { kind: "schedule" };
   if (lower === "/schedule run" || lower.startsWith("/schedule run "))
     return { kind: "schedule_run", payload: { value: text.slice("/schedule run".length).trim() } };
