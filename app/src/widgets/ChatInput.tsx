@@ -120,6 +120,19 @@ export function ChatInput({
   const handleEnter = () => {
     if (!focused || disabled) return;
     const value = current();
+    // Only image paths, arrived as typing rather than a paste (drag and drop
+    // in some terminals, over SSH): attach them instead of sending the path.
+    if (onImagePaths && looksLikeImagePaths(value) && !imageEnter.current) {
+      imageEnter.current = true;
+      const typed = value;
+      setValue("");
+      onImagePaths(typed)
+        .then((ok) => {
+          if (!ok) send(typed.trim());       // not image files: on as typed
+        })
+        .finally(() => (imageEnter.current = false));
+      return;
+    }
     const live = filterSlash(value);
     const chosen = live.length ? live[Math.min(slashHi, live.length - 1)]! : null;
     // Enter accepts the highlighted suggestion — unless the text already IS
@@ -129,7 +142,10 @@ export function ChatInput({
       setSlashHi(0);
       return;
     }
-    const v = value.trim();
+    send(value.trim());
+  };
+
+  const send = (v: string) => {
     if (!v && !attachments.length) return;      // an image alone may be sent
     if (v) hist.current.push(v);
     if (hist.current.length > 100) hist.current.shift();
@@ -137,6 +153,7 @@ export function ChatInput({
     setValue("");
     onSubmit(v);
   };
+  const imageEnter = useRef(false);
 
   // Input-layer bindings: highest non-modal priority, so Up/Down drive the
   // slash popup and prompt history instead of the input's own cursor motion.

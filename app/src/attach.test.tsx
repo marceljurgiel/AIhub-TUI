@@ -134,3 +134,24 @@ test("without an image in the clipboard, Ctrl+V pastes text", async () => {
   await until((f) => f.includes("plain text"));
   expect(bridge.calls.some(([m]) => m === "attach.clipboard")).toBe(false);
 });
+
+test("a path that arrives typed (drag and drop without paste, SSH): Enter attaches it", async () => {
+  const bridge = await boot();
+  await setup!.mockInput.typeText("/home/me/Pictures/photo.png");
+  await settle();
+  setup!.mockInput.pressEnter();
+  await until((f) => f.includes("▣ photo.png · 1568×1045"));
+  expect(bridge.calls).toContainEqual(["attach.paste", { text: "/home/me/Pictures/photo.png" }]);
+  expect(bridge.turns).toHaveLength(0);                       // nothing sent yet
+  expect(setup!.captureCharFrame()).not.toContain("/home/me/Pictures");
+});
+
+test("a typed path that isn't an image file goes on as typed", async () => {
+  const bridge = await boot();
+  await setup!.mockInput.typeText("~/Pictures/missing.png");
+  await settle();
+  setup!.mockInput.pressEnter();
+  await until(() => bridge.turns.length === 1);
+  expect(bridge.calls).toContainEqual(["attach.paste", { text: "~/Pictures/missing.png" }]);
+  expect(bridge.turns[0].messages.at(-1).content).toBe("~/Pictures/missing.png");
+});
