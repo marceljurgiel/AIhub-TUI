@@ -5,7 +5,7 @@
 #
 # Needs podman. The server is reached as "gpu-box.lan" inside the recording,
 # so its real address never shows. Tapes: hero install chat agent models mcp skills memory theme
-# knowledge schedule.
+# knowledge schedule vision (vision needs MODEL=gemma4:cloud or another vision model).
 # MODEL=<name> picks the chat model (default nemotron-3-ultra:cloud).
 set -euo pipefail
 : "${OLLAMA_SERVER:?set OLLAMA_SERVER to your Ollama server, e.g. OLLAMA_SERVER=192.0.2.10}"

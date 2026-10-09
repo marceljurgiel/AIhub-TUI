@@ -155,8 +155,18 @@ Uninstalling leaves `~/.aihub` in place.
 
 <p align="center"><img src="docs/media/mcp.gif" alt="Connections: Google, GitHub, Notion and more" width="820"></p>
 
-- **Images.** With a vision model, paste a screenshot with `Ctrl+V`, or drag a
-  file into the terminal.
+- **Images** for models that can see: show one a screenshot, a photo, a chart
+  or a scanned page and ask about it.
+  - Paste a screenshot with `Ctrl+V`, drag image files into the terminal, or
+    type an image's path and press Enter (PNG, JPEG, WebP, GIF, HEIC…). They
+    wait above the prompt; `⌫` removes the last one.
+  - Models that can see have a **vision** badge in `Ctrl+O`, for example
+    `gemma4:cloud` (free with Ollama Cloud) or `qwen3.5` on your own GPU.
+  - With a model that can't see, nothing is sent: AIhub says so and names the
+    models you have that can.
+
+<p align="center"><img src="docs/media/vision.gif" alt="A chart pasted into the chat; a vision model reads it and answers" width="820"></p>
+
 - **Skills** (`K`) are reusable instructions the model picks up when a
   request matches. You can write one in a sentence and the model drafts it,
   find one online (skills.sh, SkillsMP), or link a GitHub folder. Use it with

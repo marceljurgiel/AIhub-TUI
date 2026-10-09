@@ -6,6 +6,7 @@ RUN AIHUB_SOURCE=/pkg/aihub.tar.gz bash /pkg/install.sh --ollama skip --model no
 COPY --chown=alex:alex seed/demo/ /home/alex/demo/
 COPY --chown=alex:alex seed/demo-memory.md /home/alex/.aihub/memory/memory.md
 COPY --chown=alex:alex seed/handbook/ /home/alex/Documents/handbook/
+COPY --chown=alex:alex seed/pictures/ /home/alex/Pictures/
 ARG MODEL=nemotron-3-ultra:cloud
 RUN printf 'ollama_api_url: http://gpu-box.lan:11434\ndefault_chat_model: %s\n' "$MODEL" > ~/.aihub/config.yaml
 USER root
