@@ -221,3 +221,21 @@ for (const size of [{ width: 80, height: 24 }, { width: 80, height: 18 }, { widt
     expect(inside.find((l) => l.includes("qwen3.5:9b"))).toContain("tools");
   });
 }
+
+test("a failed pull shows the whole reason, not one cut line", async () => {
+  const reason = "granite4.1:8b needs a newer Ollama than the one on gpu-box.lan (it has 0.30.7) — update Ollama there, then pull again.";
+  const bridge = new PickerBridge();
+  bridge.stream = ((method: string) =>
+    method === "download.ollama"
+      ? { id: 7, done: Promise.reject(new Error(reason)) }
+      : { id: 1, done: Promise.resolve({ messages: [] }) }) as any;
+  setup = await testRender(<AppTree client={bridge as unknown as BridgeClient} />, { width: 110, height: 34 });
+  await until((f) => f.includes("llama3.2:3b"));
+  setup.mockInput.pressKey("o", { ctrl: true });
+  await until((f) => f.includes("Installed"));
+  setup.mockInput.pressKey("3");
+  await until((x) => x.includes("granite4.1:8b"));
+  setup.mockInput.pressEnter();
+  const f = await until((x) => x.includes("then pull again."));
+  expect(f.replace(/\s*│\s*\n\s*│\s*/g, " ")).toContain("update Ollama there");
+});

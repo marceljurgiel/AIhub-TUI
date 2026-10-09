@@ -202,6 +202,30 @@ def get_local_model_sizes() -> dict:
         return {}
 
 
+def server_version(base_url: Optional[str] = None) -> str:
+    """The Ollama server's version, or "" when it doesn't say."""
+    try:
+        r = requests.get(f"{base_url or config.ollama_api_url}/api/version", timeout=5)
+        r.raise_for_status()
+        return str(r.json().get("version") or "")
+    except Exception:
+        return ""
+
+
+def pull_error(model_name: str, text: str, status: int = 0, base_url: Optional[str] = None) -> str:
+    """Ollama's pull error, said so a person knows what to do — and on one
+    line: Ollama's messages run over several, and the window shows one.
+    412 is the registry refusing an Ollama too old for the model."""
+    if status == 412 or re.search(r"\b412\b|requires a newer version of Ollama", text):
+        from urllib.parse import urlparse
+        host = urlparse(base_url or config.ollama_api_url).hostname or "the server"
+        ver = server_version(base_url)
+        has = f" (it has {ver})" if ver else ""
+        return (f"{model_name} needs a newer Ollama than the one on {host}{has} — "
+                "update Ollama there, then pull again.")
+    return " ".join(str(text).split())
+
+
 def pull_model_stream(model_name: str):
     """
     Pull (download) a model from Ollama and yield progress dicts.
@@ -215,9 +239,15 @@ def pull_model_stream(model_name: str):
         response.raise_for_status()
         for line in response.iter_lines():
             if line:
-                yield json.loads(line)
+                d = json.loads(line)
+                if d.get("error"):
+                    d["error"] = pull_error(model_name, d["error"])
+                yield d
+    except requests.HTTPError as exc:
+        status = getattr(exc.response, "status_code", 0) or 0
+        yield {"error": pull_error(model_name, str(exc), status)}
     except Exception as exc:
-        yield {"error": str(exc)}
+        yield {"error": pull_error(model_name, str(exc))}
 
 
 def _ollama_messages(messages: List[Dict[str, Any]]) -> List[Dict[str, Any]]:

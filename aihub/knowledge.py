@@ -285,7 +285,8 @@ def pull_embedder(emit: Callable[[str, Dict[str, Any]], None],
                 return {"cancelled": True}
             d = json.loads(line or "{}")
             if d.get("error"):
-                raise RuntimeError(d["error"])
+                from .ollama_client import pull_error
+                raise RuntimeError(pull_error(model, d["error"], base_url=url))
             emit("progress", {"status": d.get("status", ""), "completed": d.get("completed", 0),
                               "total": d.get("total", 0)})
     return {"model": model, "url": url, "ready": embedder_status()["ready"]}

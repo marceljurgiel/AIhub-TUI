@@ -58,7 +58,8 @@ def pull(url: str, name: str) -> None:
         for line in r.iter_lines():
             d = json.loads(line or "{}")
             if d.get("error"):
-                raise SystemExit(f"could not download {name}: {d['error']}")
+                from .ollama_client import pull_error
+                raise SystemExit(f"could not download {name}: {pull_error(name, d['error'], base_url=url)}")
             status = d.get("status", "")
             if d.get("total"):
                 status += f" {d.get('completed', 0) * 100 // d['total']}%"

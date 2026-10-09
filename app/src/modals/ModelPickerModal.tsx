@@ -269,7 +269,9 @@ export function ModelPickerModal({
   const catalogTab = tab === "fit" || tab === "ollama" || tab === "hf";
   const term = useTerminalDimensions();
   const VIEWPORT = Math.max(4, Math.min(MAX_VIEWPORT, term.height - CHROME_ROWS - 1));
-  const listRows = catalogTab ? VIEWPORT - 1 : VIEWPORT + 1;
+  // A two-line note (a failed pull says why and what to do) takes a list row.
+  const noteRows = note.length > Math.max(60, Math.min(110, term.width - 4)) - 6 ? 2 : 1;
+  const listRows = (catalogTab ? VIEWPORT - 1 : VIEWPORT + 1) - (noteRows - 1);
   const list = useWindowedList(rows.length, listRows);
 
   // Ollama lists "qwen3:8b"; a bare family name means ":latest".
@@ -560,9 +562,10 @@ export function ModelPickerModal({
         ) : null}
       </box>
 
+      {/* Up to two lines: a failed pull says why and what to do. */}
       {note ? (
-        <box flexShrink={0}>
-          <text fg={theme.warn}>{fit(note, width - 6)}</text>
+        <box flexShrink={0} height={noteRows}>
+          <text fg={theme.warn} wrapMode="word">{fit(note, 2 * (width - 6))}</text>
         </box>
       ) : null}
     </ModalShell>
