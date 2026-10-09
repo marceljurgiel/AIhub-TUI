@@ -1,4 +1,5 @@
 import { type ReactNode } from "react";
+import { useTerminalDimensions } from "@opentui/react";
 import { theme } from "../theme.ts";
 import { Hints } from "./primitives.tsx";
 
@@ -22,6 +23,11 @@ export function ModalShell({
   hints?: Array<[string, string]>;
   children: ReactNode;
 }) {
+  // A window never outgrows the terminal: a fixed height on a short screen
+  // would push its bottom border and hints out of view.
+  const term = useTerminalDimensions();
+  width = Math.min(width, term.width);
+  if (height !== undefined) height = Math.min(height, term.height);
   return (
     <box
       width={width}
@@ -50,9 +56,14 @@ export function ModalShell({
         <text fg={theme.borderStrong}>{"─".repeat(width - 4)}</text>
       </box>
 
-      {/* body */}
-      <box flexDirection="column" flexGrow={1} paddingLeft={1} paddingRight={1}>
-        {children}
+      {/* body — clipped, so content that doesn't fit can never paint over
+          the hint bar or outside the frame */}
+      <box flexDirection="column" flexGrow={1} flexShrink={1} overflow="hidden" paddingLeft={1} paddingRight={1}>
+        {/* Never shrinks below its content: on a short terminal rows are cut
+            at the bottom instead of being squeezed onto each other. */}
+        <box flexDirection="column" flexGrow={1} flexShrink={0}>
+          {children}
+        </box>
       </box>
 
       {/* footer hints */}

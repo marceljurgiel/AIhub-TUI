@@ -78,3 +78,26 @@ test("footer: mem / tools only; temperature lives in Settings (e) and /temp", as
   setup.mockInput.pressEnter();
   await until(() => calls.some(([m, p]) => m === "config.set" && p.patch?.temperature === 0.3));
 });
+
+test("a window taller than the terminal keeps its frame and hints on screen", async () => {
+  setup = await testRender(<AppTree client={mockClient()} />, { width: 80, height: 18 });
+  await setup.waitForFrame((f) => f.includes("New Chat"), { maxPasses: 40 });
+  setup.mockInput.pressKey("F3");                                   // Settings: 24 rows tall
+  let f = "";
+  for (let i = 0; i < 40 && !f.includes("Settings"); i++) {
+    await new Promise((r) => setTimeout(r, 40));
+    await setup.flush();
+    f = setup.captureCharFrame();
+  }
+  const all = f.split("\n");
+  const top = all.findIndex((l) => l.includes("╭") && all[all.indexOf(l) + 1]?.includes("Settings"));
+  expect(top).toBeGreaterThanOrEqual(0);
+  const col = all[top]!.indexOf("╭");
+  const bottom = all.findIndex((l, i) => i > top && l[col] === "╰");
+  expect(bottom).toBeGreaterThan(top);
+  expect(all[bottom - 1]).toMatch(/tab\s+field/);
+  // What doesn't fit is cut at the bottom; rows are never squeezed on top of each other.
+  expect(f).toMatch(/│ ENGINE\s/);
+  expect(f).toMatch(/│ DEFAULTS\s/);
+  expect(f).toMatch(/│   Default model\s/);
+});

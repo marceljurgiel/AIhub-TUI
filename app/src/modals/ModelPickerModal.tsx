@@ -408,8 +408,19 @@ export function ModelPickerModal({
   const width = Math.max(60, Math.min(110, term.width - 4));
   const nameW = Math.max(16, Math.min(34, width - FIXED_COLS - 4 - 12));
   const extraW = Math.max(0, width - 4 - FIXED_COLS - nameW);
-  // Installed / Cloud: one name column as wide as the longest name shown.
-  const plainW = Math.min(38, Math.max(10, ...rows.map((r: any) => String(r.model ?? "").length)));
+  // Installed / Cloud: one name column as wide as the longest name shown,
+  // but never so wide that the size columns are pushed off the row.
+  const plainW = Math.min(38, width - 4 - 36, Math.max(10, ...rows.map((r: any) => String(r.model ?? "").length)));
+  /** Cells left on an Installed / Cloud row after its fixed columns — what
+   *  the capability badges and the description may use. A row must stay one
+   *  line: a wrapped row pushes the list over the hint bar and out of the
+   *  window. */
+  const restOf = (row: any) =>
+    width - 4 -
+    (2 + plainW + 10 +
+      (row.kind === "installed" ? 14 : 0) +
+      (row.keyReady === false ? 10 : 0) +
+      (row.status !== undefined || row.kind === "installed" ? 10 : 0));
   return (
     <ModalShell
       title="Models"
@@ -495,6 +506,7 @@ export function ModelPickerModal({
             <box
               key={row.key}
               flexShrink={0}
+              height={1}
               backgroundColor={selected ? theme.bg3 : undefined}
               onMouseDown={() => list.setIndex(idx)}
             >
@@ -507,7 +519,7 @@ export function ModelPickerModal({
                   extraW={extraW}
                 />
               ) : (
-                <text>
+                <text wrapMode="none">
                   <span fg={selected ? theme.accent : theme.border}>{"▎"}</span>
                   <span fg={row.model === currentModel ? theme.accentSoft : selected ? theme.fg0 : theme.fg1}>
                     {` ${fit(row.model, 38).padEnd(plainW)}`}
@@ -522,8 +534,14 @@ export function ModelPickerModal({
                   ) : row.kind === "installed" ? (
                     <span>{" ".repeat(10)}</span>
                   ) : null}
-                  {row.caps ? <CapBadges caps={row.caps} width={row.desc !== undefined ? 36 : 0} /> : null}
-                  {row.desc ? <span fg={theme.fg2}>{fit(row.desc, Math.max(0, width - plainW - 63))}</span> : null}
+                  {row.caps ? (
+                    <CapBadges caps={row.caps} width={row.desc !== undefined ? 36 : 0} max={restOf(row)} />
+                  ) : null}
+                  {row.desc ? (
+                    <span fg={theme.fg2}>
+                      {fit(row.desc, Math.max(0, restOf(row) - (row.caps ? Math.min(36, restOf(row)) : 0)))}
+                    </span>
+                  ) : null}
                 </text>
               )}
             </box>
@@ -561,10 +579,16 @@ const CAP_STYLE: Record<string, [string, string]> = {
   insert: ["fill-in", theme.fg2],
 };
 
-function CapBadges({ caps, width = 0 }: { caps: string[]; width?: number }) {
-  const shown = CAP_ORDER.filter((c) => caps.includes(c));
+function CapBadges({ caps, width = 0, max = Infinity }: { caps: string[]; width?: number; max?: number }) {
+  // As many as fit in `max` cells, most useful first; the rest are dropped.
+  const shown: string[] = [];
+  for (const c of CAP_ORDER.filter((c) => caps.includes(c))) {
+    if (2 + [...shown, c].map((x) => CAP_STYLE[x]![0]).join(" · ").length > max) break;
+    shown.push(c);
+  }
   const len = shown.length ? 2 + shown.map((c) => CAP_STYLE[c]![0]).join(" · ").length : 3;
-  const pad = " ".repeat(Math.max(0, width - len));
+  if (!shown.length && max < 3) return null;
+  const pad = " ".repeat(Math.max(0, Math.min(width, max) - len));
   if (!shown.length) return <span fg={theme.border}>{`  —${pad}`}</span>;
   return (
     <span>

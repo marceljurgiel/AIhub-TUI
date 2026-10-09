@@ -173,3 +173,50 @@ test("installed rows show size, params, context and what the model can do", asyn
   expect(f).toMatch(/deepseek-coder:6\.7b\s+3\.6 GB\s+7B\s+16K\s+—/);
   expect(f).toMatch(/nemotron-3-ultra:cloud\s+cloud\s+550B\s+256K\s+free\s+tools · thinking/);
 });
+
+// Real installed lists: long tags, every capability, a retired cloud model.
+const MANY_INSTALLED = [
+  { name: "embeddinggemma:latest", size_gb: 0.6, capabilities: ["embedding"], max_context: 2048, params: "308M" },
+  { name: "qwen3.5:9b", size_gb: 6.1, capabilities: ["vision", "tools", "thinking"], max_context: 262144, params: "9.7B" },
+  { name: "llama3.2:3b", size_gb: 1.9, capabilities: ["tools"], max_context: 131072, params: "3.2B" },
+  { name: "gemma-4-12b-it-q4_k_m:latest", size_gb: 6.6, capabilities: ["tools", "thinking"], max_context: 262144, params: "12B" },
+  { name: "deepseek-coder:6.7b", size_gb: 3.6, capabilities: [], max_context: 16384, params: "7B" },
+  { name: "lfm2.5:8b", size_gb: 4.8, capabilities: ["tools", "thinking"], max_context: 131072, params: "8.5B" },
+  { name: "lfm2.5-thinking:1.2b", size_gb: 0.7, capabilities: ["tools", "thinking"], max_context: 131072, params: "1.2B" },
+  { name: "qwen3:8b", size_gb: 4.9, capabilities: ["tools", "thinking"], max_context: 40960, params: "8.2B" },
+  { name: "glm-4.7:cloud", size_gb: 0, cloud: true, status: "retired", capabilities: [], max_context: 0, params: "" },
+  { name: "kimi-k2.5:cloud", size_gb: 0, cloud: true, status: "retired", capabilities: [], max_context: 0, params: "" },
+  { name: "qwen2.5-coder:7b", size_gb: 4.4, capabilities: ["tools", "insert"], max_context: 32768, params: "7.6B" },
+].map((m) => ({ cloud: false, status: "", quant: "", ...m }));
+
+for (const size of [{ width: 80, height: 24 }, { width: 80, height: 18 }, { width: 90, height: 30 }]) {
+  test(`installed tab in a small terminal: one line per model, all inside the window (${size.width}×${size.height})`, async () => {
+    const bridge = new PickerBridge();
+    const orig = bridge.request.bind(bridge);
+    bridge.request = async (m: string, p: any = {}) =>
+      m === "models.installed" ? { models: MANY_INSTALLED, recent: [] } : orig(m, p);
+    setup = await testRender(<AppTree client={bridge as unknown as BridgeClient} />, size);
+    await until((f) => f.includes("New Chat") || f.includes("llama3.2:3b"));
+    setup.mockInput.pressKey("o", { ctrl: true });
+    const f = await until((x) => x.includes("can do") || x.includes("qwen3.5:9b"));
+    const all = f.split("\n");
+    expect(all.every((l) => l.length <= size.width)).toBe(true);
+    const top = all.findIndex((l) => l.includes("Models") && l.includes("esc close")) - 1;
+    const col = all[top]!.indexOf("╭");
+    const bottom = all.findIndex((l, i) => i > top && l[col] === "╰");
+    expect(top).toBeGreaterThanOrEqual(0);
+    expect(bottom).toBeGreaterThan(top);
+    // The hint bar is the last line inside the frame, whole.
+    expect(all[bottom - 1]).toMatch(/↑↓\s+select/);
+    // Nothing of the window spills below its frame.
+    const below = all.slice(bottom + 1).join("\n");
+    for (const m of MANY_INSTALLED) expect(below).not.toContain(m.name);
+    expect(below).not.toMatch(/tools|thinking|retired/);
+    // Each visible model sits on its own line, and no line starts with a stray badge.
+    const inside = all.slice(top, bottom);
+    for (const l of inside) expect(l).not.toMatch(/│\s*(tools|thinking|vision|retired)\b/);
+    const shown = MANY_INSTALLED.filter((m) => inside.some((l) => l.includes(m.name)));
+    expect(shown.length).toBeGreaterThanOrEqual(3);
+    expect(inside.find((l) => l.includes("qwen3.5:9b"))).toContain("tools");
+  });
+}
