@@ -433,3 +433,27 @@ test("memory learning waits while a task has the model", async () => {
   bridge.runs[0]!.resolve({ status: "ok", summary: "", session: null });
   await until(() => bridge.count("memory.learn") === 1);
 });
+
+test("a task's result opens without empty reply blocks for tool-only rounds", async () => {
+  class HistBridge extends ScheduleBridge {
+    override async request(method: string, params: any = {}): Promise<any> {
+      if (method === "history.load")
+        return {
+          messages: [
+            { role: "system", content: "sys" },
+            { role: "user", content: "List the functions in inventory.py." },
+            { role: "assistant", content: "", tool_calls: [{ function: { name: "read_file", arguments: {} } }] },
+            { role: "tool", content: "def total_value(items): ..." },
+            { role: "assistant", content: "total_value sums the stock." },
+          ],
+        };
+      return super.request(method, params);
+    }
+  }
+  await open(new HistBridge());
+  await openSchedule();
+  setup!.mockInput.pressEnter();                                    // ↵ result
+  const f = await until((x) => x.includes("total_value sums the stock."));
+  expect(f.split("\n").filter((l) => l.includes("‹ AIHUB")).length).toBe(1);
+  expect(f).toContain("Resumed session — 3 messages.");
+});

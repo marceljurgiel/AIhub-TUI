@@ -692,12 +692,15 @@ export function ChatScreen({
           text: String(m.content),
           images: m.images?.length ? m.images.map((_, i) => `image ${i + 1}`) : undefined,
         });
-      else if (m.role === "assistant") items.push({ kind: "assistant", text: String(m.content) });
+      // A round that only called a tool has no text: no empty reply block.
+      else if (m.role === "assistant" && String(m.content ?? "").trim())
+        items.push({ kind: "assistant", text: String(m.content) });
     }
     setLogItems(items);
     // Keep the session's own start time so autosave updates its file.
     dispatch({ type: "patch", patch: { messages, streaming: false, startTime: startTime || new Date().toISOString() } });
-    addSystem(`Resumed session — ${messages.filter((m) => m.role !== "system").length} messages.`);
+    // Counted like the header: your messages and the replies, not tool results.
+    addSystem(`Resumed session — ${messages.filter((m) => m.role === "user" || m.role === "assistant").length} messages.`);
   };
 
   const doPickModel = (display: string, backend: "ollama" | "api", streamModel: string) => {
