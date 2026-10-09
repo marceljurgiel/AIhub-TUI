@@ -96,3 +96,20 @@ test("asked again right after a reply — the first message is what loads the mo
   await until(() => header().includes("2 messages"));               // the reply is in
   await until(() => header().includes("GPU 100% 2.1G"), 25);         // well before the 10 s poll
 });
+
+test("a long chat title gives way: the location stays whole in the header", async () => {
+  const bridge = new LocationBridge();
+  bridge.location = { state: "gpu", gpu_fraction: 1, vram_gb: 2.1, size_gb: 2.1 };
+  bridge.script = [
+    { e: "text", d: { text: "Yes." } },
+    { e: "usage", d: { prompt_tokens: 1100, completion_tokens: 3, tps: 15.1 } },
+  ];
+  setup = await testRender(<AppTree client={bridge as unknown as BridgeClient} />, { width: 110, height: 34 });
+  await until((f) => f.includes("llama3.2:3b") && f.includes("New Chat"));
+  await setup!.mockInput.typeText("A customer wants to send back a faulty kettle after three weeks. Who pays?");
+  setup!.mockInput.pressEnter();
+  await until(() => header().includes("2 messages"));
+  const h = await until(() => header().includes("tok/s")).then(() => header());
+  expect(h.trimEnd()).toMatch(/GPU 100% 2\.1G$/);
+  expect(h).toContain("A customer wants");
+});

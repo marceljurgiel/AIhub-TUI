@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTerminalDimensions } from "@opentui/react";
 import { theme, usageColor, tpsColor, humanTokens, fit } from "../theme.ts";
 import { Spinner } from "../ui/primitives.tsx";
 import type { ModelLocation, SessionState } from "../state/SessionContext.tsx";
@@ -11,15 +12,29 @@ function sessionTitle(state: SessionState): string {
   const skill = /^Use the "([^"]+)" skill for this\./.exec(raw);
   const task = skill ? /\n\nTask: ([^]*)$/.exec(raw)?.[1] ?? "" : "";
   const t = (skill ? `/skill ${skill[1]} ${task}`.trim() : raw).replace(/\n/g, " ");
-  return t.length > 42 ? t.slice(0, 41) + "…" : t;
+  return t;
 }
 
 const SEP = () => <span fg={theme.borderStrong}>{"  ·  "}</span>;
 
 /** Top header bar — mirrors tui/widgets/status_bar.py StatusBar. */
 export function Header({ state }: { state: SessionState }) {
-  const title = sessionTitle(state);
+  const term = useTerminalDimensions();
+  const fullTitle = sessionTitle(state);
   const msgCount = state.messages.filter((m) => m.role === "user" || m.role === "assistant").length;
+  const msgs = `${msgCount} ${msgCount === 1 ? "message" : "messages"}`;
+  const where = locationNode(state.modelLocation);
+  // The right side (speed, context, where the model runs) stays whole; the
+  // title takes what is left, and "active session" goes first when tight.
+  const right =
+    (state.tps > 0 ? `${state.tps} tok/s  ·  ` : "") +
+    `ctx ${humanTokens(state.ctxUsed)}/${humanTokens(state.ctxMax)}` +
+    (state.modelLocation ? `  ·  ${locationText(state.modelLocation)}` : "");
+  const room = term.width - 4 - right.length - 2 - 5 - msgs.length;
+  const plainStatus = !state.streaming && state.mode !== "agent";
+  const dropStatus = plainStatus && room - 5 - "active session".length < 16;
+  const titleRoom = Math.max(8, Math.min(42, room - (dropStatus || !plainStatus ? 0 : 5 + "active session".length)));
+  const title = fit(fullTitle, titleRoom);
 
   const statusNode = state.streaming ? (
     <span fg={theme.warn}>
@@ -28,12 +43,11 @@ export function Header({ state }: { state: SessionState }) {
     </span>
   ) : state.mode === "agent" ? (
     <span fg={theme.accent}>{`agent ${state.agentName} · ${state.agentSubmode}`}</span>
-  ) : title === "new session" ? null : (
+  ) : fullTitle === "new session" || dropStatus ? null : (
     <span fg={theme.fg2}>active session</span>
   );
 
   const ctxFrac = state.ctxMax > 0 ? state.ctxUsed / state.ctxMax : 0;
-  const where = locationNode(state.modelLocation);
 
   return (
     <box
@@ -54,7 +68,7 @@ export function Header({ state }: { state: SessionState }) {
           </>
         ) : null}
         <SEP />
-        <span fg={theme.fg2}>{`${msgCount} ${msgCount === 1 ? "message" : "messages"}`}</span>
+        <span fg={theme.fg2}>{msgs}</span>
       </text>
       <text>
         {state.tps > 0 ? (
@@ -74,6 +88,24 @@ export function Header({ state }: { state: SessionState }) {
       </text>
     </box>
   );
+}
+
+/** The location as plain text (for measuring the header). */
+function locationText(loc: ModelLocation): string {
+  switch (loc.state) {
+    case "gpu":
+      return `GPU 100% ${loc.vram_gb.toFixed(1)}G`;
+    case "split": {
+      const gpu = Math.round(loc.gpu_fraction * 100);
+      return `GPU ${gpu}% · CPU ${100 - gpu}%`;
+    }
+    case "cpu":
+      return "CPU";
+    case "unloaded":
+      return "not loaded";
+    case "cloud":
+      return "cloud";
+  }
 }
 
 /** Where the model runs, as the Ollama machine reports it — nothing while
