@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTerminalDimensions } from "@opentui/react";
 import { singleLinePaste } from "../clipboard.ts";
 import { theme, fit } from "../theme.ts";
 import { useBridge } from "../state/BridgeContext.tsx";
@@ -145,6 +146,14 @@ export function SettingsModal({
   const [status, setStatus] = useState<{ text: string; tone: "ok" | "warn" | "info" }>({ text: "", tone: "info" });
   const [saving, setSaving] = useState(false);
   const width = 72;
+  const HEIGHT = 24;
+  // A short terminal sheds decoration so every setting and the status line
+  // still fit: first the blank lines between sections, then their headers.
+  // The body gets the window minus borders, title, rule and hint bar.
+  const term = useTerminalDimensions();
+  const room = Math.min(HEIGHT, term.height) - 5;
+  const labels = room >= 16;
+  const gaps = room >= 18;
 
   useEffect(() => {
     bridge
@@ -320,7 +329,7 @@ export function SettingsModal({
     <ModalShell
       title="Settings"
       width={width}
-      height={24}
+      height={HEIGHT}
       hints={[
         ["tab", "field"],
         ["enter", "save"],
@@ -328,7 +337,7 @@ export function SettingsModal({
       ]}
     >
       <box flexDirection="column" flexGrow={1}>
-        <SectionLabel label="engine" width={width - 4} />
+        {labels ? <SectionLabel label="engine" width={width - 4} /> : null}
         {field("ollama", "Ollama server", ollama, setOllama, "http://localhost:11434")}
         {field("gpuMem", "Ollama GPU memory", gpuMem, setGpuMem, "GB · empty = learned from chats")}
         {field(
@@ -340,8 +349,8 @@ export function SettingsModal({
           `empty = launch dir (${fit(cfg?.workdir ?? "…", width - 48)})`,
         )}
 
-        <box marginTop={1} flexDirection="column">
-          <SectionLabel label="defaults" width={width - 4} />
+        <box marginTop={gaps ? 1 : 0} flexDirection="column">
+          {labels ? <SectionLabel label="defaults" width={width - 4} /> : null}
           {field("model", "Default model", model, setModel, "ollama model tag")}
           <box onMouseDown={openContext}>
             <text>
@@ -363,8 +372,8 @@ export function SettingsModal({
           </box>
         </box>
 
-        <box marginTop={1} flexDirection="column">
-          <SectionLabel label="session" width={width - 4} />
+        <box marginTop={gaps ? 1 : 0} flexDirection="column">
+          {labels ? <SectionLabel label="session" width={width - 4} /> : null}
           {(Object.keys(SWITCHES) as SwitchId[]).map((id) => (
             <ToggleRow key={id} label={SWITCHES[id].label} value={switches[id]} onToggle={() => void toggle(id)} />
           ))}

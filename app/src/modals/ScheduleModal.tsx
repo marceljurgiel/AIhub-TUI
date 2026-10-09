@@ -277,7 +277,7 @@ export function ScheduleModal({
 
   const hints: Array<[string, string]> =
     view === "list"
-      ? [["n", "new"], ["e", "edit"], ["space", "on/off"], ["r", running && selected?.name === running ? "cancel" : "run now"], ["↵", "last result"], ["d", "delete"]]
+      ? [["n", "new"], ["e", "edit"], ["space", "on/off"], ["r", running && selected?.name === running ? "cancel" : "run"], ["↵", "result"], ["d", "delete"]]
       : view === "agent"
         ? [["↑↓", "pick"], ["enter", "next"], ["m", "use current model"], ["esc", "back"]]
         : view === "prompt"

@@ -69,7 +69,7 @@ export function ModalShell({
       {/* footer hints */}
       {hints.length ? (
         <box flexShrink={0} paddingLeft={1} paddingRight={1}>
-          <Hints items={hints} />
+          <Hints items={hints} width={width - 4} />
         </box>
       ) : null}
     </box>

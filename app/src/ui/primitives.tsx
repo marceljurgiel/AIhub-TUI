@@ -96,14 +96,20 @@ export function Spinner({ color = theme.accent }: { color?: string }) {
 }
 
 /** Footer hint strip: sequence of keycap + label pairs. */
-export function Hints({ items }: { items: Array<[string, string]> }) {
+/** Separators from roomiest to tightest: a narrow window gets a tighter bar
+ *  rather than one that wraps onto a second line. */
+const HINT_SEPS = ["  ·  ", " · ", "  "];
+
+export function Hints({ items, width = Infinity }: { items: Array<[string, string]>; width?: number }) {
+  const cells = items.reduce((n, [k, label]) => n + k.length + 2 + 1 + label.length, 0);
+  const sep = HINT_SEPS.find((s) => cells + s.length * (items.length - 1) <= width) ?? HINT_SEPS.at(-1)!;
   return (
     <text>
       {items.map(([k, label], i) => (
         <span key={k}>
           <KeyHint k={k} />
           <span fg={theme.fg2}>{` ${label}`}</span>
-          {i < items.length - 1 ? <span fg={theme.borderStrong}>{"  ·  "}</span> : null}
+          {i < items.length - 1 ? <span fg={theme.borderStrong}>{sep}</span> : null}
         </span>
       ))}
     </text>

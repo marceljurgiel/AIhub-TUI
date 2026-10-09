@@ -87,8 +87,9 @@ export class ScheduleBridge extends MockBridge {
 async function open<B extends ScheduleBridge = ScheduleBridge>(
   bridge: B = new ScheduleBridge() as B,
   ready: (f: string) => boolean = (f) => f.includes("llama3.2:3b") && f.includes("tab menu"),
+  size = { width: 110, height: 36 },
 ): Promise<B> {
-  setup = await testRender(<AppTree client={bridge as unknown as BridgeClient} />, { width: 110, height: 36 });
+  setup = await testRender(<AppTree client={bridge as unknown as BridgeClient} />, size);
   await until(ready);
   return bridge;
 }
@@ -113,6 +114,18 @@ test("F7 opens Schedule with tasks, the last result and the only-while-open note
   expect(f).toContain("ok ·");
   expect(f).toContain("Three new emails: the Lisbon trip is confirmed.");
   expect(f).toContain("Tasks run only while AIhub is open.");
+});
+
+test("an 80-column terminal: the hint bar stays one line, every key in it", async () => {
+  await open(undefined, (f) => f.includes("New Chat"), { width: 80, height: 24 });
+  const all = (await openSchedule()).split("\n");
+  const top = all.findIndex((l, i) => l.includes("╭") && all[i + 1]?.includes("Schedule"));
+  const col = all[top]!.indexOf("╭");
+  const bottom = all.findIndex((l, i) => i > top && l[col] === "╰");
+  const bar = all[bottom - 1]!;
+  for (const k of ["n", "e", "space", "r", "↵", "d"]) expect(bar).toContain(` ${k} `);
+  expect(bar).toMatch(/new.*edit.*on\/off.*run.*delete/);
+  expect(all[bottom - 2]).not.toMatch(/ n {2}new/);           // no first half of a wrapped bar
 });
 
 test("shows Loading tasks… before the list arrives", async () => {

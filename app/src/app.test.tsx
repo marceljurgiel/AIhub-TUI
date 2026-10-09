@@ -96,8 +96,42 @@ test("a window taller than the terminal keeps its frame and hints on screen", as
   const bottom = all.findIndex((l, i) => i > top && l[col] === "╰");
   expect(bottom).toBeGreaterThan(top);
   expect(all[bottom - 1]).toMatch(/tab\s+field/);
-  // What doesn't fit is cut at the bottom; rows are never squeezed on top of each other.
+  // Rows are never squeezed on top of each other.
+  expect(f).toMatch(/│   Ollama server\s/);
+  expect(f).toMatch(/│   Default model\s/);
+});
+
+test("Settings on an 80×18 terminal: every setting and the save note fit", async () => {
+  setup = await testRender(<AppTree client={mockClient()} />, { width: 80, height: 18 });
+  await setup.waitForFrame((f) => f.includes("New Chat"), { maxPasses: 40 });
+  setup.mockInput.pressKey("F3");
+  const until = async (pred: (f: string) => boolean) => {
+    for (let i = 0; i < 60; i++) {
+      await new Promise((r) => setTimeout(r, 40));
+      await setup!.flush();
+      const f = setup!.captureCharFrame();
+      if (pred(f)) return f;
+    }
+    throw new Error("frame never matched:\n" + setup!.captureCharFrame());
+  };
+  let f = await until((x) => x.includes("Ollama server"));
+  for (const row of ["Ollama server", "GPU memory", "Working directory", "Default model", "Context", "Temperature",
+    "Tool calling", "Memory ", "Auto-learn", "Autosave chats", "Memory model"])
+    expect(f).toContain(row);
+  // Flipping a switch says so, above the hint bar.
+  setup.mockInput.pressKey("a");
+  f = await until((x) => x.includes("Auto-learn off — saved."));
+  const all = f.split("\n");
+  const note = all.findIndex((l) => l.includes("Auto-learn off — saved."));
+  expect(all.findIndex((l) => /tab\s+field/.test(l))).toBeGreaterThan(note);
+});
+
+test("Settings on a full-size terminal keeps its section headers", async () => {
+  setup = await testRender(<AppTree client={mockClient()} />, { width: 110, height: 34 });
+  await setup.waitForFrame((f) => f.includes("New Chat"), { maxPasses: 40 });
+  setup.mockInput.pressKey("F3");
+  const f = await setup.waitForFrame((x) => x.includes("Memory model"), { maxPasses: 60 });
   expect(f).toMatch(/│ ENGINE\s/);
   expect(f).toMatch(/│ DEFAULTS\s/);
-  expect(f).toMatch(/│   Default model\s/);
+  expect(f).toMatch(/│ SESSION\s/);
 });
