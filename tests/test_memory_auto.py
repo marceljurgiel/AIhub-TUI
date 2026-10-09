@@ -321,6 +321,15 @@ MEM_HW = BASE + "\n## Hardware\nRaspberry Pi 4\n"
     ({"op": "update", "topic": "NAS", "fact": "NAS at 192.0.2.20"}, "Mój NAS ma adres 192.0.2.20", True),
     ({"op": "forget", "topic": "Hardware", "fact": ""}, "Pracuję zdalnie z Lizbony", False),           # unrelated
     ({"op": "forget", "topic": "Hardware", "fact": ""}, "Nie mam już Raspberry Pi", True),
+    # One shared word is not enough: a garbled sentence that happens to
+    # contains one word the user said ("Portugalii") was saved before.
+    ({"op": "update", "topic": "Town", "fact": "Wielkoportowa kultura zespołów historycznie Portugalii"},
+     "Mieszkam w Portugalii od urodzenia", False),
+    # Facts are written in English; names, places and cognates carry them.
+    ({"op": "update", "topic": "Location", "fact": "Lives in Porto."}, "mieszkam w Porto", True),
+    ({"op": "update", "topic": "Car", "fact": "Drives a Toyota with a diesel engine."}, "mam toyotę z silnikiem diesla", True),
+    ({"op": "update", "topic": "Job", "fact": "Works as a graphic designer."}, "pracuję jako grafik", True),
+    ({"op": "update", "topic": "Server", "fact": "Has a TrueNAS server."}, "mam serwer truenas", True),
 ])
 def test_grounding(op, said, kept):
     assert bool(memory_learn.grounded([op], [said], MEM_HW)) is kept
@@ -433,3 +442,67 @@ def test_forget_needs_a_stated_change_and_only_one_per_batch():
     # two forgets in one batch → only the first
     said = ["I sold my Raspberry Pi and I no longer have the Toyota"]
     assert memory_learn.grounded([forget_hw, forget_car], said, mem_) == [forget_hw]
+
+
+def test_remember_needs_more_than_one_shared_word(monkeypatch):
+    from aihub.tools import set_user_text
+    from aihub.tools.remember import remember
+    monkeypatch.setattr(config, "memory_enabled", True)
+    applied = []
+    monkeypatch.setattr("aihub.memory_ops.apply_ops", lambda ops, **kw: applied.extend(ops) or [])
+    set_user_text("Mieszkam w Portugalii od urodzenia")
+    try:
+        out = remember("Town", "Wielkoportowa kultura zespołów historycznie Portugalii")
+        assert out.startswith("[Memory Error] Not saved") and not applied
+        remember("Location", "Lives in Portugalii.")
+        assert applied
+    finally:
+        set_user_text(None)
+
+
+def test_prompt_asks_for_english_third_person_facts_one_per_topic():
+    """Small memory models (llama3.2:3b) write broken Polish and first-person
+    copies ("Mam dwa koty."), and file two facts of one sentence under one
+    wrong topic ("Car: Mieszka w Porto."). English, third person, one fact per
+    topic — with an example that shows it."""
+    import re
+    p = memory_learn.SYSTEM_PROMPT
+    assert "English" in p and "third person" in p
+    examples = [json.loads(e) for e in re.findall(r"-> (\{.*\})", p)]
+    assert any(len(e["facts"]) == 2 and len({f["topic"] for f in e["facts"]}) == 2 for e in examples)
+    for e in examples:
+        for f in e["facts"]:
+            assert not re.match(r"(I|My|Mam|Jestem|Mieszkam)\b", f["fact"]), f
+
+
+@pytest.mark.parametrize("op,said,kept", [
+    # An English fact stands on the user's own words, quoted, in any language.
+    ({"op": "update", "topic": "Location", "fact": "Lives in Lisbon.", "quote": "mieszkam w lizbonie"},
+     "mam toyotę z silnikiem diesla i mieszkam w lizbonie", True),
+    ({"op": "update", "topic": "Schedule", "fact": "Usually works at night.", "quote": "zwykle w nocy"},
+     "pracuję jako grafik, zwykle w nocy", True),
+    # A quote the user never wrote (a copied prompt example) proves nothing.
+    ({"op": "update", "topic": "Location", "fact": "Lives in Porto.", "quote": "mieszkam w Porto"},
+     "pracuję jako grafik, zwykle w nocy", False),
+    # Nor does a quote of filler words only.
+    ({"op": "update", "topic": "Pet", "fact": "Has a cat.", "quote": "i w"}, "pracuję i mieszkam w domu", False),
+])
+def test_grounding_by_quote(op, said, kept):
+    assert bool(memory_learn.grounded([op], [said], BASE)) is kept
+
+
+def test_the_model_must_quote_and_the_examples_quote_their_input():
+    import re
+    item = memory_learn.FACTS_SCHEMA["properties"]["facts"]["items"]
+    assert "quote" in item["properties"] and "quote" in item["required"]
+    p = memory_learn.SYSTEM_PROMPT
+    for said, out in re.findall(r'Example: "(.*?)".*?\n-> (\{.*\})', p):
+        for f in json.loads(out)["facts"]:
+            assert f["quote"] and f["quote"].lower() in said.lower(), f
+
+
+def test_quote_survives_reconcile(mem, monkeypatch):
+    monkeypatch.setattr("aihub.ollama_client.chat_json", lambda *a, **k: {"facts": [
+        {"topic": "Location", "fact": "Lives in Lisbon.", "quote": "mieszkam w lizbonie", "still_true": True}]})
+    changes, _ = memory_learn.learn_from([{"role": "user", "content": "od marca mieszkam w lizbonie"}])
+    assert [c.after for c in changes] == ["Lives in Lisbon."]

@@ -145,6 +145,32 @@ def _supported(evidence: set, said: set) -> bool:
     return any(_same_word(e, s) for e in evidence for s in said)
 
 
+# A fact needs at least this share of its content words in what the user
+# said. One shared word let invented sentences through (a garbled sentence
+# passed on one place name); a third still lets an English fact stand on
+# the names, places and cognates of a Polish message ("Works as a graphic
+# designer." ← "pracuję jako grafik").
+FACT_SUPPORT = 1 / 3
+
+
+def _share(text: str, said: set, share: float) -> bool:
+    words = _words(text)
+    hits = sum(1 for w in words if any(_same_word(w, s) for s in said))
+    return hits > 0 and hits >= share * len(words)
+
+
+def fact_supported(fact: str, said: set) -> bool:
+    return _share(fact, said, FACT_SUPPORT)
+
+
+def quote_supported(quote: str, said: set) -> bool:
+    """The memory model's quote of the user's own words must really be
+    theirs — this grounds an English fact taken from a message in any
+    language, which shares few words with it ("Lives in Lisbon." ←
+    "mieszkam w lizbonie"). Most of the quote, not one word of it."""
+    return _share(quote, said, 2 / 3)
+
+
 def same_fact(new: str, old: str) -> bool:
     """Is `new` already said by `old`? Exact after normalising, or every
     content word of `new` is (an inflection of) a word of `old` —

@@ -31,11 +31,11 @@ def remember(topic: str, fact: str) -> str:
     if not topic or not fact:
         return "[Memory Error] Both a topic and a fact are needed."
     from . import user_text
-    from ..memory_ops import _supported, _words
+    from ..memory_ops import fact_supported, _words
     said = user_text()
     # Small models "remember" things nobody said (search results, guesses,
     # facts already in memory). Only what the user's own words support.
-    if said is not None and not _supported(_words(fact), _words(said)):
+    if said is not None and not fact_supported(fact, _words(said)):
         return ("[Memory Error] Not saved: the user didn't say this. Only remember "
                 "facts the user states about themself in this conversation — "
                 "don't save search results or guesses.")

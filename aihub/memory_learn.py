@@ -109,9 +109,10 @@ FACTS_SCHEMA = {
                 "properties": {
                     "topic": {"type": "string"},
                     "fact": {"type": "string"},
+                    "quote": {"type": "string"},
                     "still_true": {"type": "boolean"},
                 },
-                "required": ["topic", "fact", "still_true"],
+                "required": ["topic", "fact", "quote", "still_true"],
             },
         },
     },
@@ -124,15 +125,20 @@ tools / editor / programming languages, hardware, servers, projects, pets,
 diet, schedule, answer-style preferences, lasting plans.
 Skip: questions, one-off tasks, hypotheticals ("if I had…"), other people,
 text quoted from files or websites, and passwords / keys / PINs.
-For each fact: a short English topic; the fact as one short sentence in the
-user's language; still_true=false if the user says it is no longer true.
+For each fact: a short English topic; the fact as one short English sentence
+in the third person, without "I" (e.g. "Lives in Porto."), whatever language
+the user writes in; keep names, places and numbers as the user wrote them;
+quote = the user's own words the fact comes from, copied exactly from the
+message; still_true=false only if the user says it is no longer true.
+One fact per entry: a message with two facts gives two entries, each under
+its own topic.
 If the fact is about the same thing as a known topic, use that exact topic name.
 If there is nothing durable, return {"facts": []}.
 
-Example: "Jeżdżę rowerem do pracy, a PIN do karty to 1234." (known topics: Commute)
--> {"facts": [{"topic": "Commute", "fact": "Jeździ rowerem do pracy.", "still_true": true}]}
+Example: "Mam Toyotę i mieszkam w Porto, a PIN do karty to 1234." (known topics: Car)
+-> {"facts": [{"topic": "Car", "fact": "Drives a Toyota.", "quote": "Mam Toyotę", "still_true": true}, {"topic": "Location", "fact": "Lives in Porto.", "quote": "mieszkam w Porto", "still_true": true}]}
 Example: "I don't drink coffee any more." (known topics: Drinks)
--> {"facts": [{"topic": "Drinks", "fact": "No longer drinks coffee.", "still_true": false}]}"""
+-> {"facts": [{"topic": "Drinks", "fact": "No longer drinks coffee.", "quote": "I don't drink coffee any more", "still_true": false}]}"""
 
 
 def build_messages(memory_md: str, user_texts: List[str]) -> List[Dict[str, str]]:
@@ -176,7 +182,8 @@ def reconcile(ops: List[Dict[str, Any]], memory_md: str) -> List[Dict[str, Any]]
                 old = _words(hit.fact)
                 new = {w for w in said if not any(_same_word(w, h) for h in old)}
                 # Pure retraction → forget; "no longer X, now Y" → replace X.
-                op = ({"op": "update", "topic": hit.topic, "fact": op["fact"]} if new
+                quote = {"quote": op["quote"]} if op.get("quote") else {}
+                op = ({"op": "update", "topic": hit.topic, "fact": op["fact"], **quote} if new
                       else {"op": "forget", "topic": hit.topic, "fact": op["fact"]})
         out.append(op)
     return out
@@ -207,7 +214,10 @@ def facts_to_ops(facts: Any) -> List[Dict[str, Any]]:
         if re.search(r"\[\s*no fact", str(f.get("fact", "")), re.I):
             continue                          # placeholder, not a fact
         op = "forget" if f.get("still_true") is False else "update"
-        ops.append({"op": op, "topic": f.get("topic", ""), "fact": f.get("fact", "")})
+        item = {"op": op, "topic": f.get("topic", ""), "fact": f.get("fact", "")}
+        if f.get("quote"):
+            item["quote"] = str(f["quote"])
+        ops.append(item)
     return ops
 
 
@@ -233,7 +243,7 @@ def grounded(ops: List[Dict[str, Any]], user_texts: List[str], memory_md: str) -
     examples or invent facts; a fact sharing no content word with what the
     user wrote is dropped, and "forget" needs the user to mention the thing
     being forgotten."""
-    from .memory_ops import parse_memory, _same_word, _supported, _words
+    from .memory_ops import fact_supported, parse_memory, quote_supported, _supported, _words
 
     said = _words(" ".join(user_texts))
     known = {e.topic.lower(): e.fact for e in parse_memory(memory_md)[1]}
@@ -250,7 +260,8 @@ def grounded(ops: List[Dict[str, Any]], user_texts: List[str], memory_md: str) -
             ok = retracted and _supported(evidence, said) and forgets == 0
             forgets += ok
         else:
-            ok = _supported(_words(op.get("fact", "")), said)
+            # Its words, or the user's words it quotes (any language).
+            ok = fact_supported(op.get("fact", ""), said) or quote_supported(op.get("quote", ""), said)
         if ok:
             kept.append(op)
         else:

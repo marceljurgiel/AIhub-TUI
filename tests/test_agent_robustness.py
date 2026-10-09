@@ -41,7 +41,7 @@ def test_remember_refuses_what_the_user_never_said(monkeypatch):
     applied = []
     monkeypatch.setattr("aihub.memory_ops.apply_ops", lambda ops, **kw: applied.extend(ops) or [])
     set_user_text("Lisbon tourist attractions bazujac na wiedzy o mnie, co byś wybrał?")
-    out = remember("Editor", "Preferytowa edytora Jest Neovim")
+    out = remember("Editor", "Preferowanie edytorowe Neovima")
     assert out.startswith("[Memory Error] Not saved") and not applied
     set_user_text("zapamiętaj że mój edytor to Neovim")
     remember("Editor", "Uses Neovim")
