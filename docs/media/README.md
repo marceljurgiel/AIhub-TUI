@@ -3,8 +3,9 @@
 The GIFs and screenshots in the main README are recorded with
 [VHS](https://github.com/charmbracelet/vhs) from the scripts in `tapes/`,
 inside a container with a demo user **alex**. The demo user has a tiny
-project in `seed/demo` and a few memories in `seed/demo-memory.md`. Nothing
-from your own machine ends up in the frames.
+project in `seed/demo`, a shop handbook in `seed/handbook` (for the knowledge
+base) and a few memories in `seed/demo-memory.md`. Nothing from your own
+machine ends up in the frames.
 
 ```bash
 OLLAMA_SERVER=192.0.2.10 docs/media/record.sh            # all tapes

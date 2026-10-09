@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.4.0] - 2026-10-07
+## [1.4.0] - 2026-10-09
 ### Added
 - **Scheduled tasks**: an agent runs a prompt on a timetable — only while
   AIhub is open.
@@ -34,6 +34,23 @@
 - The sidebar fits one more item: on a 24-row terminal the version line
   goes before the model card does, and on 18 rows the menu drops its border
   instead of its last row.
+- Status in words, not dots: the model card says CONNECTED / CONNECTING /
+  OFFLINE in colour, and lists show `[✓]` / `[ ]`.
+- Temperature moved from the footer to Settings (`e`); `/temp` still works.
+- Memory learns facts as short English sentences ("Lives in Lisbon."), one
+  per topic, each backed by a quote of your own words. Small memory models
+  wrote broken sentences in other languages and filed two facts under one
+  topic; a fact now needs more than one word in common with what you said.
+### Fixed
+- The header always showed "CPU 0%". It now shows where the model runs —
+  `GPU 100% 5.6G`, `GPU 62% · CPU 38%`, `CPU`, `not loaded` or `cloud` — as
+  the machine running Ollama reports it, so it is right for an Ollama server
+  too.
+- Windows stay whole in a small terminal: their frame and hints stay on
+  screen, Settings drops its spacing to fit 80×18, and hint bars stay one
+  line instead of wrapping.
+- The Models window keeps one line per model in a narrow terminal, and the
+  model card uses its full width for long model names.
 
 ## [1.3.0] - 2026-10-07
 ### Added
@@ -63,13 +80,14 @@
 ### Added
 - **Connect Google in one sign-in.** Connections → Google → the browser
   opens Google's sign-in; after "Allow", Gmail, Calendar and Drive all work.
+  For now this needs your own Google app (below); a shared AIhub app for
+  one click comes later.
   - AIhub runs the OAuth flow itself (loopback + PKCE, `aihub/google_login.py`)
     and stores the token where the `workspace-mcp` servers read it.
   - No more pasting a Client ID, secret or email.
   - Services you untick at Google are left out, and AIhub says which.
   - A browser on another device works too: paste the address it ends on.
-- **Your own Google app**, when AIhub's own isn't available or has hit
-  Google's limit: four steps with direct links (`1`–`4` opens each), one of
+- **Your own Google app**: four steps with direct links (`1`–`4` opens each), one of
   which turns on all three APIs at once. The downloaded `client_secret….json`
   is picked up from Downloads automatically.
 - `d` on a Google service disconnects Google: the token is revoked at Google

@@ -85,7 +85,8 @@ Uninstalling leaves `~/.aihub` in place.
 ## What it does
 
 - **Chat** with streaming answers. It shows context fill and tokens/s, and
-  whether the model runs on the GPU or the CPU. Answers render as Markdown.
+  where the model runs — on the GPU, the CPU or both, as the machine running
+  Ollama reports it, also when that's a server. Answers render as Markdown.
 
 <p align="center"><img src="docs/media/chat.gif" alt="A question, an answer that uses what AIhub remembers about you, live tok/s and context" width="820"></p>
 - **Memory** (`E`). AIhub learns facts you mention while you chat and
@@ -103,6 +104,8 @@ Uninstalling leaves `~/.aihub` in place.
   - Use one in any chat: `/kb <name>`.
   - The embedding model (about 620 MB) downloads on first use, or right
     away with the installer's `--knowledge` option.
+
+<p align="center"><img src="docs/media/knowledge.gif" alt="A knowledge base made from a shop handbook, then a chat answer that cites it" width="820"></p>
 - **Tools that ask first.** The model can read and edit files, run terminal
   commands (PowerShell on Windows) and search the web. Anything that changes
   your system waits for your OK. **Agent mode** (`A`) plans and builds
@@ -122,6 +125,8 @@ Uninstalling leaves `~/.aihub` in place.
     one model request runs at a time.
   - `/schedule run <name>` runs a task now.
 
+<p align="center"><img src="docs/media/schedule.gif" alt="A scheduled task for an agent, run now, and its result" width="820"></p>
+
 - **Models** (`Ctrl+O`):
   - Browse the Ollama library and Hugging Face GGUFs, ranked by how well they
     fit your hardware or your server's.
@@ -134,9 +139,10 @@ Uninstalling leaves `~/.aihub` in place.
 
 - **Connections** (`C`) let AIhub use your services. Anything that sends,
   deletes or changes something asks you first.
-  - **Google** — Gmail, Calendar and Drive in one go: press Connect and
-    sign in with Google in your browser. Google may say the app isn't
-    verified yet: *Advanced → Go to AIhub*.
+  - **Google** — Gmail, Calendar and Drive with one sign-in. You need your
+    own (free) Google Cloud app for now: AIhub walks you through four steps
+    with direct links and picks up the downloaded `client_secret….json` from
+    Downloads. Then sign in once in your browser.
   - **More:** GitHub, Notion, Obsidian, web pages (Fetch), Git, a real
     browser (Playwright), library docs (Context7) and Home Assistant, each
     with the one or two things it needs.
@@ -165,8 +171,8 @@ Uninstalling leaves `~/.aihub` in place.
 
 <p align="center"><img src="docs/media/themes.png" alt="Four of the themes: AIhub, Tokyo Night, Gruvbox and Light" width="900"></p>
 
-- **Temperature** (`Ctrl+T`), **Settings** (`S`), **Command palette**
-  (`Ctrl+P`), **Help** (`F1`).
+- **Settings** (`S`): the Ollama server, default model, context and
+  temperature (`e`, or `/temp`). **Command palette** (`Ctrl+P`), **Help** (`F1`).
 
 `Ctrl+Q` quits, and `Esc` stops an answer.
 

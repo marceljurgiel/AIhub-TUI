@@ -1,10 +1,11 @@
-# The demo user "alex" with AIhub installed, a tiny project and a few memories.
+# The demo user "alex" with AIhub installed, a tiny project, a shop handbook and a few memories.
 FROM aihub-vhs-base
 USER alex
 WORKDIR /home/alex
 RUN AIHUB_SOURCE=/pkg/aihub.tar.gz bash /pkg/install.sh --ollama skip --model none </dev/null >/dev/null 2>&1
 COPY --chown=alex:alex seed/demo/ /home/alex/demo/
 COPY --chown=alex:alex seed/demo-memory.md /home/alex/.aihub/memory/memory.md
+COPY --chown=alex:alex seed/handbook/ /home/alex/Documents/handbook/
 ARG MODEL=nemotron-3-ultra:cloud
 RUN printf 'ollama_api_url: http://gpu-box.lan:11434\ndefault_chat_model: %s\n' "$MODEL" > ~/.aihub/config.yaml
 USER root
