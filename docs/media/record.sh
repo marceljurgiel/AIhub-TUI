@@ -5,7 +5,7 @@
 #
 # Needs podman. The server is reached as "gpu-box.lan" inside the recording,
 # so its real address never shows. Tapes: hero install chat agent models mcp skills memory theme
-# knowledge schedule vision (vision needs MODEL=gemma4:cloud or another vision model).
+# knowledge schedule terminal vision (vision needs MODEL=gemma4:cloud or another vision model).
 # MODEL=<name> picks the chat model (default nemotron-3-ultra:cloud).
 set -euo pipefail
 : "${OLLAMA_SERVER:?set OLLAMA_SERVER to your Ollama server, e.g. OLLAMA_SERVER=192.0.2.10}"
@@ -23,14 +23,14 @@ podman build -q -t aihub-vhs-demo --build-arg "MODEL=${MODEL:-nemotron-3-ultra:c
 
 cp -r "$here/tapes" "$work/tapes"
 failed=""
-for tape in "${@:-hero install chat agent models mcp skills memory theme knowledge schedule}"; do
+for tape in "${@:-hero install chat agent models mcp skills memory theme knowledge schedule terminal}"; do
   for t in $tape; do
     image=aihub-vhs-demo; [ "$t" = install ] && image=aihub-vhs-base
     # A long tape's render can run out of memory or a model can answer
     # oddly: one more try, then carry on with the rest.
     for attempt in 1 2; do
       echo "recording $t (try $attempt)"
-      if podman run --rm --userns=keep-id --user alex -e HOME=/home/alex -w /vhs \
+      if podman run --rm --userns=keep-id --user alex -e HOME=/home/alex -w /vhs --hostname demo-pc \
            --add-host "gpu-box.lan:$OLLAMA_SERVER" \
            -v "$work/tapes:/vhs:Z" -v "$work/out:/vhs/out:Z" "$image" "/vhs/$t.tape"; then
         continue 2

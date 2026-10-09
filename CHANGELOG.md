@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [1.5.0] - 2026-10-10
 ### Added
 - **Terminal panel** (`F8`, `/terminal`): a real shell on the right of the
   chat, in AIhub's working directory. `F8` moves the keyboard between the
@@ -725,7 +725,7 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) an
 
 ---
 
-## [Unreleased]
+## [1.5.0] - 2026-10-10
 
 - Real OpenAI / Anthropic API integration
 - Model search / filtering in TUI browser

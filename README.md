@@ -182,6 +182,9 @@ Uninstalling leaves `~/.aihub` in place.
   shell and the chat; while the shell has it, every other key is the
   shell's. `exit` closes it. Linux and macOS, in a window 120 columns wide
   or more.
+
+<p align="center"><img src="docs/media/terminal.gif" alt="A question in the chat, then a shell beside it running the project's tests" width="820"></p>
+
 - **History** (`Ctrl+R`): pick up any earlier chat.
 - **Hardware** (`W`) shows your GPU, VRAM and RAM. Context size is chosen
   automatically so the model stays in GPU memory, or set it by hand for a
