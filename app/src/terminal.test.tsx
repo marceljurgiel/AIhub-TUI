@@ -137,3 +137,29 @@ test("on Windows the panel says it needs Linux or macOS", async () => {
   const f = await until((x) => x.includes("needs Linux or macOS"));
   expect(f).not.toContain("terminal ·");
 }, 20000);
+
+test.skipIf(!posix)("a click on the chat box takes the keyboard back from the shell", async () => {
+  await boot();
+  setup!.mockInput.pressKey("F8");
+  let f = await until((x) => x.includes("F8 back to chat"));
+  // Click inside the chat's input box (its placeholder line).
+  const lines = f.split("\n");
+  const y = lines.findIndex((l) => l.includes("Message AIhub…"));
+  await setup!.mockMouse.click(lines[y]!.indexOf("Message AIhub…") + 2, y);
+  f = await until((x) => x.includes("F8 to type here"));
+  await type("hi from a click");
+  setup!.mockInput.pressEnter();
+  await until((x) => x.includes("› YOU") && x.includes("hi from a click"));
+}, 20000);
+
+test.skipIf(!posix)("a click on the panel gives the shell the keyboard", async () => {
+  await boot();
+  setup!.mockInput.pressKey("F8");
+  await until((x) => x.includes("F8 back to chat"));
+  setup!.mockInput.pressKey("F8");
+  const f = await until((x) => x.includes("F8 to type here"));
+  const lines = f.split("\n");
+  const y = lines.findIndex((l) => l.includes("F8 to type here")) + 3;
+  await setup!.mockMouse.click(lines[y]!.length - 10, y);
+  await until((x) => x.includes("F8 back to chat"));
+}, 20000);

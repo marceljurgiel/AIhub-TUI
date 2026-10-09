@@ -1092,6 +1092,13 @@ export function ChatScreen({
     setNavFocus(false);
     setTerm({ open: true, focused: true });
   };
+  /** A click in the chat takes the keyboard back — from the menu and from the
+   *  shell (OpenTUI already focused the clicked box, but the shell's layer
+   *  would keep AIhub's keys off and the prompt would ignore Enter). */
+  const chatTakesKeyboard = () => {
+    setNavFocus(false);
+    if (termRef.current.focused) setTerm((t) => ({ ...t, focused: false }));
+  };
   const terminalExited = () => {
     setTerm({ open: false, focused: false });
     addSystem("Terminal closed.");
@@ -1328,7 +1335,7 @@ export function ChatScreen({
           menuFocused={navFocus && !modals.isOpen}
           onAction={dispatchAction}
         />
-        <box flexDirection="column" flexGrow={1} flexBasis={0}>
+        <box flexDirection="column" flexGrow={1} flexBasis={0} onMouseDown={chatTakesKeyboard}>
           <ChatLog items={logItems} streamingText={streamingText} />
           {activity ? (
             <ActivityLine activity={activity} width={chatWidth} />
@@ -1348,7 +1355,7 @@ export function ChatScreen({
             onRemoveLast={() => setPending((p) => p.slice(0, -1))}
             onImagePaths={attachPaths}
             attachNote={attachNote}
-            onFocusRequest={() => setNavFocus(false)}
+            onFocusRequest={chatTakesKeyboard}
             disabled={state.streaming}
             onSubmit={submit}
             extraCommands={skillCommands}
