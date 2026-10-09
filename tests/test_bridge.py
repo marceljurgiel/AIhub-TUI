@@ -102,3 +102,25 @@ def test_uncancelled_turn_reports_final_and_not_cancelled(monkeypatch, wire):
 
     assert ("final", {"text": "pong", "cancelled": False}) in wire["events"]
     assert wire["done"]["cancelled"] is False
+
+
+def test_child_processes_cannot_touch_the_protocol_pipes(tmp_path):
+    """A browser started by webbrowser (or anything else the engine spawns)
+    inherits fds 0 and 1. They must not be the protocol pipes: a console
+    browser would read the requests and draw into the replies."""
+    import os
+    import subprocess
+    import sys
+    script = (
+        "import subprocess, sys\n"
+        "from aihub import bridge\n"
+        "requests_in = bridge._detach_std_fds()\n"
+        "subprocess.run([sys.executable, '-c', \"import sys; print('CHILD-OUT'); print('got', repr(sys.stdin.read()))\"])\n"
+        "bridge._send({'line': requests_in.readline().strip()})\n"
+    )
+    env = {**os.environ, "HOME": str(tmp_path), "USERPROFILE": str(tmp_path)}
+    p = subprocess.run([sys.executable, "-c", script], input="REQUEST\n", capture_output=True,
+                       text=True, timeout=60, env=env, cwd=os.path.dirname(os.path.dirname(__file__)))
+    assert p.returncode == 0, p.stderr
+    assert p.stdout.strip() == '{"line": "REQUEST"}'          # only the protocol, and the request intact
+    assert "CHILD-OUT" in p.stderr and "got ''" in p.stderr   # the child wrote to stderr, read nothing

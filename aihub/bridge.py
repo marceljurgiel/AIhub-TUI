@@ -53,6 +53,22 @@ sys.stdout = sys.stderr
 _write_lock = threading.Lock()
 
 
+def _detach_std_fds():
+    """Keep the protocol on private copies of fds 0 and 1, and give the real
+    fds 0 and 1 /dev/null and stderr. Every child the engine starts (a
+    browser via webbrowser, xdg-open, …) inherits fds 0 and 1: a console
+    browser would read the requests and draw into the replies, and a GUI
+    one prints into them. Returns the request stream."""
+    global _OUT
+    in_fd, out_fd = os.dup(0), os.dup(1)
+    null = os.open(os.devnull, os.O_RDONLY)
+    os.dup2(null, 0)
+    os.close(null)
+    os.dup2(2, 1)
+    _OUT = os.fdopen(out_fd, "w", encoding="utf-8", errors="replace")
+    return os.fdopen(in_fd, "r", encoding="utf-8", errors="replace")
+
+
 def _send(obj: Dict[str, Any]) -> None:
     with _write_lock:
         _OUT.write(json.dumps(obj, ensure_ascii=False) + "\n")
@@ -1699,9 +1715,10 @@ def main() -> None:
     root = logging.getLogger("aihub")
     root.addHandler(handler)
     root.setLevel(logging.INFO)
+    requests_in = _detach_std_fds()
     _emit(None, "ready", {"version": __version__})
     try:
-        for line in sys.stdin:
+        for line in requests_in:
             line = line.strip()
             if line:
                 _dispatch(line)

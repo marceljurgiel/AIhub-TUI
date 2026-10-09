@@ -124,13 +124,9 @@ def test_corrupt_session_is_skipped_in_list_with_a_warning(tmp_path, monkeypatch
 # ── Bridge: engine logs reach stderr (→ the OpenTUI error log) ────────────────
 
 def test_bridge_sends_engine_warnings_to_stderr():
-    code = (
-        "import sys, threading\n"
-        "from aihub import bridge\n"
-        "sys.stdin = __import__('io').StringIO('not json\\n')\n"
-        "bridge.main()\n"
-    )
-    proc = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=60)
+    code = "from aihub import bridge\nbridge.main()\n"
+    proc = subprocess.run([sys.executable, "-c", code], input="not json\n", capture_output=True,
+                          text=True, timeout=60)
     assert '"event": "ready"' in proc.stdout
     assert "ignoring malformed request line" in proc.stderr
     assert "ignoring malformed" not in proc.stdout      # protocol channel stays clean

@@ -197,9 +197,13 @@ export function McpModal({ onClose }: { onClose: () => void }) {
       }
       return run(
         "disconnecting Google…",
-        bridge.request("google.disconnect").then(() => {
+        bridge.request("google.disconnect").then((d) => {
           setArmed(null);
-          setNote("Google disconnected — AIhub's access was revoked at Google too.");
+          setNote(
+            d?.revoked
+              ? "Google disconnected — AIhub's access was revoked at Google too."
+              : "Google disconnected here; Google unreachable, so revoke at myaccount.google.com/permissions",
+          );
           void refreshGoogle();
           return refresh(false);
         }),
@@ -625,7 +629,7 @@ export function McpModal({ onClose }: { onClose: () => void }) {
                 <>
                   <text fg={theme.fg1} wrapMode="word">
                     {flow.opened
-                      ? "  Pick your account and allow access. Google may warn that the app isn't verified: Advanced → Go to AIhub."
+                      ? "  Pick your account and allow access. Google may warn that the app isn't verified: Advanced → Go to <your app's name>."
                       : "  Your browser didn't open — open this link:"}
                   </text>
                   {!flow.opened || flow.url ? (

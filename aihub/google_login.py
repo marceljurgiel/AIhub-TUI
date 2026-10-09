@@ -33,7 +33,8 @@ import webbrowser
 from datetime import datetime, timedelta, timezone
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Any, Callable, Dict, List, Optional, Tuple
-from urllib.parse import parse_qs, quote, urlencode, urlparse
+import re
+from urllib.parse import parse_qs, quote, unquote, urlencode, urlparse
 
 import requests
 
@@ -112,13 +113,20 @@ def client(own: bool = False) -> Tuple[Dict[str, str], str]:
     return {"client_id": CLIENT_ID, "client_secret": CLIENT_SECRET}, "builtin"
 
 
+_CLIENT_ID = re.compile(r"[\w.-]+\.apps\.googleusercontent\.com")
+
+
 def _read_client_json(path: str) -> Dict[str, str]:
+    not_ours = ValueError(f"{os.path.basename(path)} is not a Google OAuth client file")
     with open(path, encoding="utf-8") as f:
         d = json.load(f)
+    if not isinstance(d, dict):
+        raise not_ours
     inner = d.get("installed") or d.get("web") or d
-    cid, sec = inner.get("client_id", ""), inner.get("client_secret", "")
-    if not cid.endswith(".apps.googleusercontent.com") or not sec:
-        raise ValueError(f"{os.path.basename(path)} is not a Google OAuth client file")
+    cid = inner.get("client_id") if isinstance(inner, dict) else None
+    sec = inner.get("client_secret") if isinstance(inner, dict) else None
+    if not isinstance(cid, str) or not isinstance(sec, str) or not _CLIENT_ID.fullmatch(cid) or not sec:
+        raise not_ours
     if "installed" not in d:
         raise ValueError("that client is not a Desktop app — create one of type 'Desktop app'")
     return {"client_id": cid, "client_secret": sec}
@@ -178,13 +186,19 @@ def auth_url(client_id: str, redirect_uri: str, state: str, challenge: str) -> s
     })
 
 
+# Shown before the code is exchanged and the servers installed: AIhub says
+# how that went.
 _DONE_PAGE = (b"<!doctype html><meta charset=utf-8><title>AIhub</title>"
-              b"<body style='font-family:sans-serif;padding:3em'><h2>AIhub is connected.</h2>"
+              b"<body style='font-family:sans-serif;padding:3em'><h2>Signed in &mdash; finishing in AIhub&hellip;</h2>"
               b"<p>You can close this tab and go back to the terminal.</p>")
 
 
 class Login:
     """One sign-in attempt: a loopback server and the PKCE pair."""
+
+    # Seconds a connection may sit silent: a browser's speculative socket
+    # must not block the loop (and with it Esc, the timeout and a paste).
+    CONN_TIMEOUT = 5.0
 
     def __init__(self, own: bool = False):
         self.client, self.kind = client(own)
@@ -194,8 +208,16 @@ class Login:
         login = self
 
         class Handler(BaseHTTPRequestHandler):
+            timeout = login.CONN_TIMEOUT
+
             def do_GET(self):  # noqa: N802 (http.server API)
                 q = {k: v[0] for k, v in parse_qs(urlparse(self.path).query).items()}
+                if q.get("state") != login.state:
+                    # Not this sign-in's answer (another local process, a
+                    # guessed port): it can't end the sign-in; keep waiting.
+                    self.send_response(400)
+                    self.end_headers()
+                    return
                 if "code" in q or "error" in q:
                     login.result = q
                 self.send_response(200)
@@ -225,12 +247,12 @@ class Login:
     def code_from(self, q: Dict[str, str]) -> str:
         if not q:
             raise TimeoutError("no answer from Google — the sign-in page was closed or timed out")
+        if q.get("state") != self.state:
+            raise RuntimeError("the answer didn't match this sign-in (state) — try again")
         if q.get("error"):
             if q["error"] == "access_denied":
                 raise PermissionError("you cancelled at Google, or didn't allow access")
             raise RuntimeError(f"Google said: {q['error']}")
-        if q.get("state") != self.state:
-            raise RuntimeError("the answer didn't match this sign-in (state) — try again")
         return q["code"]
 
     def finish_pasted(self, url: str) -> str:
@@ -267,8 +289,14 @@ def credentials_path(email: str) -> str:
     return os.path.join(creds_dir(), quote(email, safe="@._-") + ".json")
 
 
+def _private_dir(path: str) -> None:
+    os.makedirs(path, mode=0o700, exist_ok=True)
+    if os.name != "nt":
+        os.chmod(path, 0o700)            # file names carry the account email
+
+
 def _write_private(path: str, data: Dict[str, Any]) -> None:
-    os.makedirs(os.path.dirname(path), exist_ok=True)
+    _private_dir(os.path.dirname(path))
     tmp = path + ".tmp"
     fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
     with os.fdopen(fd, "w", encoding="utf-8") as f:
@@ -279,9 +307,7 @@ def _write_private(path: str, data: Dict[str, Any]) -> None:
 def save_credentials(tokens: Dict[str, Any], cl: Dict[str, str]) -> str:
     """Write the workspace-mcp credentials file; one account at a time (the
     servers run single-user and take the first file they find)."""
-    os.makedirs(creds_dir(), exist_ok=True)
-    for old in glob.glob(os.path.join(creds_dir(), "*.json")):
-        os.remove(old)
+    _private_dir(creds_dir())
     expiry = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(seconds=int(tokens.get("expires_in", 3600)))
     path = credentials_path(tokens["email"])
     _write_private(path, {
@@ -289,6 +315,10 @@ def save_credentials(tokens: Dict[str, Any], cl: Dict[str, str]) -> str:
         "client_id": cl["client_id"], "client_secret": cl["client_secret"],
         "scopes": tokens.get("scope", " ".join(SCOPES)).split(), "expiry": expiry.isoformat(),
     })
+    # Only once the new login is safely written does the old one go.
+    for old in glob.glob(os.path.join(creds_dir(), "*.json")):
+        if os.path.abspath(old) != os.path.abspath(path):
+            os.remove(old)
     return path
 
 
@@ -327,6 +357,7 @@ def finish(login: Login, code: str, emit: Callable[[str, Dict[str, Any]], None])
     tokens = login.exchange(code)
     services = granted_services(tokens.get("scope", ""))
     if not services:
+        _revoke(tokens.get("refresh_token", ""))      # don't leave a useless grant behind
         raise PermissionError("Google gave no access to Gmail, Calendar or Drive — connect again and tick the boxes")
     save_credentials(tokens, login.client)
     emit("installing", {"services": services})
@@ -364,7 +395,7 @@ def status() -> Dict[str, Any]:
         try:
             with open(files[0], encoding="utf-8") as f:
                 d = json.load(f)
-            email = os.path.basename(files[0])[:-5]
+            email = unquote(os.path.basename(files[0])[:-5])
             kind = "builtin" if d.get("client_id") == CLIENT_ID and CLIENT_ID else "own"
         except (OSError, ValueError):
             kind = ""
@@ -374,24 +405,35 @@ def status() -> Dict[str, Any]:
             "services": services, "builtin": builtin_available(), "own_client": own_client() is not None}
 
 
+def _revoke(token: str) -> bool:
+    """Revoke a token at Google. The token goes in the body, never the URL:
+    a failed request's error text quotes the URL, and that gets logged."""
+    if not token:
+        return False
+    try:
+        return requests.post(REVOKE_URL, data={"token": token}, timeout=15).ok
+    except Exception as exc:
+        log.info("revoking the Google token failed (%s)", type(exc).__name__)
+        return False
+
+
 def disconnect() -> Dict[str, Any]:
-    """Revoke the token at Google, forget it, remove the three servers."""
+    """Stop the three servers (so none refreshes the token meanwhile), revoke
+    the token at Google, then forget it."""
     from .mcp_client import load_config, manager, save_config
-    revoked = False
-    for p in glob.glob(os.path.join(creds_dir(), "*.json")):
-        try:
-            with open(p, encoding="utf-8") as f:
-                tok = json.load(f).get("refresh_token") or ""
-            if tok:
-                r = requests.post(REVOKE_URL, params={"token": tok}, timeout=15)
-                revoked = revoked or r.ok
-        except Exception as exc:   # still forget it locally
-            log.info("revoking the Google token failed: %s", exc)
-        os.remove(p)
     cfg = load_config()
     removed = [s for s in SERVICES if s in cfg and _ours(cfg[s])]
     for s in removed:
         manager().stop(s)
         cfg.pop(s)
     save_config(cfg)
+    revoked = False
+    for p in glob.glob(os.path.join(creds_dir(), "*.json")):
+        try:
+            with open(p, encoding="utf-8") as f:
+                tok = json.load(f).get("refresh_token") or ""
+        except (OSError, ValueError):
+            tok = ""
+        revoked = _revoke(tok) or revoked
+        os.remove(p)                       # forgotten here either way
     return {"revoked": revoked, "removed": removed}

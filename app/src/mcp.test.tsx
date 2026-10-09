@@ -44,6 +44,7 @@ class McpBridge extends MockBridge {
   /** How google.connect ends: done (with the account), an error, or stays waiting. */
   connectEnds: "done" | "error" | "wait" = "done";
   clientFound = false;
+  revokes = true;
   servers: any[] = [GMAIL, { ...GMAIL, name: "broken", status: "error", error: "command not found: npx", tools: [] }];
   override async request(method: string, params: any = {}): Promise<any> {
     this.calls.push([method, params]);
@@ -76,7 +77,7 @@ class McpBridge extends MockBridge {
         return this.clientFound ? { found: true, client_id: "x" } : { found: false };
       case "google.disconnect":
         this.google = { ...this.google, connected: false, email: "" };
-        return { revoked: true, removed: ["gmail"] };
+        return { revoked: this.revokes, removed: ["gmail"] };
       default:
         return super.request(method);
     }
@@ -214,8 +215,25 @@ test("d on a Google service disconnects Google after a confirmation", async () =
   await until((x) => x.includes("Press d again to disconnect Google"));
   setup!.mockInput.pressKey("d");
   await until((x) => x.includes("Google disconnected"));
+  expect(setup!.captureCharFrame()).toContain("revoked at Google");
   expect(bridge.calls.some(([m]) => m === "google.disconnect")).toBe(true);
   expect(bridge.calls.some(([m]) => m === "mcp.remove")).toBe(false);
+});
+
+test("a disconnect that couldn't reach Google doesn't claim the access was revoked", async () => {
+  const bridge = await open();
+  bridge.google = { connected: true, email: "alex@example.com", builtin: true, own_client: false };
+  bridge.revokes = false;
+  setup!.mockInput.pressEscape();
+  await settle();
+  setup!.mockInput.pressKey("F5");
+  await until((x) => x.includes("Google · alex@example.com"));
+  setup!.mockInput.pressKey("d");
+  await until((x) => x.includes("Press d again to disconnect Google"));
+  setup!.mockInput.pressKey("d");
+  const f = await until((x) => x.includes("Google disconnected"));
+  expect(f).not.toContain("revoked at Google");
+  expect(f).toContain("myaccount.google.com/permissions");
 });
 
 test("import from Claude and custom servers are in the catalog too", async () => {
