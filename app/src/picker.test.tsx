@@ -198,7 +198,8 @@ for (const size of [{ width: 80, height: 24 }, { width: 80, height: 18 }, { widt
     setup = await testRender(<AppTree client={bridge as unknown as BridgeClient} />, size);
     await until((f) => f.includes("New Chat") || f.includes("llama3.2:3b"));
     setup.mockInput.pressKey("o", { ctrl: true });
-    const f = await until((x) => x.includes("can do") || x.includes("qwen3.5:9b"));
+    // The column header draws before the list arrives: wait for the models.
+    const f = await until((x) => x.includes("can do") && x.includes("embeddinggemma"));
     const all = f.split("\n");
     expect(all.every((l) => l.length <= size.width)).toBe(true);
     const top = all.findIndex((l) => l.includes("Models") && l.includes("esc close")) - 1;

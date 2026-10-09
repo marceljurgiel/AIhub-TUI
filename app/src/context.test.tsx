@@ -63,7 +63,8 @@ async function openContext() {
   setup!.mockInput.pressKey("F3");
   await until((f) => /Context\s+llama3\.2:3b · auto 16K/.test(f));
   setup!.mockInput.pressKey("c");
-  await until((f) => f.includes("Context — llama3.2:3b") && f.includes("131,072"));
+  // The rows draw at once; "fits" only once the hardware answer is in.
+  await until((f) => f.includes("Context — llama3.2:3b") && f.includes("131,072") && f.includes("fits"));
 }
 
 test("context sizes can be typed as 24k, 24K, 1.5k or a plain number", () => {
