@@ -17,14 +17,11 @@ Enter
 Wait+Screen@60s /nemotron/
 Wait+Screen@60s /Message AIhub/
 Sleep 1s
-Show
-Sleep 1.5s
+# Straight to "Fit": the Installed tab would show the recording server's own
+# model list, which isn't demo data.
 Ctrl+O
 Wait+Screen@60s /GB/
-Sleep 3s
 Type "2"
-# Scoring the catalog for this hardware — cut.
-Hide
 Wait+Screen@120s /fit for server/
 Show
 Sleep 3.5s

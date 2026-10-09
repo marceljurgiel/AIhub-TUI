@@ -457,3 +457,22 @@ test("a task's result opens without empty reply blocks for tool-only rounds", as
   expect(f.split("\n").filter((l) => l.includes("‹ AIHUB")).length).toBe(1);
   expect(f).toContain("Resumed session — 3 messages.");
 });
+
+test("the note follows a run now: running, then finished", async () => {
+  let finish: (v: any) => void = () => {};
+  class DoneBridge extends ScheduleBridge {
+    override stream(method: string, params: any, handlers: any): { id: number; done: Promise<any> } {
+      if (method !== "schedule.run") return super.stream(method, params, handlers);
+      this.calls.push([method, params]);
+      return { id: 9, done: new Promise((r) => (finish = r)) };
+    }
+  }
+  await open(new DoneBridge());
+  await openSchedule();
+  setup!.mockInput.pressKey("r");
+  await until((f) => f.includes("Running mail-digest…"));
+  // Ends before the window's next look (a run that fails at once).
+  finish({ status: "ok", summary: "Done.", session: null });
+  const f = await until((x) => x.includes("mail-digest finished"));
+  expect(f).not.toContain("Running mail-digest…");
+});

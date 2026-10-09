@@ -31,6 +31,9 @@ export function useScheduler(opts: {
   optsRef.current = opts;
   const checkFailed = useRef(false);
   const ended = useRef<(() => void) | null>(null);   // resolves stop() when the run ends
+  // The last run that ended, counted: a window can see a run ended even if
+  // it was over before the window looked.
+  const lastEnded = useRef<{ name: string; n: number }>({ name: "", n: 0 });
   const quitting = useRef(false);
 
   const pump = () => {
@@ -52,6 +55,7 @@ export function useScheduler(opts: {
       )
       .finally(() => {
         runId.current = null;
+        lastEnded.current = { name, n: lastEnded.current.n + 1 };
         queue.finish();
         setRunning(null);
         ended.current?.();
@@ -122,6 +126,8 @@ export function useScheduler(opts: {
     running,
     /** Live value for key handlers (React state lags fast input). */
     isRunning: () => queue.running,
+    /** The last run that ended, and how many have (live). */
+    lastEnded: () => lastEnded.current,
     runNow: (name: string) => enqueue(name),
     cancel: () => {
       if (runId.current != null) bridge.cancel(runId.current);

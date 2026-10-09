@@ -49,6 +49,7 @@ const statusText = (t: ScheduledTask) =>
 export function ScheduleModal({
   onClose,
   running: runningNow,
+  lastEnded = () => ({ name: "", n: 0 }),
   onRunNow,
   onCancelRun,
   onOpenSession,
@@ -57,6 +58,8 @@ export function ScheduleModal({
   onClose: () => void;
   /** The task running right now, if any (read live: it changes while open). */
   running: () => string | null;
+  /** The last run that ended, counted (read live). */
+  lastEnded?: () => { name: string; n: number };
   onRunNow: (name: string) => void;
   onCancelRun: () => void;
   onOpenSession: (s: { model: string; filename: string }) => void;
@@ -94,13 +97,21 @@ export function ScheduleModal({
   }, []);
 
   // Follow the scheduler: show a task as running, and its result once it ends.
+  const runningRef = useRef<string | null>(running);
+  const endedSeen = useRef(lastEnded().n);
   useEffect(() => {
     const t = setInterval(() => {
       const now = runningNow();
-      setRunning((was) => {
-        if (was !== now) void refresh();
-        return now;
-      });
+      const ended = lastEnded();
+      if (runningRef.current === now && endedSeen.current === ended.n) return;
+      runningRef.current = now;
+      setRunning(now);
+      void refresh();
+      if (endedSeen.current !== ended.n) {
+        endedSeen.current = ended.n;
+        // "Running X…" mustn't outlive the run, even one that ended at once.
+        setNote((n) => (n === `Running ${ended.name}…` ? `${ended.name} finished — ↵ shows the result.` : n));
+      }
     }, 250);
     return () => clearInterval(t);
   }, []);

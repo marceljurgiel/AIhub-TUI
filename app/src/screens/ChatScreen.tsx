@@ -929,6 +929,7 @@ export function ChatScreen({
         <ScheduleModal
           onClose={close}
           running={scheduler.isRunning}
+          lastEnded={scheduler.lastEnded}
           onRunNow={runTaskNow}
           onCancelRun={cancelTask}
           onOpenSession={openTaskSession}

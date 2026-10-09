@@ -135,7 +135,7 @@ Uninstalling leaves `~/.aihub` in place.
 - **Ollama Cloud.** Sign in with `ollama signin` to use the big open models
   (`…:cloud`) for free, within Ollama's limits.
 
-<p align="center"><img src="docs/media/models.gif" alt="The model picker: installed models with capabilities, models ranked for this hardware, the Ollama library and API models" width="820"></p>
+<p align="center"><img src="docs/media/models.gif" alt="The model picker: models ranked for this hardware, the Ollama library and API models" width="820"></p>
 
 - **Connections** (`C`) let AIhub use your services. Anything that sends,
   deletes or changes something asks you first.
