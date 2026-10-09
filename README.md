@@ -89,11 +89,13 @@ Uninstalling leaves `~/.aihub` in place.
   Ollama reports it, also when that's a server. Answers render as Markdown.
 
 <p align="center"><img src="docs/media/chat.gif" alt="A question, an answer that uses what AIhub remembers about you, live tok/s and context" width="820"></p>
+
 - **Memory** (`E`). AIhub learns facts you mention while you chat and
   uses them in later chats. Every change shows up in the chat with an undo
   link, and you can read and edit the whole memory.
 
 <p align="center"><img src="docs/media/memory.gif" alt="AIhub learns from a remark in the chat, shows it in Memory, and knows it in a new chat" width="820"></p>
+
 - **Knowledge** (`B`) is search over your own documents. Make a knowledge
   base from folders or files (notes, manuals, code, PDF, Word). AIhub finds
   the passages that match a question and the model answers from them,
@@ -106,6 +108,7 @@ Uninstalling leaves `~/.aihub` in place.
     away with the installer's `--knowledge` option.
 
 <p align="center"><img src="docs/media/knowledge.gif" alt="A knowledge base made from a shop handbook, then a chat answer that cites it" width="820"></p>
+
 - **Tools that ask first.** The model can read and edit files, run terminal
   commands (PowerShell on Windows) and search the web. Anything that changes
   your system waits for your OK. **Agent mode** (`A`) plans and builds
@@ -160,6 +163,7 @@ Uninstalling leaves `~/.aihub` in place.
   `/skill <name>`.
 
 <p align="center"><img src="docs/media/skills.gif" alt="Creating a skill from one sentence and using it on a file" width="820"></p>
+
 - **History** (`Ctrl+R`): pick up any earlier chat.
 - **Hardware** (`W`) shows your GPU, VRAM and RAM. Context size is chosen
   automatically so the model stays in GPU memory, or set it by hand for a
