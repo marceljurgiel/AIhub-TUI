@@ -7,7 +7,7 @@ Set FontSize 16
 Set Width 1400
 Set Height 840
 Set Padding 10
-Set Framerate 12
+Set Framerate 20
 Set TypingSpeed 45ms
 Hide
 Type "export PATH=$HOME/.local/bin:$PATH PS1='$ '; cd ~/demo; clear"
