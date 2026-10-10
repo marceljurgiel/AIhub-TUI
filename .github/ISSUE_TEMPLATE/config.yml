@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: README — install, keys and features
+    url: https://github.com/marceljurgiel/AIhub-TUI#readme
+    about: How to install AIhub, the keys, and what each window does.
